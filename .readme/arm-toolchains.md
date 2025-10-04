@@ -23,31 +23,31 @@ This environment includes two ARM toolchains optimized for embedded development:
 
 ```bash
 # Compiler
-/opt/atfe21.1/bin/arm-none-eabi-gcc
+/opt/atfe21.1/bin/clang
 
 # C++ Compiler
-/opt/atfe21.1/bin/arm-none-eabi-g++
+/opt/atfe21.1/bin/clang
 
 # Assembler
-/opt/atfe21.1/bin/arm-none-eabi-as
+/opt/atfe21.1/bin/clang
 
 # Linker
-/opt/atfe21.1/bin/arm-none-eabi-ld
+/opt/atfe21.1/bin/lld
 
 # Debugger
-/opt/atfe21.1/bin/arm-none-eabi-gdb
+/opt/<gnuarm>/bin/arm-none-eabi-gdb
 
 # Other tools
-/opt/atfe21.1/bin/arm-none-eabi-objcopy
-/opt/atfe21.1/bin/arm-none-eabi-objdump
-/opt/atfe21.1/bin/arm-none-eabi-size
+/opt/atfe21.1/bin/llvm-objcopy
+/opt/atfe21.1/bin/llvm-objdump
+/opt/atfe21.1/bin/llvm-size
 ```
 
 ### Example Compilation
 
 ```bash
 # Simple compilation
-/opt/atfe21.1/bin/arm-none-eabi-gcc \
+/opt/atfe21.1/bin/clang \
     -mcpu=cortex-m4 \
     -mthumb \
     -O2 \
@@ -55,7 +55,7 @@ This environment includes two ARM toolchains optimized for embedded development:
     main.c
 
 # With C++ and standard library
-/opt/atfe21.1/bin/arm-none-eabi-g++ \
+/opt/atfe21.1/bin/clang \
     -mcpu=cortex-m4 \
     -mthumb \
     -mfloat-abi=hard \
@@ -266,7 +266,7 @@ If you get library errors:
 
 ```bash
 # Check available multilib configurations
-/opt/atfe21.1/bin/arm-none-eabi-gcc -print-multi-lib
+/opt/atfe21.1/bin/clang -print-multi-lib
 
 # Specify library path explicitly
 -L/opt/atfe21.1/arm-none-eabi/lib/thumb/v7e-m/nofp

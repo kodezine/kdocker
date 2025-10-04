@@ -93,8 +93,8 @@ ninja
 
 ```bash
 # ARM Toolchain for Embedded (ATfE)
-/opt/atfe21.1/bin/arm-none-eabi-gcc --version
-/opt/atfe21.1/bin/arm-none-eabi-g++ -o firmware.elf main.cpp
+/opt/atfe21.1/bin/clang --version
+/opt/atfe21.1/bin/clang -o firmware.elf main.cpp
 
 # GNU ARM Toolchain
 /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version

@@ -77,7 +77,7 @@ docker info
 
 ### ARM Toolchain Not Working
 
-#### Problem: "bash: /opt/atfe21.1/bin/arm-none-eabi-gcc: No such file or directory"
+#### Problem: "bash: /opt/atfe21.1/bin/clang: No such file or directory"
 
 **Solution:**
 ```bash
@@ -88,7 +88,7 @@ docker run --rm cpp-arm-dev ls -la /opt/
 docker run --rm cpp-arm-dev ls -la /opt/atfe21.1
 
 # Manually verify
-docker run --rm cpp-arm-dev /opt/ATfE-21.1.1-Linux-x86_64/bin/arm-none-eabi-gcc --version
+docker run --rm cpp-arm-dev /opt/ATfE-21.1.1-Linux-x86_64/bin/clang --version
 ```
 
 #### Problem: "error while loading shared libraries: libncurses.so.5"
@@ -216,7 +216,7 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/cmake/toolchain.cmake ..
 cat cmake/toolchain.cmake
 
 # Check compiler exists
-/opt/atfe21.1/bin/arm-none-eabi-gcc --version
+/opt/atfe21.1/bin/clang --version
 ```
 
 ### Compilation Errors

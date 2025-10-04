@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y \
     libncurses6 \
     libncursesw6 \
     libtinfo6 \
+    file \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

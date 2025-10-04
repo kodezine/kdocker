@@ -112,7 +112,7 @@ jobs:
             echo 'GCC:' && gcc --version | head -n1
             echo 'CMake:' && cmake --version | head -n1
             echo 'Python:' && python --version
-            echo 'ARM ATfE:' && /opt/atfe21.1/bin/arm-none-eabi-gcc --version | head -n1
+            echo 'ARM ATfE:' && /opt/atfe21.1/bin/clang --version | head -n1
             echo 'ARM GNU:' && /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version | head -n1
           "
           \`\`\`
