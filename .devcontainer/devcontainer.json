@@ -1,0 +1,34 @@
+{
+    "name": "C++ ARM Development",
+    "build": {
+        "context": "..",
+        "dockerfile": "../Dockerfile"
+    },
+    "workspaceFolder": "/workspace",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached,readonly"
+    ],
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-vscode.cpptools",
+                "ms-vscode.cpptools-extension-pack",
+                "ms-vscode.cmake-tools",
+                "twxs.cmake",
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "eamodio.gitlens"
+            ],
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "bash",
+                "cmake.configureOnOpen": false,
+                "C_Cpp.default.compilerPath": "/usr/bin/g++",
+                "python.defaultInterpreterPath": "/usr/bin/python3",
+                "files.eol": "\n"
+            }
+        }
+    },
+    "postCreateCommand": "git config --global --add safe.directory /workspace && git config --global core.autocrlf input",
+    "remoteUser": "root"
+}

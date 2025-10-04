@@ -1,0 +1,78 @@
+name: Test Docker Image
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: cpp-arm-dev:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test GCC
+        run: |
+          docker run --rm cpp-arm-dev:test gcc --version
+          docker run --rm cpp-arm-dev:test g++ --version
+
+      - name: Test CMake
+        run: docker run --rm cpp-arm-dev:test cmake --version
+
+      - name: Test Python
+        run: |
+          docker run --rm cpp-arm-dev:test python --version
+          docker run --rm cpp-arm-dev:test python -m pip --version
+
+      - name: Test Ruby and Perl
+        run: |
+          docker run --rm cpp-arm-dev:test ruby --version
+          docker run --rm cpp-arm-dev:test perl --version
+
+      - name: Test ARM Toolchains
+        run: |
+          docker run --rm cpp-arm-dev:test /opt/atfe21.1/bin/arm-none-eabi-gcc --version
+          docker run --rm cpp-arm-dev:test /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version
+
+      - name: Test gcovr
+        run: docker run --rm cpp-arm-dev:test gcovr --version
+
+      - name: Test 32-bit compilation support
+        run: |
+          docker run --rm cpp-arm-dev:test bash -c "
+            echo 'int main(){return 0;}' > /tmp/test.c
+            gcc -m32 -o /tmp/test32 /tmp/test.c
+            file /tmp/test32
+          "
+
+      - name: Test ARM cross-compilation
+        run: |
+          docker run --rm cpp-arm-dev:test bash -c "
+            echo 'int main(){return 0;}' > /tmp/test.c
+            /opt/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -o /tmp/test.elf /tmp/test.c
+            file /tmp/test.elf
+          "
+
+      - name: Verify symlinks
+        run: |
+          docker run --rm cpp-arm-dev:test ls -la /opt/atfe21.1
+          docker run --rm cpp-arm-dev:test ls -la /opt/gnuarm14.3
