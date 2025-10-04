@@ -160,7 +160,7 @@ In the integrated terminal:
 
 ```bash
 # Use ATfE toolchain
-/opt/atfe21.1/bin/arm-none-eabi-gcc --version
+/opt/atfe21.1/bin/clang --version
 
 # Use GNU ARM toolchain
 /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version

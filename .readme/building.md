@@ -123,7 +123,7 @@ docker run --rm cpp-arm-dev bash -c "
   echo 'Python:' && python --version && \
   echo 'Ruby:' && ruby --version && \
   echo 'Perl:' && perl --version | head -n2 && \
-  echo 'ARM ATfE:' && /opt/atfe21.1/bin/arm-none-eabi-gcc --version | head -n1 && \
+  echo 'ARM ATfE:' && /opt/atfe21.1/bin/clang --version | head -n1 && \
   echo 'ARM GNU:' && /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version | head -n1
 "
 ```
