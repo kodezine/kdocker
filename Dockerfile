@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
     software-properties-common \
+    zsh \
     ninja-build \
     ruby \
     ruby-dev \
@@ -92,12 +93,34 @@ RUN cd /tmp \
     && tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C /opt \
     && rm arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
 
-WORKDIR /workspace
-
 # Create symlinks in /opt instead of /workspace to avoid mount issues
 RUN ln -s /opt/ATfE-21.1.1-Linux-x86_64 /opt/atfe21.1 \
     && ln -s /opt/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi /opt/gnuarm14.3
 
+# Create non-root user kdev with sudo access
+ARG USERNAME=kdev
+ARG USER_UID=1001
+ARG USER_GID=$USER_UID
+
+# Check if user/group exists and create if not
+RUN if ! getent group $USER_GID; then groupadd --gid $USER_GID $USERNAME; fi \
+    && if ! getent passwd $USER_UID; then useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/zsh; fi \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && mkdir -p /home/$USERNAME/.cache \
+    && chown -R $USERNAME:$USERNAME /home/$USERNAME
+
+# Set up development directories with proper permissions
+RUN mkdir -p /workspace \
+    && chown -R $USERNAME:$USERNAME /workspace
+
+WORKDIR /workspace
+
 ENV DEBIAN_FRONTEND=dialog
 
-CMD ["/bin/bash"]
+USER $USERNAME
+
+# Install Oh My Zsh as the kdev user
+RUN sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
+
+CMD ["/bin/zsh"]

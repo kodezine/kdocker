@@ -32,33 +32,33 @@ jobs:
 
       - name: Test GCC
         run: |
-          docker run --rm cpp-arm-dev:test gcc --version
-          docker run --rm cpp-arm-dev:test g++ --version
+          docker run --rm --user kdev cpp-arm-dev:test gcc --version
+          docker run --rm --user kdev cpp-arm-dev:test g++ --version
 
       - name: Test CMake
-        run: docker run --rm cpp-arm-dev:test cmake --version
+        run: docker run --rm --user kdev cpp-arm-dev:test cmake --version
 
       - name: Test Python
         run: |
-          docker run --rm cpp-arm-dev:test python --version
-          docker run --rm cpp-arm-dev:test python -m pip --version
+          docker run --rm --user kdev cpp-arm-dev:test python --version
+          docker run --rm --user kdev cpp-arm-dev:test python -m pip --version
 
       - name: Test Ruby and Perl
         run: |
-          docker run --rm cpp-arm-dev:test ruby --version
-          docker run --rm cpp-arm-dev:test perl --version
+          docker run --rm --user kdev cpp-arm-dev:test ruby --version
+          docker run --rm --user kdev cpp-arm-dev:test perl --version
 
       - name: Test ARM Toolchains
         run: |
-          docker run --rm cpp-arm-dev:test /opt/atfe21.1/bin/clang --version
-          docker run --rm cpp-arm-dev:test /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version
+          docker run --rm --user kdev cpp-arm-dev:test /opt/atfe21.1/bin/clang --version
+          docker run --rm --user kdev cpp-arm-dev:test /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version
 
       - name: Test gcovr
-        run: docker run --rm cpp-arm-dev:test gcovr --version
+        run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
 
       - name: Test 32-bit compilation support
         run: |
-          docker run --rm cpp-arm-dev:test bash -c "
+          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
             echo 'int main(){return 0;}' > /tmp/test.c
             gcc -m32 -o /tmp/test32 /tmp/test.c
             file /tmp/test32
@@ -66,7 +66,7 @@ jobs:
 
       - name: Test ARM cross-compilation
         run: |
-          docker run --rm cpp-arm-dev:test bash -c "
+          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
             echo 'int main(){return 0;}' > /tmp/test.c
             /opt/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -o /tmp/test.elf /tmp/test.c
             file /tmp/test.elf
@@ -74,5 +74,20 @@ jobs:
 
       - name: Verify symlinks
         run: |
-          docker run --rm cpp-arm-dev:test ls -la /opt/atfe21.1
-          docker run --rm cpp-arm-dev:test ls -la /opt/gnuarm14.3
+          docker run --rm --user kdev cpp-arm-dev:test ls -la /opt/atfe21.1
+          docker run --rm --user kdev cpp-arm-dev:test ls -la /opt/gnuarm14.3
+
+      - name: Test kdev user configuration
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test whoami
+          docker run --rm --user kdev cpp-arm-dev:test id
+          docker run --rm --user kdev cpp-arm-dev:test echo $SHELL
+
+      - name: Test zsh and Oh My Zsh
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test zsh --version
+          docker run --rm --user kdev cpp-arm-dev:test ls -la /home/kdev/.oh-my-zsh
+
+      - name: Test sudo access
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test sudo whoami

@@ -33,11 +33,11 @@ The `.devcontainer/devcontainer.json` configuration allows you to use this Docke
 
 ```json
 "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached,readonly"
+    "source=${localEnv:HOME}/.ssh,target=/home/kdev/.ssh,type=bind,consistency=cached,readonly"
 ]
 ```
 
-- Your SSH keys are available in the container
+- Your SSH keys are available in the container for user `kdev`
 - Mounted as read-only for security
 - Allows git operations with SSH remotes
 
@@ -57,7 +57,7 @@ The following VS Code extensions are automatically installed:
 
 ```json
 "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.defaultProfile.linux": "zsh",
     "cmake.configureOnOpen": false,
     "C_Cpp.default.compilerPath": "/usr/bin/g++",
     "python.defaultInterpreterPath": "/usr/bin/python3",
@@ -65,7 +65,7 @@ The following VS Code extensions are automatically installed:
 }
 ```
 
-- Default terminal is bash
+- Default terminal is zsh (with Oh My Zsh)
 - CMake doesn't auto-configure on open
 - Default C++ compiler is GCC
 - Python 3.13 is the default interpreter
@@ -113,8 +113,8 @@ Add to the `mounts` array:
 
 ```json
 "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached,readonly",
-    "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,readonly"
+    "source=${localEnv:HOME}/.ssh,target=/home/kdev/.ssh,type=bind,consistency=cached,readonly",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/kdev/.gitconfig,type=bind,readonly"
 ]
 ```
 
@@ -246,27 +246,33 @@ Update `devcontainer.json`:
 }
 ```
 
-### Running as Non-Root User
+### Non-Root User Configuration
 
-Add to Dockerfile:
+This container runs as the non-root user `kdev` (UID 1000) by default for better security:
+
+**Features:**
+- User `kdev` with home directory `/home/kdev`
+- Passwordless sudo access for development tasks
+- SSH keys mounted to `/home/kdev/.ssh`
+- Workspace owned by `kdev` user
+
+**Configuration already included:**
 
 ```dockerfile
-ARG USERNAME=vscode
+ARG USERNAME=kdev
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 
 RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && apt-get update \
-    && apt-get install -y sudo \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/bash \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
     && chmod 0440 /etc/sudoers.d/$USERNAME
 
 USER $USERNAME
 ```
 
-Update `devcontainer.json`:
+**DevContainer configuration:**
 
 ```json
-"remoteUser": "vscode"
+"remoteUser": "kdev"
 ```

@@ -7,7 +7,7 @@
     "workspaceFolder": "/workspace",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
     "mounts": [
-        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached,readonly"
+        "source=${localEnv:HOME}/.ssh,target=/home/kdev/.ssh,type=bind,consistency=cached,readonly"
     ],
     "customizations": {
         "vscode": {
@@ -21,7 +21,7 @@
                 "eamodio.gitlens"
             ],
             "settings": {
-                "terminal.integrated.defaultProfile.linux": "bash",
+                "terminal.integrated.defaultProfile.linux": "zsh",
                 "cmake.configureOnOpen": false,
                 "C_Cpp.default.compilerPath": "/usr/bin/g++",
                 "python.defaultInterpreterPath": "/usr/bin/python3",
@@ -30,5 +30,5 @@
         }
     },
     "postCreateCommand": "git config --global --add safe.directory /workspace && git config --global core.autocrlf input",
-    "remoteUser": "root"
+    "remoteUser": "kdev"
 }
