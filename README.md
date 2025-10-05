@@ -31,6 +31,12 @@ A comprehensive Docker-based development environment for C++ and ARM embedded sy
 
 All toolchains are SHA256 verified during build.
 
+### Security & User Experience
+- **Non-root user**: Default user `kdev` (UID 1000) with sudo access
+- **No password sudo**: Passwordless sudo for development convenience
+- **SSH key mounting**: SSH credentials mounted read-only for git operations
+- **Zsh shell**: Enhanced shell experience with Oh My Zsh pre-configured
+
 ## Quick Start
 
 ### Building the Docker Image
@@ -59,7 +65,7 @@ docker run -it --rm -v $(pwd):/workspace cpp-arm-dev
 # With SSH credentials
 docker run -it --rm \
   -v $(pwd):/workspace \
-  -v ~/.ssh:/root/.ssh:ro \
+  -v ~/.ssh:/home/kdev/.ssh:ro \
   cpp-arm-dev
 ```
 
