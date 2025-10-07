@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
     openssh-client \
     wget \
+    curl \
     gnupg \
     software-properties-common \
     zsh \
@@ -106,21 +107,22 @@ ARG USER_GID=$USER_UID
 RUN if ! getent group $USER_GID; then groupadd --gid $USER_GID $USERNAME; fi \
     && if ! getent passwd $USER_UID; then useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/zsh; fi \
     && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME \
-    && mkdir -p /home/$USERNAME/.cache \
-    && chown -R $USERNAME:$USERNAME /home/$USERNAME
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
-# Set up development directories with proper permissions
-RUN mkdir -p /workspace \
-    && chown -R $USERNAME:$USERNAME /workspace
+# Install Oh My Zsh as kdev user
+USER $USERNAME
+WORKDIR /home/kdev
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
-WORKDIR /workspace
+# Final ownership fix as root (after Oh My Zsh installation)
+USER root
+RUN chown -R kdev:kdev /home/kdev
+
+# Set environment and switch back to kdev
+ENV KDEV_HOME=/home/kdev
+USER $USERNAME
+WORKDIR $KDEV_HOME
 
 ENV DEBIAN_FRONTEND=dialog
-
-USER $USERNAME
-
-# Install Oh My Zsh as the kdev user
-RUN sh -c "$(wget -O- https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
 
 CMD ["/bin/zsh"]
