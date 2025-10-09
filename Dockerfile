@@ -72,9 +72,12 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
 
 RUN python3 -m pip install --no-cache-dir gcovr
 
+# Remove ubuntu user
+RUN userdel -r ubuntu
+
 # Create non-root user kdev with sudo access
 ARG KDEV_USERNAME=kdev
-ARG KDEV_USER_UID=1001
+ARG KDEV_USER_UID=1000
 ARG KDEV_USER_GID=$KDEV_USER_UID
 
 # Check if user/group exists and create if not
@@ -119,6 +122,10 @@ RUN cd ${KDEV_HOME} \
     && ln -s ${KDEV_HOME}/.toolchains/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi ${KDEV_HOME}/gnuarm14.3 \
     && ln -s ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 ${KDEV_HOME}/atfe21.1
 
+RUN mkdir -p ${KDEV_HOME}/workspaces
+ENV KDEV_WORKSPACES=${KDEV_HOME}/workspaces
 RUN chown -R kdev:kdev $KDEV_HOME
+WORKDIR $KDEV_HOME/workspaces
+
 
 CMD ["/bin/zsh"]
