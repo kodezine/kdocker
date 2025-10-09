@@ -72,57 +72,53 @@ RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1
 
 RUN python3 -m pip install --no-cache-dir gcovr
 
+# Create non-root user kdev with sudo access
+ARG KDEV_USERNAME=kdev
+ARG KDEV_USER_UID=1001
+ARG KDEV_USER_GID=$KDEV_USER_UID
+
+# Check if user/group exists and create if not
+RUN if ! getent group $KDEV_USER_GID; then groupadd --gid $KDEV_USER_GID $KDEV_USERNAME; fi \
+    && if ! getent passwd $KDEV_USER_UID; then useradd --uid $KDEV_USER_UID --gid $KDEV_USER_GID -m $KDEV_USERNAME -s /bin/zsh; fi \
+    && echo $KDEV_USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$KDEV_USERNAME \
+    && chmod 0440 /etc/sudoers.d/$KDEV_USERNAME
+
+ENV KDEV_HOME=/home/kdev
+# ENV USERNAME=$KDEV_USERNAME
+# Install Oh My Zsh as kdev user
+USER kdev
+WORKDIR $KDEV_HOME
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Final ownership fix as root (after Oh My Zsh installation)
+USER root
+WORKDIR $KDEV_HOME
+RUN mkdir -p $KDEV_HOME/.toolchains
+RUN cd /tmp \
+    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz \
+    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
+    && sha256sum -c arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
+    && tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C ${KDEV_HOME}/.toolchains \
+    && rm arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
 # Download ARM toolchains
 RUN cd /tmp \
     && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz \
     && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz.sha256 \
     && sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256 \
-    && tar -xf ATfE-21.1.1-Linux-x86_64.tar.xz -C /opt \
+    && tar -xf ATfE-21.1.1-Linux-x86_64.tar.xz -C ${KDEV_HOME}/.toolchains \
     && rm ATfE-21.1.1-Linux-x86_64.tar.xz ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 
 RUN cd /tmp \
     && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz \
     && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz.sha256 \
     && sha256sum -c ATfE-newlib-overlay-21.1.1.tar.xz.sha256 \
-    && tar -xf ATfE-newlib-overlay-21.1.1.tar.xz -C /opt/ATfE-21.1.1-Linux-x86_64 \
+    && tar -xf ATfE-newlib-overlay-21.1.1.tar.xz -C ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 \
     && rm ATfE-newlib-overlay-21.1.1.tar.xz ATfE-newlib-overlay-21.1.1.tar.xz.sha256
 
-RUN cd /tmp \
-    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz \
-    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
-    && sha256sum -c arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
-    && tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C /opt \
-    && rm arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
+RUN cd ${KDEV_HOME} \
+    && ln -s ${KDEV_HOME}/.toolchains/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi ${KDEV_HOME}/gnuarm14.3 \
+    && ln -s ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 ${KDEV_HOME}/atfe21.1
 
-# Create symlinks in /opt instead of /workspace to avoid mount issues
-RUN ln -s /opt/ATfE-21.1.1-Linux-x86_64 /opt/atfe21.1 \
-    && ln -s /opt/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi /opt/gnuarm14.3
-
-# Create non-root user kdev with sudo access
-ARG USERNAME=kdev
-ARG USER_UID=1001
-ARG USER_GID=$USER_UID
-
-# Check if user/group exists and create if not
-RUN if ! getent group $USER_GID; then groupadd --gid $USER_GID $USERNAME; fi \
-    && if ! getent passwd $USER_UID; then useradd --uid $USER_UID --gid $USER_GID -m $USERNAME -s /bin/zsh; fi \
-    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
-    && chmod 0440 /etc/sudoers.d/$USERNAME
-
-# Install Oh My Zsh as kdev user
-USER $USERNAME
-WORKDIR /home/kdev
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-
-# Final ownership fix as root (after Oh My Zsh installation)
-USER root
-RUN chown -R kdev:kdev /home/kdev
-
-# Set environment and switch back to kdev
-ENV KDEV_HOME=/home/kdev
-USER $USERNAME
-WORKDIR $KDEV_HOME
-
-ENV DEBIAN_FRONTEND=dialog
+RUN chown -R kdev:kdev $KDEV_HOME
 
 CMD ["/bin/zsh"]
