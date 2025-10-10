@@ -122,6 +122,9 @@ RUN cd ${KDEV_HOME} \
     && ln -s ${KDEV_HOME}/.toolchains/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi ${KDEV_HOME}/gnuarm14.3 \
     && ln -s ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 ${KDEV_HOME}/atfe21.1
 
+# Copy armv7m configuration file to ATFE compiler bin directory
+COPY armv7m_hard_fpv4_sp_d16.cfg ${KDEV_HOME}/atfe21.1/bin/
+
 RUN mkdir -p ${KDEV_HOME}/workspaces
 ENV KDEV_WORKSPACES=${KDEV_HOME}/workspaces
 RUN chown -R kdev:kdev $KDEV_HOME
