@@ -50,8 +50,8 @@ jobs:
 
       - name: Test ARM Toolchains
         run: |
-          docker run --rm --user kdev cpp-arm-dev:test /opt/atfe21.1/bin/clang --version
-          docker run --rm --user kdev cpp-arm-dev:test /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version
+          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/atfe21.1/bin/clang --version
+          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
 
       - name: Test gcovr
         run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
@@ -68,14 +68,14 @@ jobs:
         run: |
           docker run --rm --user kdev cpp-arm-dev:test zsh -c "
             echo 'int main(){return 0;}' > /tmp/test.c
-            /opt/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -o /tmp/test.elf /tmp/test.c
+            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -o /tmp/test.elf /tmp/test.c
             file /tmp/test.elf
           "
 
       - name: Verify symlinks
         run: |
-          docker run --rm --user kdev cpp-arm-dev:test ls -la /opt/atfe21.1
-          docker run --rm --user kdev cpp-arm-dev:test ls -la /opt/gnuarm14.3
+          docker run --rm --user kdev cpp-arm-dev:test ls -la /home/kdev/atfe21.1
+          docker run --rm --user kdev cpp-arm-dev:test ls -la /home/kdev/gnuarm14.3
 
       - name: Test kdev user configuration
         run: |
