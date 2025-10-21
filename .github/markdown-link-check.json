@@ -1,0 +1,24 @@
+{
+    "timeout": "10s",
+    "retryOn404": true,
+    "retryCount": 3,
+    "fallbackHttpStatus": 200,
+    "aliveStatusCodes": [200, 206],
+    "ignorePatterns": [
+        {
+            "pattern": "^https://github\\.com/.*/blob/.*#L\\d+$"
+        },
+        {
+            "pattern": "^https://developer\\.arm\\.com/.*"
+        },
+        {
+            "pattern": "^https://www\\.st\\.com/.*"
+        }
+    ],
+    "replacementPatterns": [
+        {
+            "pattern": "^(.*)\\?.*$",
+            "replacement": "$1"
+        }
+    ]
+}

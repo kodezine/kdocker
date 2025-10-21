@@ -2,6 +2,8 @@
 
 A comprehensive Docker-based development environment for C++ and ARM embedded systems development, built on Ubuntu 24.04 LTS.
 
+> 🚀 **New!** **On-Demand STM32 Development Environment**: See [DEVCONTAINER.md](DEVCONTAINER.md) for the new optimized STM32 development setup with 68% smaller image size and on-demand tool installation!
+
 ## Features
 
 ### Development Tools
@@ -135,6 +137,9 @@ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache \
 
 ## Documentation
 
+- **[STM32 DevContainer Setup](DEVCONTAINER.md)** - Complete guide for optimized STM32 development
+- **[Git Hooks Guide](GIT-HOOKS.md)** - Automated code quality with Git hooks
+- **[Pre-commit Configuration](PRE-COMMIT.md)** - Detailed pre-commit setup
 - [Building and Configuration](.readme/building.md)
 - [DevContainer Setup](.readme/devcontainer.md)
 - [ARM Toolchain Usage](.readme/arm-toolchains.md)
@@ -150,12 +155,33 @@ cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache \
 
 The built image is approximately 3-4GB due to the ARM toolchains and development tools.
 
-## Contributing
+## Code Quality & Contributing
 
-Contributions are welcome! Please ensure:
-- All files use LF line endings (enforced by `.gitattributes`)
-- Dockerfile changes are tested locally
-- Documentation is updated accordingly
+This project uses **Git hooks** for automated code quality assurance:
+
+### Quick Setup for Contributors
+```bash
+# Setup development environment with Git hooks
+make dev-setup
+
+# Or setup Git hooks directly
+./scripts/setup-hooks.sh
+```
+
+### Automatic Validation
+- ✅ **Pre-commit hooks** - Code formatting, linting, security scanning
+- ✅ **Commit message validation** - Conventional commits format
+- ✅ **Pre-push validation** - Docker builds, documentation checks
+- ✅ **Automated formatting** - JSON, YAML, shell scripts, Markdown
+
+### Contributing Guidelines
+- Git hooks will automatically run on `git commit` and `git push`
+- Follow [Conventional Commits](https://www.conventionalcommits.org/) format
+- All files use LF line endings (enforced by hooks)
+- Dockerfile changes are validated automatically
+- Documentation completeness is checked
+
+For detailed information, see **[Git Hooks Guide](GIT-HOOKS.md)**
 
 ## License
 

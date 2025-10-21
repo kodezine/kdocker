@@ -1,0 +1,348 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: '0 2 * * 0'
+
+env:
+  IMAGE_NAME: stm32-dev
+  REGISTRY: ghcr.io
+
+jobs:
+  # Pre-commit and code quality checks
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pre-commit
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit
+        run: pre-commit run --all-files
+
+      - name: Upload pre-commit results
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pre-commit-results
+          path: .pre-commit-results/
+
+  # Docker image build and test
+  docker-build:
+    name: Docker Build & Test
+    runs-on: ubuntu-latest
+    needs: code-quality
+    outputs:
+      image-digest: ${{ steps.build.outputs.digest }}
+      image-size: ${{ steps.inspect.outputs.size }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=schedule,pattern={{date 'YYYYMMDD'}}
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=STM32 Development Environment
+
+      - name: Inspect image
+        id: inspect
+        run: |
+          docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | grep ${{ env.IMAGE_NAME }}
+          SIZE=$(docker images --format "{{.Size}}" ${{ env.IMAGE_NAME }}:latest)
+          echo "size=${SIZE}" >> $GITHUB_OUTPUT
+
+  # Comprehensive testing
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: docker-build
+    strategy:
+      matrix:
+        test-suite: [basic, tools, stm32, security]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build test image
+        run: docker build -t ${{ env.IMAGE_NAME }}:latest .
+
+      - name: Run integration tests
+        run: |
+          chmod +x scripts/test.sh
+          ./scripts/test.sh ${{ matrix.test-suite }}
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results-${{ matrix.test-suite }}
+          path: test-report.md
+
+  # Security scanning
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: docker-build
+    if: github.event_name != 'pull_request'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build image for scanning
+        run: docker build -t ${{ env.IMAGE_NAME }}:latest .
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_NAME }}:latest
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: Run Docker Scout
+        if: github.event_name != 'pull_request'
+        uses: docker/scout-action@v1
+        with:
+          command: cves
+          image: ${{ env.IMAGE_NAME }}:latest
+          only-severities: critical,high
+          write-comment: false
+
+  # Performance benchmarking
+  performance:
+    name: Performance Benchmark
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t ${{ env.IMAGE_NAME }}:latest .
+
+      - name: Run performance tests
+        run: |
+          chmod +x scripts/test.sh
+          ./scripts/test.sh performance
+
+      - name: Benchmark startup time
+        run: |
+          echo "Measuring container startup time..."
+          time docker run --rm ${{ env.IMAGE_NAME }}:latest echo "Startup complete"
+
+      - name: Measure image layers
+        run: |
+          echo "Analyzing image layers..."
+          docker history ${{ env.IMAGE_NAME }}:latest
+
+  # DevContainer validation
+  devcontainer-test:
+    name: DevContainer Test
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install DevContainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Validate DevContainer configuration
+        run: |
+          devcontainer build .
+          devcontainer up .
+
+      - name: Test DevContainer functionality
+        run: |
+          devcontainer exec . bash -c "which gcc && gcc --version"
+          devcontainer exec . bash -c "test -f /opt/stm32-tools.sh"
+
+  # Documentation validation
+  docs-validation:
+    name: Documentation Validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate README links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          use-verbose-mode: 'yes'
+          config-file: '.github/markdown-link-check.json'
+
+      - name: Check documentation completeness
+        run: |
+          # Check that all referenced files exist
+          if [ -f README.md ]; then
+            echo "✅ README.md exists"
+          else
+            echo "❌ README.md missing"
+            exit 1
+          fi
+          
+          if [ -f DEVCONTAINER.md ]; then
+            echo "✅ DEVCONTAINER.md exists"
+          else
+            echo "❌ DEVCONTAINER.md missing"
+            exit 1
+          fi
+          
+          if [ -f PRE-COMMIT.md ]; then
+            echo "✅ PRE-COMMIT.md exists"
+          else
+            echo "❌ PRE-COMMIT.md missing"
+            exit 1
+          fi
+
+  # Final validation and reporting
+  final-validation:
+    name: Final Validation
+    runs-on: ubuntu-latest
+    needs: [integration-tests, security-scan, performance, devcontainer-test, docs-validation]
+    if: always()
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate final report
+        run: |
+          echo "# CI/CD Pipeline Report" > final-report.md
+          echo "" >> final-report.md
+          echo "**Build Date:** $(date)" >> final-report.md
+          echo "**Commit:** ${{ github.sha }}" >> final-report.md
+          echo "**Branch:** ${{ github.ref_name }}" >> final-report.md
+          echo "" >> final-report.md
+          echo "## Test Results" >> final-report.md
+          
+          # Add test results summary
+          if [ "${{ needs.integration-tests.result }}" = "success" ]; then
+            echo "✅ Integration Tests: PASSED" >> final-report.md
+          else
+            echo "❌ Integration Tests: FAILED" >> final-report.md
+          fi
+          
+          if [ "${{ needs.security-scan.result }}" = "success" ]; then
+            echo "✅ Security Scan: PASSED" >> final-report.md
+          else
+            echo "❌ Security Scan: FAILED" >> final-report.md
+          fi
+          
+          if [ "${{ needs.performance.result }}" = "success" ]; then
+            echo "✅ Performance Tests: PASSED" >> final-report.md
+          else
+            echo "❌ Performance Tests: FAILED" >> final-report.md
+          fi
+          
+          if [ "${{ needs.devcontainer-test.result }}" = "success" ]; then
+            echo "✅ DevContainer Tests: PASSED" >> final-report.md
+          else
+            echo "❌ DevContainer Tests: FAILED" >> final-report.md
+          fi
+          
+          echo "" >> final-report.md
+          echo "## Image Information" >> final-report.md
+          echo "**Image Size:** ${{ needs.docker-build.outputs.image-size }}" >> final-report.md
+          echo "**Image Digest:** ${{ needs.docker-build.outputs.image-digest }}" >> final-report.md
+
+      - name: Upload final report
+        uses: actions/upload-artifact@v3
+        with:
+          name: final-report
+          path: final-report.md
+
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('final-report.md', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🤖 CI/CD Pipeline Results\n\n${report}`
+            });
+
+# Cleanup job for failed runs
+  cleanup:
+    name: Cleanup
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [docker-build, integration-tests, security-scan, performance]
+    steps:
+      - name: Cleanup failed resources
+        run: |
+          # Clean up any remaining containers
+          docker container prune -f
+          docker image prune -f
+          
+          echo "Cleanup completed for failed pipeline run"

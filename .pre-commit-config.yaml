@@ -1,0 +1,215 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(.+\.patch|.+\.diff)$
+      - id: end-of-file-fixer
+        exclude: ^(.+\.patch|.+\.diff)$
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-json
+        exclude: ^(.vscode/.*\.json|.*\.jsonc)$
+      - id: check-toml
+      - id: check-xml
+      - id: check-added-large-files
+        args: ['--maxkb=10000']  # 10MB limit
+      - id: check-case-conflict
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: destroyed-symlinks
+      - id: detect-private-key
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # JSON formatting and validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: pretty-format-json
+        args: [--autofix, --indent=4]
+        exclude: ^(.vscode/.*\.json|.*\.jsonc)$
+
+  # YAML formatting
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.35.1
+    hooks:
+      - id: yamllint
+        args: [-d, relaxed]
+
+  # Shell script linting and formatting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        args: [--severity=warning]
+        files: \.(sh|bash|zsh)$
+        exclude: ^(.devcontainer/setup\.sh)$  # Exclude interactive setup script
+
+  - repo: https://github.com/scop/pre-commit-shfmt
+    rev: v3.7.0-4
+    hooks:
+      - id: shfmt
+        args: [-w, -s, -i, '4']  # Write, simplify, indent with 4 spaces
+        files: \.(sh|bash|zsh)$
+
+  # Docker linting
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint-docker
+        args: [--ignore, DL3008, --ignore, DL3009]  # Ignore apt package pinning warnings
+
+  # Markdown linting and formatting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.39.0
+    hooks:
+      - id: markdownlint
+        args: [--fix]
+        exclude: ^(CHANGELOG\.md|.*\.patch|.*\.diff)$
+
+  # C/C++ formatting (if any C/C++ files are present)
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.2
+    hooks:
+      - id: clang-format
+        files: \.(c|cc|cxx|cpp|h|hpp|hxx)$
+        args: [--style=Google]
+
+  # Python formatting (for any Python scripts)
+  - repo: https://github.com/psf/black
+    rev: 24.2.0
+    hooks:
+      - id: black
+        language_version: python3
+        files: \.py$
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--profile, black]
+        files: \.py$
+
+  # Git commit message formatting
+  - repo: https://github.com/compilerla/conventional-pre-commit
+    rev: v3.1.0
+    hooks:
+      - id: conventional-pre-commit
+        stages: [commit-msg]
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: ^(.*\.lock|.*\.log)$
+
+  # Additional file type specific checks
+  - repo: local
+    hooks:
+      # Custom Dockerfile validation
+      - id: dockerfile-validation
+        name: Dockerfile Validation
+        entry: docker
+        args: [build, --dry-run, .]
+        language: system
+        files: ^Dockerfile.*$
+        pass_filenames: false
+
+      # Validate devcontainer.json
+      - id: devcontainer-json-validation
+        name: DevContainer JSON Validation
+        entry: bash
+        args: [-c, 'python3 -m json.tool < .devcontainer/devcontainer.json > /dev/null']
+        language: system
+        files: ^\.devcontainer/.*\.json$
+        pass_filenames: false
+
+      # Validate docker-compose files
+      - id: docker-compose-validation
+        name: Docker Compose Validation
+        entry: docker-compose
+        args: [-f, .devcontainer/docker-compose.yml, config, --quiet]
+        language: system
+        files: ^\.devcontainer/docker-compose\.yml$
+        pass_filenames: false
+
+      # Check for TODO/FIXME comments
+      - id: check-todos
+        name: Check for TODO/FIXME
+        entry: bash
+        args: [-c, 'if grep -rn "TODO\|FIXME\|XXX\|HACK" --include="*.sh" --include="*.py" --include="*.js" --include="*.md" .; then echo "Found TODO/FIXME comments. Please address them."; exit 1; fi']
+        language: system
+        pass_filenames: false
+        verbose: true
+
+      # Ensure shell scripts are executable
+      - id: shell-executable
+        name: Ensure shell scripts are executable
+        entry: bash
+        args: [-c, 'find . -name "*.sh" -type f ! -executable -exec chmod +x {} \;']
+        language: system
+        pass_filenames: false
+
+  # File size and structure validation
+  - repo: local
+    hooks:
+      # Check that large files have appropriate extensions
+      - id: check-large-files-extension
+        name: Check large files have appropriate extensions
+        entry: bash
+        args:
+          - -c
+          - |
+            find . -type f -size +1M | while read -r file; do
+              case "$file" in
+                *.tar.gz|*.tar.xz|*.zip|*.bin|*.elf|*.hex|*.pdf|*.png|*.jpg|*.jpeg|*.gif)
+                  # These are expected to be large
+                  ;;
+                *)
+                  echo "Large file without expected extension: $file"
+                  exit 1
+                  ;;
+              esac
+            done
+        language: system
+        pass_filenames: false
+
+# Global configuration
+default_language_version:
+  python: python3
+
+# Exclude patterns for all hooks (unless overridden)
+exclude: |
+  (?x)^(
+    .*\.patch$|
+    .*\.diff$|
+    .*\.lock$|
+    .*\.log$|
+    node_modules/.*|
+    \.git/.*|
+    build/.*|
+    dist/.*|
+    \.vscode/.*\.json$|
+    .*\.jsonc$
+  )$
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

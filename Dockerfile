@@ -97,38 +97,93 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 USER root
 WORKDIR $KDEV_HOME
 RUN mkdir -p $KDEV_HOME/.toolchains
-RUN cd /tmp \
-    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz \
-    && wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
-    && sha256sum -c arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc \
-    && tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz -C ${KDEV_HOME}/.toolchains \
-    && rm arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
-# Download ARM toolchains
-RUN cd /tmp \
-    && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz \
-    && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz.sha256 \
-    && sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256 \
-    && tar -xf ATfE-21.1.1-Linux-x86_64.tar.xz -C ${KDEV_HOME}/.toolchains \
-    && rm ATfE-21.1.1-Linux-x86_64.tar.xz ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 
-RUN cd /tmp \
-    && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz \
-    && wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz.sha256 \
-    && sha256sum -c ATfE-newlib-overlay-21.1.1.tar.xz.sha256 \
-    && tar -xf ATfE-newlib-overlay-21.1.1.tar.xz -C ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 \
-    && rm ATfE-newlib-overlay-21.1.1.tar.xz ATfE-newlib-overlay-21.1.1.tar.xz.sha256
+# Copy armv7m configuration file for ATFE (when installed)
+COPY armv7m_hard_fpv4_sp_d16.cfg ${KDEV_HOME}/.toolchains/
 
-RUN cd ${KDEV_HOME} \
-    && ln -s ${KDEV_HOME}/.toolchains/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi ${KDEV_HOME}/gnuarm14.3 \
-    && ln -s ${KDEV_HOME}/.toolchains/ATfE-21.1.1-Linux-x86_64 ${KDEV_HOME}/atfe21.1
+# Install base dependencies for STM32 development
+RUN apt-get update && apt-get install -y \
+    udev \
+    libusb-1.0-0 \
+    libusb-1.0-0-dev \
+    libusb-dev \
+    libudev-dev \
+    unzip \
+    pkg-config \
+    default-jre \
+    wget \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy armv7m configuration file to ATFE compiler bin directory
-COPY armv7m_hard_fpv4_sp_d16.cfg ${KDEV_HOME}/atfe21.1/bin/
+# Create directories for STM32 tools
+RUN mkdir -p ${KDEV_HOME}/.local/bin ${KDEV_HOME}/.toolchains/stm32tools
+
+# Copy STM32 tools installation script
+COPY stm32-tools.sh ${KDEV_HOME}/.local/bin/stm32-tools
+RUN chmod +x ${KDEV_HOME}/.local/bin/stm32-tools
+
+# Install ST-Link udev rules for proper device access
+RUN echo '# ST-Link V1' > /etc/udev/rules.d/49-stlinkv1.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="3744", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv1.rules \
+    && echo '' >> /etc/udev/rules.d/49-stlinkv1.rules \
+    && echo '# ST-Link V2' > /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="3748", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo '' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo '# ST-Link V2-1' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="374b", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo '' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo '# ST-Link V3' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="374d", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="374e", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="374f", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules \
+    && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="3753", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv2.rules
+
+# Add kdev user to dialout group for serial device access
+RUN usermod -a -G dialout,plugdev kdev
 
 RUN mkdir -p ${KDEV_HOME}/workspaces
 ENV KDEV_WORKSPACES=${KDEV_HOME}/workspaces
+
+# Add development tools to PATH (when installed)
+ENV PATH="${KDEV_HOME}/gnuarm14.3/bin:${KDEV_HOME}/atfe21.1/bin:${KDEV_HOME}/.toolchains/stm32tools/stlink/bin:${KDEV_HOME}/.toolchains/stm32tools/stm32cubeprog/bin:${KDEV_HOME}/.local/bin:${PATH}"
+
+# Create welcome message
+RUN echo '#!/bin/bash' > ${KDEV_HOME}/.welcome \
+    && echo 'echo "============================================"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "Welcome to Embedded Development Container"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "============================================"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "📦 All tools install on-demand for flexibility!"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "🔧 ARM Toolchains (install as needed):"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - GNU Arm Toolchain 14.3 (~500MB)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - Arm Compiler for Embedded 21.1 (~3GB)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "🎯 STM32 Tools (install as needed):"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - OpenOCD (debugging)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - STLink tools (programming)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - STM32CubeProgrammer (ST official)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - Additional development tools"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "🚀 Quick Start:"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools                    - Interactive installer"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools gnuarm             - Install GNU Arm only"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools armtools           - Install both ARM toolchains"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools stm32tools         - Install STM32 debug tools"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools all                - Install everything"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  stm32-tools status             - Show installation status"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "💡 Tip: Start with \"stm32-tools gnuarm\" for basic STM32 development"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "============================================"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && chmod +x ${KDEV_HOME}/.welcome
+
+# Add welcome message to zshrc
+RUN echo '' >> ${KDEV_HOME}/.zshrc \
+    && echo '# Show welcome message on login' >> ${KDEV_HOME}/.zshrc \
+    && echo '~/.welcome' >> ${KDEV_HOME}/.zshrc
+
 RUN chown -R kdev:kdev $KDEV_HOME
 WORKDIR $KDEV_HOME/workspaces
-
 
 CMD ["/bin/zsh"]

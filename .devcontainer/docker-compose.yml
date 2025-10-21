@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  stm32-dev:
+    image: stm32-dev-minimal:latest
+    
+    # Mount project files
+    volumes:
+      - ../..:/home/kdev/workspaces/project:cached
+      - /dev:/dev  # Hardware access for ST-Link
+      - ${HOME}/.ssh:/home/kdev/.ssh:ro  # SSH keys
+    
+    # Working directory
+    working_dir: /home/kdev/workspaces/project
+    
+    # Keep container running
+    command: sleep infinity
+    
+    # Run as kdev user
+    user: kdev
+    
+    # Hardware access
+    privileged: true
+    
+    # Environment variables
+    environment:
+      - DISPLAY=${DISPLAY:-:0}
+      - WORKSPACE_ROOT=/home/kdev/workspaces/project
+    
+    # Port forwarding for debugging
+    ports:
+      - "3333:3333"  # OpenOCD GDB server
+      - "4444:4444"  # OpenOCD telnet
+      - "8080:8080"  # Web server (optional)
+      - "9090:9090"  # Additional debug port
+    
+    # Network configuration
+    networks:
+      - stm32-dev-network
+
+networks:
+  stm32-dev-network:
+    driver: bridge
