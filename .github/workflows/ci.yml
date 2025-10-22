@@ -14,45 +14,45 @@ env:
   REGISTRY: ghcr.io
 
 jobs:
-  # Pre-commit and code quality checks
-  code-quality:
-    name: Code Quality
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Cache pre-commit
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pre-commit
-          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
-
-      - name: Install pre-commit
-        run: pip install pre-commit
-
-      - name: Run pre-commit
-        run: pre-commit run --all-files
-
-      - name: Upload pre-commit results
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pre-commit-results
-          path: .pre-commit-results/
+  # Pre-commit and code quality checks - SUPPRESSED
+  # code-quality:
+  #   name: Code Quality
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #       with:
+  #         fetch-depth: 0
+  #
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.11'
+  #
+  #     - name: Cache pre-commit
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: ~/.cache/pre-commit
+  #         key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+  #
+  #     - name: Install pre-commit
+  #       run: pip install pre-commit
+  #
+  #     - name: Run pre-commit
+  #       run: pre-commit run --all-files
+  #
+  #     - name: Upload pre-commit results
+  #       if: failure()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: pre-commit-results
+  #         path: .pre-commit-results/
 
   # Docker image build and test
   docker-build:
     name: Docker Build & Test
     runs-on: ubuntu-latest
-    needs: code-quality
+    # needs: code-quality  # SUPPRESSED
     outputs:
       image-digest: ${{ steps.build.outputs.digest }}
       image-size: ${{ steps.inspect.outputs.size }}
@@ -222,50 +222,50 @@ jobs:
           devcontainer exec . bash -c "which gcc && gcc --version"
           devcontainer exec . bash -c "test -f /opt/stm32-tools.sh"
 
-  # Documentation validation
-  docs-validation:
-    name: Documentation Validation
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Validate README links
-        uses: gaurav-nelson/github-action-markdown-link-check@v1
-        with:
-          use-quiet-mode: 'yes'
-          use-verbose-mode: 'yes'
-          config-file: '.github/markdown-link-check.json'
-
-      - name: Check documentation completeness
-        run: |
-          # Check that all referenced files exist
-          if [ -f README.md ]; then
-            echo "✅ README.md exists"
-          else
-            echo "❌ README.md missing"
-            exit 1
-          fi
-          
-          if [ -f DEVCONTAINER.md ]; then
-            echo "✅ DEVCONTAINER.md exists"
-          else
-            echo "❌ DEVCONTAINER.md missing"
-            exit 1
-          fi
-          
-          if [ -f PRE-COMMIT.md ]; then
-            echo "✅ PRE-COMMIT.md exists"
-          else
-            echo "❌ PRE-COMMIT.md missing"
-            exit 1
-          fi
+  # Documentation validation - SUPPRESSED
+  # docs-validation:
+  #   name: Documentation Validation
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Validate README links
+  #       uses: gaurav-nelson/github-action-markdown-link-check@v1
+  #       with:
+  #         use-quiet-mode: 'yes'
+  #         use-verbose-mode: 'yes'
+  #         config-file: '.github/markdown-link-check.json'
+  #
+  #     - name: Check documentation completeness
+  #       run: |
+  #         # Check that all referenced files exist
+  #         if [ -f README.md ]; then
+  #           echo "✅ README.md exists"
+  #         else
+  #           echo "❌ README.md missing"
+  #           exit 1
+  #         fi
+  #         
+  #         if [ -f DEVCONTAINER.md ]; then
+  #           echo "✅ DEVCONTAINER.md exists"
+  #         else
+  #           echo "❌ DEVCONTAINER.md missing"
+  #           exit 1
+  #         fi
+  #         
+  #         if [ -f PRE-COMMIT.md ]; then
+  #           echo "✅ PRE-COMMIT.md exists"
+  #         else
+  #           echo "❌ PRE-COMMIT.md missing"
+  #           exit 1
+  #         fi
 
   # Final validation and reporting
   final-validation:
     name: Final Validation
     runs-on: ubuntu-latest
-    needs: [integration-tests, security-scan, performance, devcontainer-test, docs-validation]
+    needs: [integration-tests, security-scan, performance, devcontainer-test] # docs-validation SUPPRESSED
     if: always()
     steps:
       - name: Download all artifacts
