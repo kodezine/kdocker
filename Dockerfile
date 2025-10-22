@@ -6,23 +6,35 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN dpkg --add-architecture i386
 
 # Install base development tools and languages
-RUN apt-get update && apt-get install -y \
+# Split into smaller chunks to avoid QEMU timeout issues
+RUN apt-get update
+
+# Core build tools
+RUN apt-get install -y --no-install-recommends \
     build-essential \
     g++ \
     gcc \
     gcc-multilib \
     g++-multilib \
     make \
-    gdb \
-    valgrind \
     git \
     vim \
     sudo \
+    && apt-get clean
+
+# Development and debugging tools
+RUN apt-get install -y --no-install-recommends \
+    gdb \
+    valgrind \
     openssh-client \
     wget \
     curl \
     gnupg \
     software-properties-common \
+    && apt-get clean
+
+# Languages and additional tools
+RUN apt-get install -y --no-install-recommends \
     zsh \
     ninja-build \
     ruby \
@@ -32,6 +44,10 @@ RUN apt-get update && apt-get install -y \
     ccache \
     clang \
     clang-format \
+    && apt-get clean
+
+# Libraries and utilities
+RUN apt-get install -y --no-install-recommends \
     libncurses6 \
     libncursesw6 \
     libtinfo6 \
@@ -39,8 +55,8 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install 32-bit libraries (only those available in Ubuntu 24.04)
-RUN apt-get update && apt-get install -y \
+# Install 32-bit libraries for cross-compilation
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libc6-i386 \
     lib32stdc++6 \
     lib32gcc-s1 \
