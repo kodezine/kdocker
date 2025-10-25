@@ -1,8 +1,8 @@
-# DevContainer Setup
+# VS Code DevContainer Setup for STM32 Development
 
 ## Overview
 
-The `.devcontainer/devcontainer.json` configuration allows you to use this Docker environment seamlessly with Visual Studio Code.
+This guide shows how to use the STM32 development container with Visual Studio Code DevContainers for seamless embedded development.
 
 ## Prerequisites
 
@@ -10,12 +10,54 @@ The `.devcontainer/devcontainer.json` configuration allows you to use this Docke
 - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - Docker Desktop or Docker Engine
 
-## Quick Start
+## Quick Setup for STM32 Development
 
-1. Open the project folder in VS Code
-2. Press `F1` and select "Dev Containers: Reopen in Container"
-3. VS Code will build the Docker image and start the container
-4. Your workspace will be mounted at `/workspace`
+### 1. Create DevContainer Configuration
+Create `.devcontainer/devcontainer.json` in your STM32 project:
+
+```json
+{
+  "name": "STM32 Development Environment",
+  "image": "cpp-arm-dev:latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools", 
+        "marus25.cortex-debug",
+        "dan-c-underwood.arm"
+      ]
+    }
+  },
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind"
+  ],
+  "remoteUser": "kdev",
+  "privileged": true,
+  "runArgs": [
+    "--device=/dev/bus/usb:/dev/bus/usb"
+  ],
+  "postCreateCommand": "stm32-tools gnuarm && echo 'STM32 development environment ready!'"
+}
+```
+
+### 2. Start Development
+1. Open your STM32 project folder in VS Code
+2. Press `F1` → "Dev Containers: Reopen in Container"  
+3. Container builds and installs GNU ARM toolchain automatically
+4. Your project is mounted at `/home/kdev/workspaces/project`
+
+### 3. First-Time Setup in Container
+```bash
+# Verify ARM toolchain installation
+stm32-tools status
+
+# Add tools to PATH 
+stm32-tools updatepath
+
+# Verify STM32 toolchain
+arm-none-eabi-gcc --version
+```
 
 ## Configuration Details
 
