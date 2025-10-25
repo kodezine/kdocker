@@ -63,6 +63,11 @@ jobs:
             echo 'ARM cross-compilation: SUCCESS'
             
             echo ''
+            echo 'Verifying symlinks:'
+            ls -la /home/kdev/atfe21.1
+            ls -la /home/kdev/gnuarm14.3
+            
+            echo ''
             echo 'Toolchain status:'
             stm32-tools status | grep -A10 'ARM Toolchains'
           "
@@ -106,11 +111,6 @@ jobs:
           "
 
 
-
-      - name: Verify symlinks
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test ls -la /home/kdev/atfe21.1
-          docker run --rm --user kdev cpp-arm-dev:test ls -la /home/kdev/gnuarm14.3
 
       - name: Test kdev user configuration
         run: |
