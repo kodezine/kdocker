@@ -31,19 +31,40 @@ jobs:
           cache-to: type=gha,mode=max
 
 
-      - name: Install ARM Toolchains
+      - name: Install and Test ARM Toolchains
         run: |
           docker run --rm --user kdev cpp-arm-dev:test bash -c "
             echo 'Installing ARM toolchains for testing...'
             # Install GNU ARM toolchain (non-interactive)
             echo '2' | stm32-tools gnuarm
             echo 'GNU ARM installation complete'
+            
             # Install ATFE toolchain (non-interactive)  
             echo '2' | stm32-tools atfe
             echo 'ATFE installation complete'
-            # Verify installations
-            ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc || echo 'GNU ARM not found'
-            ls -la /home/kdev/atfe21.1/bin/clang || echo 'ATFE not found'
+            
+            echo ''
+            echo 'Verifying ARM toolchain installations...'
+            echo 'GNU ARM toolchain:'
+            ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc
+            echo 'ATFE toolchain:'
+            ls -la /home/kdev/atfe21.1/bin/clang
+            
+            echo ''
+            echo 'Testing ARM toolchain versions...'
+            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
+            /home/kdev/atfe21.1/bin/clang --version
+            
+            echo ''
+            echo 'Testing ARM cross-compilation...'
+            echo 'int main(){return 0;}' > /tmp/test.c
+            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
+            file /tmp/test.elf
+            echo 'ARM cross-compilation: SUCCESS'
+            
+            echo ''
+            echo 'Toolchain status:'
+            stm32-tools status | grep -A10 'ARM Toolchains'
           "
 
       - name: Install STM32 Debug Tools
@@ -72,22 +93,7 @@ jobs:
           docker run --rm --user kdev cpp-arm-dev:test ruby --version
           docker run --rm --user kdev cpp-arm-dev:test perl --version
 
-      - name: Verify ARM Toolchain Installation
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test bash -c "
-            echo 'Verifying ARM toolchain installations...'
-            echo 'GNU ARM toolchain:'
-            ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc
-            echo 'ATFE toolchain:'
-            ls -la /home/kdev/atfe21.1/bin/clang
-            echo 'Toolchain status:'
-            stm32-tools status | grep -A10 'ARM Toolchains'
-          "
 
-      - name: Test ARM Toolchains
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/atfe21.1/bin/clang --version
-          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
       - name: Test gcovr
         run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
 
@@ -99,13 +105,7 @@ jobs:
             file /tmp/test32
           "
 
-      - name: Test ARM cross-compilation
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
-            echo 'int main(){return 0;}' > /tmp/test.c
-            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
-            file /tmp/test.elf
-          "
+
 
       - name: Verify symlinks
         run: |
