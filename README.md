@@ -245,9 +245,18 @@ The container respects user choice for PATH modifications:
     "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind"
   ],
   "remoteUser": "kdev",
-  "privileged": true
+  "privileged": true,
+  "postCreateCommand": "stm32-tools gnuarm"
 }
 ```
+
+### Windows 10/11 Support
+✅ **Full Windows support** with WSL2 integration:
+- Complete setup guide in [DevContainer documentation](.readme/devcontainer.md#windows-1011-setup-guide)
+- WSL2 + Docker Desktop integration
+- ST-Link USB device access methods
+- Performance optimization tips
+- Windows-specific troubleshooting
 
 ## System Requirements
 
