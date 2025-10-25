@@ -30,26 +30,12 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Install ARM Toolchains
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test bash -c "
-            echo 'Installing ARM toolchains for testing...'
-            # Install GNU ARM toolchain
-            echo '2' | stm32-tools gnuarm
-            echo 'GNU ARM installation complete'
-            # Install ATFE toolchain  
-            echo '2' | stm32-tools atfe
-            echo 'ATFE installation complete'
-            # Verify installations
-            ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc || echo 'GNU ARM not found'
-            ls -la /home/kdev/atfe21.1/bin/clang || echo 'ATFE not found'
-          "
 
       - name: Install STM32 Debug Tools
         run: |
           docker run --rm --user kdev cpp-arm-dev:test bash -c "
             echo 'Installing STM32 debug and development tools...'
-            stm32-tools devtools
+            stm32-tools all
             stm32-tools status
           "
 
@@ -71,23 +57,12 @@ jobs:
           docker run --rm --user kdev cpp-arm-dev:test ruby --version
           docker run --rm --user kdev cpp-arm-dev:test perl --version
 
-      - name: Verify ARM Toolchain Installation
-        run: |
-          docker run --rm --user kdev cpp-arm-dev:test bash -c "
-            echo 'Verifying ARM toolchain installations...'
-            echo 'GNU ARM toolchain:'
-            ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc
-            echo 'ATFE toolchain:'
-            ls -la /home/kdev/atfe21.1/bin/clang
-            echo 'Toolchain status:'
-            stm32-tools status
-          "
 
       - name: Test ARM Toolchains
         run: |
-          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/atfe21.1/bin/clang --version
-          docker run --rm --user kdev cpp-arm-dev:test /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
-
+          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
+            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
+            "
       - name: Test gcovr
         run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
 
