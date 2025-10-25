@@ -1,4 +1,123 @@
-# Troubleshooting
+# STM32 Development Environment Troubleshooting
+
+## STM32-Tools Installation Issues
+
+### ARM Toolchain Installation Fails
+
+#### Problem: "Download failed" or "Connection timeout"
+```bash
+# Check network connectivity
+curl -I https://github.com/arm/arm-toolchain/releases
+
+# Try installation with verbose output
+stm32-tools gnuarm --verbose
+
+# Clear download cache and retry
+stm32-tools clean
+stm32-tools gnuarm
+```
+
+#### Problem: "SHA256 verification failed"  
+```bash
+# Clear corrupted download cache
+rm -rf ~/.toolchains/stm32tools/.downloads/
+stm32-tools gnuarm
+
+# If problem persists, the toolchain may have been updated
+# Check https://github.com/arm/arm-toolchain/releases for new versions
+```
+
+#### Problem: "No space left on device"
+```bash  
+# Check available space
+df -h ~/.toolchains/
+
+# Clean up if needed
+stm32-tools clean
+docker system prune -f
+
+# Install only essential tools
+stm32-tools gnuarm  # Instead of 'all'
+```
+
+### PATH Issues
+
+#### Problem: "arm-none-eabi-gcc: command not found"
+```bash
+# Check installation status
+stm32-tools status
+
+# Update PATH if toolchain is installed
+stm32-tools updatepath
+
+# Or manually for current session  
+export PATH="$HOME/gnuarm14.3/bin:$PATH"
+
+# Verify
+which arm-none-eabi-gcc
+```
+
+#### Problem: "PATH not updated after installation"
+The container respects user choice and doesn't automatically modify PATH.
+
+**Solutions:**
+```bash
+# Option 1: Use updatepath command
+stm32-tools updatepath
+
+# Option 2: Manual export (temporary)
+export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$PATH"
+
+# Option 3: Add to shell config permanently  
+echo 'export PATH="$HOME/gnuarm14.3/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+## STM32 Hardware Issues
+
+### USB Device Access  
+
+#### Problem: "ST-Link not detected"  
+```bash
+# Run container with USB access
+docker run -it --rm --privileged \
+  -v /dev/bus/usb:/dev/bus/usb \
+  cpp-arm-dev
+
+# Check if device is visible
+lsusb | grep -i st
+st-info --probe
+
+# Check udev rules (should be pre-installed)
+ls -la /etc/udev/rules.d/49-stlink*
+```
+
+#### Problem: "Permission denied" accessing STM32
+```bash
+# Add user to dialout group (should be automatic)
+groups | grep dialout
+
+# Manual fix if needed
+sudo usermod -a -G dialout kdev
+
+# Or run container with privileged access
+docker run -it --rm --privileged cpp-arm-dev
+```
+
+### OpenOCD Issues
+
+#### Problem: "OpenOCD fails to connect"
+```bash  
+# Install STM32 debugging tools if not installed
+stm32-tools stm32tools
+
+# Test OpenOCD connection
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
+
+# Check for conflicting processes
+sudo pkill openocd
+sudo pkill st-util
+```
 
 ## Build Issues
 

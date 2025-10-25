@@ -1,53 +1,149 @@
-# ARM Toolchain Usage
+# ARM Toolchain Usage Guide
 
 ## Overview
 
-This environment includes two ARM toolchains optimized for embedded development:
+This environment provides **on-demand installation** of two ARM toolchains optimized for STM32 and embedded development:
 
-1. **ARM Toolchain for Embedded (ATfE) 21.1.1**
-2. **GNU ARM Toolchain 14.3.rel1**
+1. **GNU ARM Toolchain 14.3.rel1** - Essential STM32 development (~500MB)
+2. **ARM Toolchain for Embedded (ATfE) 21.1.1** - Advanced features (~3GB)
 
-## ARM Toolchain for Embedded (ATfE)
+## Installation
 
-### Location
-- Full path: `/opt/ATfE-21.1.1-Linux-x86_64`
-- Symlink: `/opt/atfe21.1`
+### Quick Installation
 
-### Components
-- GCC 14.2.0 based
-- Newlib C library (with overlay)
-- GDB for ARM
-- Binutils
+```bash
+# Most common: GNU ARM toolchain for STM32 development  
+stm32-tools gnuarm
+
+# Advanced: ATFE for modern LLVM-based development
+stm32-tools atfe
+
+# Both toolchains
+stm32-tools armtools
+```
+
+### Installation Process
+All toolchains are installed with:
+- ✅ **SHA256 verification** for security
+- ✅ **User-level installation** in `~/.toolchains/`  
+- ✅ **Symbolic links** for easy access (`~/gnuarm14.3`, `~/atfe21.1`)
+- ✅ **Optional PATH updates** with user consent
+
+## GNU ARM Toolchain 14.3.rel1
+
+### Installation & Location
+```bash
+# Install GNU ARM toolchain
+stm32-tools gnuarm
+
+# Installation location
+~/.toolchains/stm32tools/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/
+
+# Convenient symlink
+~/gnuarm14.3/bin/
+```
+
+### Components  
+- **GCC 14.3.1** - C/C++ compiler for ARM
+- **Newlib** - Embedded C library
+- **GDB** - GNU debugger for ARM
+- **Binutils** - Assembly tools, linker, objdump, etc.
 
 ### Usage
 
 ```bash
-# Compiler
-/opt/atfe21.1/bin/clang
+# Verify installation
+arm-none-eabi-gcc --version
 
-# C++ Compiler
-/opt/atfe21.1/bin/clang
+# Compiler (after PATH update)
+arm-none-eabi-gcc
+arm-none-eabi-g++
 
-# Assembler
-/opt/atfe21.1/bin/clang
-
-# Linker
-/opt/atfe21.1/bin/lld
-
-# Debugger
-/opt/<gnuarm>/bin/arm-none-eabi-gdb
+# Or use full path
+~/gnuarm14.3/bin/arm-none-eabi-gcc
+~/gnuarm14.3/bin/arm-none-eabi-g++
 
 # Other tools
-/opt/atfe21.1/bin/llvm-objcopy
-/opt/atfe21.1/bin/llvm-objdump
-/opt/atfe21.1/bin/llvm-size
+arm-none-eabi-gdb
+arm-none-eabi-objcopy
+arm-none-eabi-objdump
+arm-none-eabi-size
 ```
 
-### Example Compilation
+### STM32 Compilation Examples
 
 ```bash
-# Simple compilation
-/opt/atfe21.1/bin/clang \
+# Basic STM32F4 compilation
+arm-none-eabi-gcc \
+  -mcpu=cortex-m4 \
+  -mthumb \
+  --specs=nosys.specs \
+  -o firmware.elf \
+  main.c
+
+# With optimization and debugging  
+arm-none-eabi-gcc \
+  -mcpu=cortex-m4 \
+  -mthumb \
+  -mfpu=fpv4-sp-d16 \
+  -mfloat-abi=hard \
+  --specs=nosys.specs \
+  -Os -g \
+  -o firmware.elf \
+  main.c startup.s
+```
+
+## ARM Toolchain for Embedded (ATfE) 21.1.1
+
+### Installation & Location  
+```bash
+# Install ATFE toolchain
+stm32-tools atfe
+
+# Installation location  
+~/.toolchains/stm32tools/ATfE-21.1.1-Linux-x86_64/
+
+# Convenient symlink
+~/atfe21.1/bin/
+```
+
+### Components
+- **LLVM/Clang 21.1.1** - Modern compiler infrastructure
+- **Newlib overlay** - Embedded C library support
+- **LLD linker** - Fast LLVM linker  
+- **LLVM tools** - objcopy, objdump, size, etc.
+
+### Usage
+
+```bash
+# Verify installation
+clang --version
+
+# Compiler (after PATH update)
+clang
+clang++
+
+# Or use full path
+~/atfe21.1/bin/clang
+~/atfe21.1/bin/clang++
+
+# LLVM tools
+llvm-objcopy
+llvm-objdump  
+llvm-size
+```
+
+### STM32 Compilation with ATFE
+
+```bash
+# Basic STM32F4 compilation with Clang
+clang \
+  --target=arm-none-eabi \
+  -mcpu=cortex-m4 \
+  -mthumb \
+  --sysroot=~/atfe21.1/arm-none-eabi \
+  -o firmware.elf \
+  main.c
     -mcpu=cortex-m4 \
     -mthumb \
     -O2 \
