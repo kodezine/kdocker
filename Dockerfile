@@ -128,6 +128,13 @@ RUN apt-get update && apt-get install -y \
     pkg-config \
     default-jre \
     wget \
+    openocd \
+    gdb-multiarch \
+    minicom \
+    screen \
+    picocom \
+    dfu-util \
+    stlink-tools \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 

@@ -40,10 +40,18 @@ install_openocd() {
         return 0
     fi
     
-    sudo apt-get update
-    sudo apt-get install -y openocd
-    print_success "OpenOCD installed successfully"
-    openocd --version
+    # Check if we have sudo privileges (for container vs host environment)
+    if sudo -n true 2>/dev/null; then
+        print_info "Installing OpenOCD system-wide..."
+        sudo apt-get update
+        sudo apt-get install -y openocd
+        print_success "OpenOCD installed successfully"
+        openocd --version
+    else
+        print_error "OpenOCD installation requires system privileges"
+        print_info "In a container environment, OpenOCD should be pre-installed in the image"
+        return 1
+    fi
 }
 
 # Install GNU Arm Toolchain 14.3
@@ -74,13 +82,16 @@ install_gnu_arm() {
     rm arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
     
     print_success "GNU Arm Toolchain 14.3 installed successfully"
+    
+    # Offer to update PATH
+    offer_path_update
 }
 
 # Install Arm Compiler for Embedded (ATFE) 21.1
 install_arm_atfe() {
     print_info "Installing Arm Compiler for Embedded 21.1..."
     
-    if [ -d "$TOOLCHAIN_DIR/atfe21.1" ]; then
+    if [ -d "$HOME/atfe21.1" ]; then
         print_warning "Arm Compiler for Embedded 21.1 already installed"
         return 0
     fi
@@ -120,37 +131,84 @@ install_arm_atfe() {
     rm ATfE-newlib-overlay-21.1.1.tar.xz ATfE-newlib-overlay-21.1.1.tar.xz.sha256
     
     print_success "Arm Compiler for Embedded 21.1 installed successfully"
+    
+    # Offer to update PATH
+    offer_path_update
 }
 
 # Install STLink Tools
 install_stlink() {
     print_info "Installing STLink tools..."
     
+    # Check if STLink is already installed system-wide
+    if command -v st-flash >/dev/null 2>&1; then
+        print_warning "STLink tools are already installed system-wide"
+        st-flash --version 2>&1 | head -1 || echo "STLink tools available"
+        return 0
+    fi
+    
     if [ -f "$TOOLCHAIN_DIR/stlink/bin/st-flash" ]; then
-        print_warning "STLink tools already installed"
+        print_warning "STLink tools already installed in user directory"
         return 0
     fi
     
     cd "$TEMP_DIR"
     
-    # Install dependencies
-    sudo apt-get update
-    sudo apt-get install -y git cmake libusb-1.0-0-dev
+    # Check if required dependencies are available
+    if ! command -v cmake >/dev/null 2>&1; then
+        print_error "cmake not found. Please install cmake first."
+        return 1
+    fi
+    
+    if ! command -v git >/dev/null 2>&1; then
+        print_error "git not found. Please install git first."
+        return 1
+    fi
+    
+    if ! pkg-config --exists libusb-1.0; then
+        print_error "libusb-1.0-dev not found. Please install libusb development package first."
+        return 1
+    fi
+    
+    print_info "Dependencies satisfied, proceeding with STLink build..."
     
     # Clone and build stlink
     git clone https://github.com/stlink-org/stlink.git
     cd stlink
-    make clean
-    cmake -DCMAKE_INSTALL_PREFIX="$TOOLCHAIN_DIR/stlink" .
-    make -j$(nproc)
-    make install
     
-    # Create symlinks
+    # Clean any previous build
+    if [ -f Makefile ]; then
+        make clean
+    fi
+    
+    # Configure with CMake for user installation
+    cmake -DCMAKE_INSTALL_PREFIX="$TOOLCHAIN_DIR/stlink" \
+          -DCMAKE_BUILD_TYPE=Release \
+          .
+    
+    # Build with all available cores
+    make -j$(nproc)
+    
+    # Create directories manually
+    mkdir -p "$TOOLCHAIN_DIR/stlink/bin"
+    
+    # Copy only the binaries we need (avoid make install to skip system files)
+    print_info "Installing STLink binaries to user directory..."
+    cp bin/st-flash "$TOOLCHAIN_DIR/stlink/bin/"
+    cp bin/st-info "$TOOLCHAIN_DIR/stlink/bin/"
+    cp bin/st-util "$TOOLCHAIN_DIR/stlink/bin/"
+    
+    # Make binaries executable
+    chmod +x "$TOOLCHAIN_DIR/stlink/bin/"*
+    
+    # Create symlinks in user's local bin
     ln -sf "$TOOLCHAIN_DIR/stlink/bin/st-flash" "$LOCAL_BIN_DIR/st-flash"
     ln -sf "$TOOLCHAIN_DIR/stlink/bin/st-info" "$LOCAL_BIN_DIR/st-info"
     ln -sf "$TOOLCHAIN_DIR/stlink/bin/st-util" "$LOCAL_BIN_DIR/st-util"
     
-    print_success "STLink tools installed successfully"
+    print_success "STLink tools installed successfully to user directory"
+    print_info "STLink binaries available in: $TOOLCHAIN_DIR/stlink/bin/"
+    print_info "Symlinks created in: $LOCAL_BIN_DIR/"
 }
 
 # Install STM32CubeProgrammer (requires manual download)
@@ -214,19 +272,78 @@ install_stm32cubeide_cli() {
 install_dev_tools() {
     print_info "Installing additional development tools..."
     
-    sudo apt-get update
-    sudo apt-get install -y \
-        gdb-multiarch \
-        minicom \
-        screen \
-        picocom \
-        dfu-util
+    # Check which tools are already installed
+    local tools_needed=()
+    local tools_available=()
     
-    print_success "Additional development tools installed"
+    for tool in gdb-multiarch minicom screen picocom dfu-util; do
+        if command -v "$tool" >/dev/null 2>&1; then
+            tools_available+=("$tool")
+        else
+            tools_needed+=("$tool")
+        fi
+    done
+    
+    if [ ${#tools_available[@]} -gt 0 ]; then
+        print_info "Already installed: ${tools_available[*]}"
+    fi
+    
+    if [ ${#tools_needed[@]} -eq 0 ]; then
+        print_success "All development tools are already installed"
+        return 0
+    fi
+    
+    # Check if we have sudo privileges (for container vs host environment)
+    if sudo -n true 2>/dev/null; then
+        print_info "Installing missing tools: ${tools_needed[*]}"
+        sudo apt-get update
+        sudo apt-get install -y "${tools_needed[@]}"
+        print_success "Additional development tools installed"
+    else
+        print_error "Development tools installation requires system privileges"
+        print_info "Missing tools: ${tools_needed[*]}"
+        print_info "In a container environment, these should be pre-installed in the image"
+        return 1
+    fi
 }
 
-# Update PATH in shell profiles
-update_path() {
+# Offer to update PATH after toolchain installation
+offer_path_update() {
+    # Check if PATH is already configured
+    if grep -q "Development Tools PATH" "$HOME/.zshrc" 2>/dev/null; then
+        print_info "PATH already configured in shell profiles"
+        return 0
+    fi
+    
+    print_info "Toolchain installed successfully!"
+    print_warning "To use the toolchain, you need to add it to your PATH"
+    echo
+    print_info "Options:"
+    echo "  1. Add to PATH automatically (modifies .zshrc/.bashrc)"
+    echo "  2. Skip (you can run 'stm32-tools updatepath' later)"
+    echo "  3. Show manual PATH export command"
+    echo
+    
+    read -p "Choose option [1/2/3]: " path_choice
+    case $path_choice in
+        1)
+            update_path_silent
+            ;;
+        2)
+            print_info "Skipped PATH update. Run 'stm32-tools updatepath' when ready"
+            ;;
+        3)
+            print_info "Add this to your shell profile manually:"
+            echo 'export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"'
+            ;;
+        *)
+            print_info "Invalid choice. Skipping PATH update"
+            ;;
+    esac
+}
+
+# Silent version of PATH update (no prompts)
+update_path_silent() {
     print_info "Updating PATH in shell profiles..."
     
     # Add to .zshrc
@@ -237,6 +354,8 @@ update_path() {
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
 EOF
         print_success "Added development tools to .zshrc"
+    else
+        print_warning "Development tools PATH already exists in .zshrc"
     fi
     
     # Add to .bashrc (if it exists)
@@ -247,6 +366,50 @@ EOF
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
 EOF
         print_success "Added development tools to .bashrc"
+    elif [ -f "$HOME/.bashrc" ]; then
+        print_warning "Development tools PATH already exists in .bashrc"
+    fi
+}
+
+# Update PATH in shell profiles
+update_path() {
+    print_info "This will update PATH in your shell profiles (.zshrc and .bashrc)"
+    print_warning "This will modify your shell configuration files"
+    
+    # Ask for user confirmation
+    read -p "Do you want to update PATH in your shell profiles? [y/N]: " confirm
+    case $confirm in
+        [yY][eE][sS]|[yY])
+            print_info "Updating PATH in shell profiles..."
+            ;;
+        *)
+            print_info "Skipping PATH update. You can run 'stm32-tools updatepath' later"
+            return 0
+            ;;
+    esac
+    
+    # Add to .zshrc
+    if ! grep -q "Development Tools PATH" "$HOME/.zshrc" 2>/dev/null; then
+        cat >> "$HOME/.zshrc" << 'EOF'
+
+# Development Tools PATH
+export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
+EOF
+        print_success "Added development tools to .zshrc"
+    else
+        print_warning "Development tools PATH already exists in .zshrc"
+    fi
+    
+    # Add to .bashrc (if it exists)
+    if [ -f "$HOME/.bashrc" ] && ! grep -q "Development Tools PATH" "$HOME/.bashrc"; then
+        cat >> "$HOME/.bashrc" << 'EOF'
+
+# Development Tools PATH  
+export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
+EOF
+        print_success "Added development tools to .bashrc"
+    elif [ -f "$HOME/.bashrc" ]; then
+        print_warning "Development tools PATH already exists in .bashrc"
     fi
 }
 
@@ -263,7 +426,7 @@ show_status() {
     fi
     
     if [ -d "$HOME/atfe21.1" ]; then
-        echo "  ✓ Arm Compiler for Embedded 21.1: $($HOME/atfe21.1/bin/armclang --version 2>&1 | head -1)"
+        echo "  ✓ Arm Compiler for Embedded 21.1: $($HOME/atfe21.1/bin/clang --version 2>&1 | head -1)"
     else
         echo "  ✗ Arm Compiler for Embedded 21.1: Not installed"
     fi
@@ -276,7 +439,9 @@ show_status() {
         echo "  ✗ OpenOCD: Not installed"
     fi
     
-    if [ -f "$LOCAL_BIN_DIR/st-flash" ]; then
+    if command -v st-flash >/dev/null 2>&1; then
+        echo "  ✓ STLink Tools: $(st-flash --version 2>&1 | head -1 || echo "System-wide installation")"
+    elif [ -f "$LOCAL_BIN_DIR/st-flash" ]; then
         echo "  ✓ STLink Tools: $($LOCAL_BIN_DIR/st-flash --version 2>&1 | head -1)"
     else
         echo "  ✗ STLink Tools: Not installed"
