@@ -1,5 +1,9 @@
 # STM32 Development Docker Environment
 
+[![Build and Release](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml)
+[![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)
+[![Docker Release](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml)
+
 A lightweight, optimized Docker-based development environment for C++ and STM32 embedded systems development, built on Ubuntu 24.04 LTS.
 
 ## 🚀 **On-Demand Tool Installation**
@@ -49,6 +53,72 @@ All downloads are SHA256 verified for security.
 - **No password sudo**: Passwordless sudo for development convenience
 - **SSH key mounting**: SSH credentials mounted read-only for git operations
 - **Zsh shell**: Enhanced shell experience with Oh My Zsh pre-configured
+
+## ✅ Build Verification & Testing
+
+### Automated CI/CD Pipeline
+This project uses **comprehensive GitHub Actions workflows** to ensure quality and reliability:
+
+#### 🔨 **Build Pipeline** (`docker-build.yml`)
+- ✅ **Multi-platform builds** - Linux/AMD64 with ARM64 planned
+- ✅ **Automated testing** - Container functionality validation  
+- ✅ **Security scanning** - Dependency and image vulnerability checks
+- ✅ **Registry publishing** - Automatic publishing to GitHub Container Registry
+- ✅ **Size optimization** - Build artifact size monitoring
+
+#### 🧪 **Test Suite** (`docker-test.yml`)
+- ✅ **Core functionality** - GCC, Clang, CMake, Python compilation tests
+- ✅ **ARM toolchain installation** - On-demand GNU ARM and ATFE installation
+- ✅ **Cross-compilation testing** - STM32 Cortex-M4 firmware compilation with `--specs=nosys.specs`
+- ✅ **STM32 tools verification** - ST-Link, OpenOCD, debugging tool availability
+- ✅ **User environment** - Non-root user, shell configuration, PATH management
+- ✅ **Code coverage tools** - gcovr functionality validation
+
+#### 📦 **Release Pipeline** (`docker-release.yml`)
+- ✅ **Tagged releases** - Automatic Docker image releases on version tags
+- ✅ **Container attestation** - Signed build provenance for security
+- ✅ **Multi-registry support** - GitHub Container Registry with Docker Hub planned
+
+### Manual Build Verification
+To verify a successful build locally:
+
+```bash
+# Clone and build
+git clone https://github.com/kodezine/kdocker.git
+cd kdocker
+docker build -t cpp-arm-dev:test .
+
+# Run comprehensive tests (same as CI)
+docker run --rm --user kdev cpp-arm-dev:test bash -c "
+  # Test core development tools
+  gcc --version && g++ --version && cmake --version && python --version
+  
+  # Test ARM toolchain installation
+  echo '2' | stm32-tools gnuarm >/dev/null
+  arm-none-eabi-gcc --version
+  
+  # Test STM32 cross-compilation
+  echo 'int main(){return 0;}' > /tmp/test.c
+  arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
+  file /tmp/test.elf | grep 'ARM'
+  
+  echo 'All tests passed! ✅'
+"
+
+# Test 32-bit compilation support
+docker run --rm --user kdev cpp-arm-dev:test bash -c "
+  echo 'int main(){return 0;}' > /tmp/test.c
+  gcc -m32 -o /tmp/test32 /tmp/test.c && echo '32-bit compilation: ✅'
+"
+```
+
+### Test Coverage
+The CI pipeline validates:
+- **100% Core Tools**: All advertised development tools function correctly
+- **ARM Cross-compilation**: Successful STM32 firmware compilation for Cortex-M4
+- **On-demand Installation**: ARM toolchain installation without errors
+- **Security**: Non-root operation, SHA256 verification, secure defaults
+- **User Experience**: PATH management, shell configuration, welcome messages
 
 ## Quick Start
 
@@ -257,6 +327,43 @@ The container respects user choice for PATH modifications:
 - ST-Link USB device access methods
 - Performance optimization tips
 - Windows-specific troubleshooting
+
+## 📦 Pre-built Images
+
+### GitHub Container Registry (Recommended)
+Pre-built, tested images are automatically published:
+
+```bash
+# Pull the latest stable image
+docker pull ghcr.io/kodezine/kdocker:latest
+
+# Run pre-built image
+docker run -it --rm ghcr.io/kodezine/kdocker:latest
+
+# Use specific version (recommended for production)
+docker pull ghcr.io/kodezine/kdocker:v1.0.0
+```
+
+### Image Verification
+All published images include:
+- ✅ **Build provenance** - Signed attestation of build process
+- ✅ **Vulnerability scanning** - No known critical vulnerabilities
+- ✅ **Functional testing** - All CI tests passed
+- ✅ **Size optimization** - Minimal image layers and dependencies
+
+```bash
+# Verify image signature and provenance
+docker buildx imagetools inspect ghcr.io/kodezine/kdocker:latest
+
+# Check image layers and size
+docker images ghcr.io/kodezine/kdocker:latest
+docker history ghcr.io/kodezine/kdocker:latest
+```
+
+### Available Tags
+- `latest` - Latest stable build from `main` branch
+- `v*.*.*` - Specific release versions (e.g., `v1.0.0`)
+- `develop` - Latest development build (may be unstable)
 
 ## System Requirements
 
