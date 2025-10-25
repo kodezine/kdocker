@@ -4,205 +4,72 @@
 [![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)
 [![Docker Release](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml)
 
-A lightweight, optimized Docker-based development environment for C++ and STM32 embedded systems development, built on Ubuntu 24.04 LTS.
+A lightweight, optimized Docker environment for C++ and STM32 embedded development with **on-demand tool installation**.
 
-## 🚀 **On-Demand Tool Installation**
-This container uses a **smart on-demand installation system** to keep the base image small while providing comprehensive STM32 development capabilities when needed.
+## ✨ Key Features
 
-- **Base Image**: ~2GB (68% smaller than previous versions)  
-- **ARM Toolchains**: Install only what you need (~500MB - 3GB)
-- **STM32 Tools**: Debug and programming tools on-demand
-- **User Control**: No automatic PATH modifications without consent
+- 🐳 **Small Base Image**: ~2GB (68% size reduction)
+- 🛠️ **On-Demand Tools**: ARM toolchains install when needed
+- 🔒 **Secure**: Non-root user, SHA256 verified downloads  
+- 🎯 **STM32 Ready**: GNU ARM 14.3, ATFE 21.1, OpenOCD, ST-Link
+- 🪟 **Windows Support**: Full WSL2 + Docker Desktop integration
+- 📦 **Pre-built Images**: Available on GitHub Container Registry
 
-## Features
+## 🚀 Quick Start
 
-### Development Tools
-- **GCC 13.2** - Default system compiler
-- **Clang** - Modern C++ compiler with clang-format
-- **CMake** (latest) - From Kitware's official repository
-- **Ninja** - Fast build system
-- **ccache** - Compiler cache for faster rebuilds
-- **GDB** - GNU Debugger
-- **Valgrind** - Memory debugging and profiling
-
-### Languages
-- **Python 3.13** - Latest stable from deadsnakes PPA
-- **Ruby 3.2** - From Ubuntu repository
-- **Perl 5.38** - From Ubuntu repository
-
-### Code Coverage
-- **gcovr** (latest) - Generate code coverage reports
-
-### STM32 Development Tools (On-Demand)
-- **GNU ARM Toolchain 14.3.rel1** (arm-none-eabi) - ~500MB
-  - Install: `stm32-tools gnuarm`
-  - Location: `~/.toolchains/stm32tools/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi`
-  - Symlink: `~/gnuarm14.3`
-- **ARM Toolchain for Embedded (ATfE) 21.1.1** with newlib overlay - ~3GB
-  - Install: `stm32-tools atfe`  
-  - Location: `~/.toolchains/stm32tools/ATfE-21.1.1-Linux-x86_64`
-  - Symlink: `~/atfe21.1`
-- **STM32 Debug Tools** (OpenOCD, STLink, STM32CubeProgrammer)
-  - Install: `stm32-tools stm32tools`
-  - Pre-installed: `stlink-tools`, `openocd`, `gdb-multiarch`
-
-All downloads are SHA256 verified for security.
-
-### Security & User Experience
-- **Non-root user**: Default user `kdev` (UID 1000) with sudo access
-- **No password sudo**: Passwordless sudo for development convenience
-- **SSH key mounting**: SSH credentials mounted read-only for git operations
-- **Zsh shell**: Enhanced shell experience with Oh My Zsh pre-configured
-
-## ✅ Build Verification & Testing
-
-### Automated CI/CD Pipeline
-This project uses **comprehensive GitHub Actions workflows** to ensure quality and reliability:
-
-#### 🔨 **Build Pipeline** (`docker-build.yml`)
-- ✅ **Multi-platform builds** - Linux/AMD64 with ARM64 planned
-- ✅ **Automated testing** - Container functionality validation  
-- ✅ **Security scanning** - Dependency and image vulnerability checks
-- ✅ **Registry publishing** - Automatic publishing to GitHub Container Registry
-- ✅ **Size optimization** - Build artifact size monitoring
-
-#### 🧪 **Test Suite** (`docker-test.yml`)
-- ✅ **Core functionality** - GCC, Clang, CMake, Python compilation tests
-- ✅ **ARM toolchain installation** - On-demand GNU ARM and ATFE installation
-- ✅ **Cross-compilation testing** - STM32 Cortex-M4 firmware compilation with `--specs=nosys.specs`
-- ✅ **STM32 tools verification** - ST-Link, OpenOCD, debugging tool availability
-- ✅ **User environment** - Non-root user, shell configuration, PATH management
-- ✅ **Code coverage tools** - gcovr functionality validation
-
-#### 📦 **Release Pipeline** (`docker-release.yml`)
-- ✅ **Tagged releases** - Automatic Docker image releases on version tags
-- ✅ **Container attestation** - Signed build provenance for security
-- ✅ **Multi-registry support** - GitHub Container Registry with Docker Hub planned
-
-### Manual Build Verification
-To verify a successful build locally:
-
+### Using Pre-built Image (Recommended)
 ```bash
-# Clone and build
-git clone https://github.com/kodezine/kdocker.git
-cd kdocker
-docker build -t cpp-arm-dev:test .
+# Pull and run the latest image
+docker pull ghcr.io/kodezine/kdocker:latest
+docker run -it --rm ghcr.io/kodezine/kdocker:latest
 
-# Run comprehensive tests (same as CI)
-docker run --rm --user kdev cpp-arm-dev:test bash -c "
-  # Test core development tools
-  gcc --version && g++ --version && cmake --version && python --version
-  
-  # Test ARM toolchain installation
-  echo '2' | stm32-tools gnuarm >/dev/null
-  arm-none-eabi-gcc --version
-  
-  # Test STM32 cross-compilation
-  echo 'int main(){return 0;}' > /tmp/test.c
-  arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
-  file /tmp/test.elf | grep 'ARM'
-  
-  echo 'All tests passed! ✅'
-"
-
-# Test 32-bit compilation support
-docker run --rm --user kdev cpp-arm-dev:test bash -c "
-  echo 'int main(){return 0;}' > /tmp/test.c
-  gcc -m32 -o /tmp/test32 /tmp/test.c && echo '32-bit compilation: ✅'
-"
+# Install STM32 tools on first run
+stm32-tools gnuarm    # GNU ARM toolchain (~500MB)
+stm32-tools status    # Check installation
 ```
 
-### Test Coverage
-The CI pipeline validates:
-- **100% Core Tools**: All advertised development tools function correctly
-- **ARM Cross-compilation**: Successful STM32 firmware compilation for Cortex-M4
-- **On-demand Installation**: ARM toolchain installation without errors
-- **Security**: Non-root operation, SHA256 verification, secure defaults
-- **User Experience**: PATH management, shell configuration, welcome messages
-
-## Quick Start
-
-### Building the Docker Image
-
+### Building from Source
 ```bash
-# Clone the repository
 git clone https://github.com/kodezine/kdocker.git
 cd kdocker
-
-# Build the image
 docker build -t cpp-arm-dev .
-
-# Build with custom tag
-docker build -t my-stm32-dev:latest .
+docker run -it --rm cpp-arm-dev
 ```
 
-### Running the Container
+### VS Code DevContainer
+1. Add `.devcontainer/devcontainer.json` to your project:
+```json
+{
+  "name": "STM32 Development",
+  "image": "ghcr.io/kodezine/kdocker:latest",
+  "remoteUser": "kdev",
+  "postCreateCommand": "stm32-tools gnuarm"
+}
+```
+2. Open in VS Code → F1 → "Dev Containers: Reopen in Container"
 
+## STM32 Development Examples
+
+### Basic STM32 Compilation
 ```bash
-# Basic run with welcome message
-docker run -it --rm cpp-arm-dev
+# Install ARM toolchain
+stm32-tools gnuarm
 
-# Mount current directory as workspace
-docker run -it --rm -v $(pwd):/home/kdev/workspaces/project cpp-arm-dev
+# Compile for STM32F4 (Cortex-M4)
+arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf main.c
 
-# With SSH credentials for git operations
-docker run -it --rm \
-  -v $(pwd):/home/kdev/workspaces/project \
-  -v ~/.ssh:/home/kdev/.ssh:ro \
-  cpp-arm-dev
+# Check result
+file firmware.elf
+```
 
-# For STM32 debugging with USB device access
+### With VS Code + STM32 Extension
+```bash
+# For STM32 debugging with ST-Link
 docker run -it --rm --privileged \
   -v $(pwd):/home/kdev/workspaces/project \
   -v /dev/bus/usb:/dev/bus/usb \
-  cpp-arm-dev
+  ghcr.io/kodezine/kdocker:latest
 ```
-
-### First-Time Setup
-
-When you first run the container, you'll see a welcome message with available commands:
-
-```bash
-# Interactive installer - choose what you need
-stm32-tools
-
-# Quick STM32 development setup (most common)
-stm32-tools gnuarm
-
-# Install everything for comprehensive development
-stm32-tools all
-
-# Check what's currently installed
-stm32-tools status
-```
-
-### Using with VS Code DevContainers
-
-1. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-2. Open the project folder in VS Code
-3. Press `F1` and select "Dev Containers: Reopen in Container"
-4. VS Code will build and start the container automatically
-
-See [DevContainer Setup](.readme/devcontainer.md) for more details.
-
-## Usage Examples
-
-### Compiling C++ Code
-
-```bash
-# Using GCC
-g++ -std=c++20 -O2 -o myapp main.cpp
-
-# Using Clang
-clang++ -std=c++20 -O2 -o myapp main.cpp
-
-# Using CMake
-mkdir build && cd build
-cmake -G Ninja ..
-ninja
-```
-
-### STM32 Development Workflow
 
 ```bash
 # 1. Install GNU ARM toolchain (most common for STM32)
@@ -221,270 +88,34 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
   --sysroot=~/atfe21.1/arm-none-eabi -o firmware.elf main.c
 ```
 
-### STM32 Debugging and Programming
+## 📚 Documentation
 
+### Complete Guides
+- **[STM32 Tools Command Reference](.readme/stm32-tools-guide.md)** - Complete `stm32-tools` usage guide
+- **[ARM Toolchain Usage](.readme/arm-toolchains.md)** - GNU ARM & ATFE compilation examples
+- **[VS Code DevContainer Setup](.readme/devcontainer.md)** - DevContainer integration + Windows support
+- **[Build Verification & Testing](.readme/build-testing.md)** - CI/CD pipeline and manual testing
+- **[Troubleshooting Guide](.readme/troubleshooting.md)** - Common issues and solutions
+
+### Quick References
 ```bash
-# Install STM32 debugging tools
-stm32-tools stm32tools
-
-# Check connected STM32 devices
-st-info --probe
-
-# Flash firmware using st-flash
-st-flash write firmware.bin 0x8000000
-
-# Start OpenOCD debugging session
-openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
-```
-
-### Code Coverage with gcovr
-
-```bash
-# Compile with coverage flags
-g++ -fprofile-arcs -ftest-coverage -o myapp main.cpp
-
-# Run the application
-./myapp
-
-# Generate coverage report
-gcovr --html-details coverage.html
-```
-
-### Using ccache
-
-```bash
-# Set compiler to use ccache
-export CC="ccache gcc"
-export CXX="ccache g++"
-
-# Build with CMake
-cmake -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-      -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-      ..
-```
-
-## STM32-Tools Command Reference
-
-### Installation Commands
-```bash
+# STM32 Tools Commands
 stm32-tools                    # Interactive installer
-stm32-tools gnuarm             # Install GNU ARM Toolchain 14.3 (~500MB)
-stm32-tools atfe              # Install ATFE 21.1 (~3GB)
-stm32-tools armtools          # Install both ARM toolchains
-stm32-tools stm32tools        # Install STM32 debug tools
-stm32-tools devtools          # Install development tools
-stm32-tools all               # Install everything
+stm32-tools gnuarm             # Install GNU ARM (~500MB)  
+stm32-tools status             # Show installation status
+
+# ARM Cross-compilation
+arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf main.c
+
+# Container with USB debugging
+docker run -it --rm --privileged -v /dev/bus/usb:/dev/bus/usb ghcr.io/kodezine/kdocker:latest
 ```
-
-### Management Commands  
-```bash
-stm32-tools status            # Show installation status
-stm32-tools updatepath        # Add tools to PATH (with user consent)
-stm32-tools uninstall <tool>  # Remove specific tool
-stm32-tools clean             # Clean download cache
-```
-
-### PATH Management
-The container respects user choice for PATH modifications:
-- **Option 1**: Automatic PATH update (modifies shell config)
-- **Option 2**: Skip (run `stm32-tools updatepath` later)  
-- **Option 3**: Manual export command shown
-
-## VS Code DevContainer Integration
-
-### Quick Setup
-1. Install [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-2. Copy `.devcontainer/devcontainer.json` to your project
-3. Open project in VS Code → F1 → "Dev Containers: Reopen in Container"
-
-### Sample `.devcontainer/devcontainer.json`
-```json
-{
-  "name": "STM32 Development",
-  "image": "cpp-arm-dev:latest",
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools",
-        "marus25.cortex-debug"
-      ]
-    }
-  },
-  "mounts": [
-    "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind"
-  ],
-  "remoteUser": "kdev",
-  "privileged": true,
-  "postCreateCommand": "stm32-tools gnuarm"
-}
-```
-
-### Windows 10/11 Support
-✅ **Full Windows support** with WSL2 integration:
-- Complete setup guide in [DevContainer documentation](.readme/devcontainer.md#windows-1011-setup-guide)
-- WSL2 + Docker Desktop integration
-- ST-Link USB device access methods
-- Performance optimization tips
-- Windows-specific troubleshooting
-
-## 📦 Pre-built Images
-
-### GitHub Container Registry (Recommended)
-Pre-built, tested images are automatically published:
-
-```bash
-# Pull the latest stable image
-docker pull ghcr.io/kodezine/kdocker:latest
-
-# Run pre-built image
-docker run -it --rm ghcr.io/kodezine/kdocker:latest
-
-# Use specific version (recommended for production)
-docker pull ghcr.io/kodezine/kdocker:v1.0.0
-```
-
-### Image Verification
-All published images include:
-- ✅ **Build provenance** - Signed attestation of build process
-- ✅ **Vulnerability scanning** - No known critical vulnerabilities
-- ✅ **Functional testing** - All CI tests passed
-- ✅ **Size optimization** - Minimal image layers and dependencies
-
-```bash
-# Verify image signature and provenance
-docker buildx imagetools inspect ghcr.io/kodezine/kdocker:latest
-
-# Check image layers and size
-docker images ghcr.io/kodezine/kdocker:latest
-docker history ghcr.io/kodezine/kdocker:latest
-```
-
-### Available Tags
-- `latest` - Latest stable build from `main` branch
-- `v*.*.*` - Specific release versions (e.g., `v1.0.0`)
-- `develop` - Latest development build (may be unstable)
 
 ## System Requirements
-
-- **Docker**: 20.10 or later
-- **Disk Space**: 
-  - Base image: ~2GB
-  - With GNU ARM toolchain: ~2.5GB  
-  - With all tools: ~5GB
-- **RAM**: 4GB recommended for compilation
-- **USB Access**: For STM32 debugging (requires `--privileged` flag)
-
-## Image Optimization
-
-### Smart Size Management
-- **Base Image**: 2.04GB (68% smaller than previous versions)
-- **On-Demand Tools**: Install only what you need
-- **User-Level Installation**: Tools install in `~/.toolchains/` (no root required)
-- **Cached Downloads**: SHA256-verified downloads cached for reuse
-
-### Installation Sizes
-| Component | Size | Description |
-|-----------|------|-------------|
-| Base Image | ~2GB | Core development tools, languages |  
-| GNU ARM 14.3 | ~500MB | Essential STM32 development |
-| ATFE 21.1 | ~3GB | Advanced ARM compilation |
-| STM32 Tools | ~200MB | Debug and programming utilities |
-
-## Security Features
-
-### User Security
-- **Non-root operation**: All development as `kdev` user (UID 1000)
-- **Controlled sudo**: Passwordless sudo for system operations
-- **SSH credential mounting**: Read-only SSH key access for git
-- **User consent**: PATH modifications require explicit approval
-
-### Download Security  
-- **SHA256 verification**: All ARM toolchain downloads verified
-- **HTTPS downloads**: Secure download from official sources
-- **Signature verification**: GPG signature checks where available
-
-## Troubleshooting
-
-### Common Issues
-
-**ARM toolchain not in PATH**
-```bash
-# Check installation status
-stm32-tools status
-
-# Add to PATH (if installed)  
-stm32-tools updatepath
-
-# Or manually export for current session
-export PATH="$HOME/gnuarm14.3/bin:$PATH"
-```
-
-**STM32 device not detected**  
-```bash
-# Run container with USB access
-docker run -it --rm --privileged -v /dev/bus/usb:/dev/bus/usb cpp-arm-dev
-
-# Check connected devices
-lsusb | grep -i st-link
-st-info --probe
-```
-
-**Container size concerns**
-```bash
-# Start with minimal setup
-stm32-tools gnuarm    # Only GNU ARM (~500MB)
-
-# Check current usage
-stm32-tools status
-du -sh ~/.toolchains/
-```
-
-### Getting Help
-```bash
-# Tool-specific help
-stm32-tools --help
-arm-none-eabi-gcc --help
-openocd --help
-
-# Check versions
-stm32-tools status
-```
-
-## Migration from Previous Versions
-
-### From Fixed Installation Containers
-If upgrading from containers with pre-installed toolchains:
-
-1. **Remove old PATH entries** from shell config
-2. **Use new commands**: `stm32-tools gnuarm` instead of direct paths
-3. **User-level installation**: Tools now install in `~/.toolchains/`
-4. **Consent-based PATH**: Choose how to handle PATH updates
-
-### Version Compatibility
-- **GNU ARM**: Now version 14.3.rel1 (was 13.x)
-- **ATFE**: Now version 21.1.1 (was 20.x)  
-- **Tool locations**: Moved from `/opt/` to `~/.toolchains/`
-
-## Contributing & Development
-
-### Container Development
-```bash
-# Build development version
-docker build -t cpp-arm-dev:dev .
-
-# Test new features
-docker run -it --rm cpp-arm-dev:dev
-
-# Run CI tests locally  
-docker build -f .github/workflows/docker-test.yml .
-```
-
-### STM32-Tools Script Development
-The `stm32-tools` script handles all tool management:
-- Location: `~/.local/bin/stm32-tools`  
-- Features: Download, verify, install, manage ARM toolchains
-- User consent: Prompts before modifying shell configuration
+- **Docker**: 20.10+  
+- **Space**: 2GB base, +500MB-3GB for ARM toolchains
+- **RAM**: 4GB recommended  
+- **USB**: `--privileged` flag for STM32 debugging
 
 ## License
 
