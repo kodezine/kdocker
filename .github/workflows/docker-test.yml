@@ -82,12 +82,12 @@ jobs:
       - name: Test bootstrapped ARM GCC
         run: |
           docker run --rm --user kdev cpp-arm-dev:test zsh -c "
-            ${HOME}/gnuarm14.3/bin/arm-none-eabi-gcc --version
+            /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
           "
       - name: Test bootstrapped ATfE
         run: |
           docker run --rm --user kdev cpp-arm-dev:test zsh -c "
-            ${HOME}/atfe21.1/bin/clang --version
+            /home/kdev/atfe21.1/bin/clang --version
           "
       - name: Test GCC
         run: |
