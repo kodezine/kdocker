@@ -79,7 +79,16 @@ jobs:
             stm32-tools devtools
             stm32-tools status
           "
-
+      - name: Test bootstrapped ARM GCC
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
+            ${HOME}/gnuarm14.3/bin/arm-none-eabi-gcc --version
+          "
+      - name: Test bootstrapped ATfE
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
+            ${HOME}/atfe21.1/bin/clang --version
+          "
       - name: Test GCC
         run: |
           docker run --rm --user kdev cpp-arm-dev:test gcc --version
