@@ -141,6 +141,11 @@ RUN apt-get update && apt-get install -y \
 # Create directories for STM32 tools
 RUN mkdir -p ${KDEV_HOME}/.local/bin ${KDEV_HOME}/.toolchains/stm32tools
 
+COPY bootstrap-gnuarm14.3.sh $KDEV_HOME/.toolchains/bootstrap/bin/gnuarm14.3
+COPY bootstrap-atfe21.1.sh $KDEV_HOME/.toolchains/bootstrap/bin/atfe21.1
+
+RUN chmod +x $KDEV_HOME/.toolchains/bootstrap/bin/gnuarm14.3\
+    && chmod +x $KDEV_HOME/.toolchains/bootstrap/bin/atfe21.1
 # Copy STM32 tools installation script
 COPY stm32-tools.sh ${KDEV_HOME}/.local/bin/stm32-tools
 RUN chmod +x ${KDEV_HOME}/.local/bin/stm32-tools
