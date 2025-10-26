@@ -1,29 +1,16 @@
 #!/bin/bash
 KDEV_HOME=${KDEV_HOME:-/home/kdev}
 ARM_GCC_VERSION=${ARM_GCC_VERSION:-14.3.rel1}
-ARM_GCC_INSTALL_DIR=$KDEV_HOME/ARM/arm-none-eabi-gcc-$ARM_GCC_VERSION
+TOOLCHAIN_DIR="$KDEV_HOME/.toolchains/stm32tools"
+# The extracted directory name matches what stm32-tools.sh expects
+ARM_GCC_INSTALL_DIR=$TOOLCHAIN_DIR/arm-gnu-toolchain-$ARM_GCC_VERSION-x86_64-arm-none-eabi
 DOWNLOAD_DIR=${DOWNLOAD_DIR:-/tmp}
 ALLOW_INSECURE_DOWNLOAD=${ALLOW_INSECURE_DOWNLOAD:-false}
-ARCH=$(uname -m)
-
-function getArchSuffix {
-    case "$ARCH" in
-        x86_64)
-            echo "x86_64"
-            ;;
-        aarch64)
-            echo "aarch64"
-            ;;
-        *)
-            echo "Unsupported architecture: $ARCH" >&2
-            exit 1
-            ;;
-    esac
-}
+# Fixed architecture for consistency  
+ARCH_SUFFIX="x86_64"
 
 function downloadAndExtract {
     FILE_TO_DOWNLOAD=$1
-    EXTRACT_DIR=$2
     BASE_URL="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GCC_VERSION}/binrel/"
     WGET_FLAGS="-q --show-progress"
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
@@ -39,9 +26,9 @@ function downloadAndExtract {
         exit 1
     fi
 
-    mkdir -p "$EXTRACT_DIR"
-    echo "Extracting $FILE_TO_DOWNLOAD to $EXTRACT_DIR..."
-    tar xf "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" -C "$EXTRACT_DIR" --strip-components=1
+    mkdir -p "$TOOLCHAIN_DIR"
+    echo "Extracting $FILE_TO_DOWNLOAD to $TOOLCHAIN_DIR..."
+    tar xf "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" -C "$TOOLCHAIN_DIR"
     
     if [ $? -ne 0 ]; then
         echo "Failed to extract $FILE_TO_DOWNLOAD" >&2
@@ -68,12 +55,11 @@ function linkAsDefault {
 }
 
 function install {
-    ARCH_SUFFIX=$(getArchSuffix)
     PACKAGE_FILE="arm-gnu-toolchain-${ARM_GCC_VERSION}-${ARCH_SUFFIX}-arm-none-eabi.tar.xz"
     
     if [ ! -d "$ARM_GCC_INSTALL_DIR" ]; then
         echo "Requested version $ARM_GCC_VERSION is not installed"
-        downloadAndExtract "$PACKAGE_FILE" "$ARM_GCC_INSTALL_DIR"
+        downloadAndExtract "$PACKAGE_FILE"
         
         if verifyInstallation "$ARM_GCC_INSTALL_DIR"; then
             echo "arm-none-eabi-gcc $ARM_GCC_VERSION installed successfully"
