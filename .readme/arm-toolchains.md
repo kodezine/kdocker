@@ -12,15 +12,24 @@ This environment provides **on-demand installation** of two ARM toolchains optim
 ### Quick Installation
 
 ```bash
-# Most common: GNU ARM toolchain for STM32 development  
-stm32-tools gnuarm
+# Method 1: Direct bootstrap installation (NEW!)
+arm-none-eabi-gcc                # Install GNU ARM toolchain directly
+clang                            # Install ATFE toolchain directly
 
-# Advanced: ATFE for modern LLVM-based development
-stm32-tools atfe
-
-# Both toolchains
-stm32-tools armtools
+# Method 2: Interactive installation
+stm32-tools gnuarm               # GNU ARM toolchain for STM32 development  
+stm32-tools atfe                 # ATFE for modern LLVM-based development
+stm32-tools armtools             # Both toolchains
 ```
+
+### Bootstrap Scripts (New Feature!)
+Bootstrap scripts provide direct toolchain installation via compiler names:
+- **`arm-none-eabi-gcc`**: Installs GNU ARM Toolchain 14.3 on first run
+- **`clang`**: Installs ATFE 21.1 on first run  
+- **Perfect Compatibility**: Works alongside `stm32-tools` installations
+- **Same Result**: Identical toolchain installations and locations
+
+See **[Bootstrap Scripts Guide](bootstrap-scripts.md)** for complete documentation.
 
 ### Installation Process
 All toolchains are installed with:
