@@ -10,7 +10,8 @@ A lightweight, optimized Docker environment for C++ and STM32 embedded developme
 
 - 🐳 **Small Base Image**: ~2GB (68% size reduction)
 - 🛠️ **On-Demand Tools**: ARM toolchains install when needed
-- 🔒 **Secure**: Non-root user, SHA256 verified downloads  
+- � **Bootstrap Scripts**: Direct toolchain installation via compiler names
+- �🔒 **Secure**: Non-root user, SHA256 verified downloads  
 - 🎯 **STM32 Ready**: GNU ARM 14.3, ATFE 21.1, OpenOCD, ST-Link
 - 🪟 **Windows Support**: Full WSL2 + Docker Desktop integration
 - 📦 **Pre-built Images**: Available on GitHub Container Registry
@@ -23,8 +24,9 @@ A lightweight, optimized Docker environment for C++ and STM32 embedded developme
 docker pull ghcr.io/kodezine/kdocker:latest
 docker run -it --rm ghcr.io/kodezine/kdocker:latest
 
-# Install STM32 tools on first run
-stm32-tools gnuarm    # GNU ARM toolchain (~500MB)
+# Install STM32 tools on first run (choose method)
+stm32-tools gnuarm    # Interactive: GNU ARM toolchain (~500MB)
+arm-none-eabi-gcc     # Bootstrap: Direct GNU ARM installation
 stm32-tools status    # Check installation
 ```
 
@@ -72,18 +74,17 @@ docker run -it --rm --privileged \
 ```
 
 ```bash
-# 1. Install GNU ARM toolchain (most common for STM32)
+# Method 1: Interactive installation
 stm32-tools gnuarm
-
-# 2. Verify installation
 arm-none-eabi-gcc --version
 
-# 3. Compile for STM32 (Cortex-M4 example)
+# Method 2: Direct bootstrap installation  
+arm-none-eabi-gcc     # Installs GNU ARM toolchain automatically
 arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs \
   -o firmware.elf main.c
 
-# 4. Alternative: Use ATFE for advanced features
-stm32-tools atfe
+# Advanced: ATFE toolchain
+clang                 # Installs ATFE toolchain automatically
 clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
   --sysroot=~/atfe21.1/arm-none-eabi -o firmware.elf main.c
 ```
@@ -91,6 +92,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
 ## 📚 Documentation
 
 ### Complete Guides
+- **[Bootstrap Scripts](.readme/bootstrap-scripts.md)** - Direct toolchain installation via compiler names
 - **[STM32 Tools Command Reference](.readme/stm32-tools-guide.md)** - Complete `stm32-tools` usage guide
 - **[ARM Toolchain Usage](.readme/arm-toolchains.md)** - GNU ARM & ATFE compilation examples
 - **[VS Code DevContainer Setup](.readme/devcontainer.md)** - DevContainer integration + Windows support
@@ -99,7 +101,11 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
 
 ### Quick References
 ```bash
-# STM32 Tools Commands
+# Bootstrap Installation (New!)
+arm-none-eabi-gcc              # Install & use GNU ARM directly
+clang                          # Install & use ATFE directly
+
+# STM32 Tools Commands  
 stm32-tools                    # Interactive installer
 stm32-tools gnuarm             # Install GNU ARM (~500MB)  
 stm32-tools status             # Show installation status
