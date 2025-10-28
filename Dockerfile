@@ -135,6 +135,7 @@ RUN apt-get update && apt-get install -y \
     picocom \
     dfu-util \
     stlink-tools \
+    usbutils \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
