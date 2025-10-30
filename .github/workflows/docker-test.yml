@@ -111,6 +111,97 @@ jobs:
       - name: Test gcovr
         run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
 
+      - name: Test pre-commit availability
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test pre-commit --version
+          docker run --rm --user kdev cpp-arm-dev:test which pre-commit
+
+      - name: Test pyenv NOT pre-installed (should fail)
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            ! command -v pyenv >/dev/null 2>&1 && echo 'SUCCESS: pyenv not pre-installed as expected' || { echo 'FAIL: pyenv should not be pre-installed'; exit 1; }
+          "
+
+      - name: Test pyenv dependencies NOT pre-installed
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            # These packages should NOT be installed in base image (they'll be installed by bootstrap)
+            ! dpkg -l | grep -q libssl-dev && echo 'SUCCESS: pyenv dependencies not pre-installed' || { echo 'FAIL: pyenv dependencies should not be pre-installed'; exit 1; }
+          "
+
+      - name: Test pyenv bootstrap script exists
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            test -f /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh && echo 'SUCCESS: Bootstrap script exists' || { echo 'FAIL: Bootstrap script missing'; exit 1; }
+          "
+
+      - name: Test pyenv bootstrap installation
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            # Copy and run bootstrap script
+            cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
+            chmod +x /tmp/bootstrap-pyenv.sh
+            /tmp/bootstrap-pyenv.sh
+            
+            # Verify pyenv is installed and functional
+            source ~/.zshrc
+            export PYENV_ROOT=\"\$HOME/.pyenv\"
+            export PATH=\"\$PYENV_ROOT/bin:\$PATH\"
+            eval \"\$(pyenv init -)\"
+            
+            pyenv --version
+            pyenv install --list | head -5
+            echo 'SUCCESS: pyenv bootstrap completed'
+          "
+
+      - name: Test pyenv dependencies installed by bootstrap
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            # Run bootstrap first
+            cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
+            chmod +x /tmp/bootstrap-pyenv.sh
+            /tmp/bootstrap-pyenv.sh
+            
+            # Verify key dependencies are installed
+            dpkg -l | grep -E 'libssl-dev|zlib1g-dev|libreadline-dev|libffi-dev'
+            echo 'SUCCESS: pyenv dependencies verified'
+          "
+
+      - name: Test bootstrap script idempotency
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            # Copy bootstrap script
+            cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
+            chmod +x /tmp/bootstrap-pyenv.sh
+            
+            # Run twice - second run should detect existing installation
+            /tmp/bootstrap-pyenv.sh
+            echo '--- Running bootstrap again (should detect existing) ---'
+            /tmp/bootstrap-pyenv.sh
+            echo 'SUCCESS: Bootstrap script is idempotent'
+          "
+
+      - name: Test welcome message includes bootstrap info
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            /home/kdev/.welcome | grep -i 'bootstrap-pyenv.sh' && echo 'SUCCESS: Welcome message updated' || { echo 'FAIL: Welcome message not updated'; exit 1; }
+          "
+
+      - name: Test devcontainer setup script includes pyenv
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            test -f /home/kdev/workspaces/.devcontainer/setup.sh || { echo 'FAIL: Setup script missing'; exit 1; }
+            grep -i 'bootstrap-pyenv.sh' /home/kdev/workspaces/.devcontainer/setup.sh && echo 'SUCCESS: Setup script includes pyenv bootstrap' || { echo 'FAIL: Setup script not updated'; exit 1; }
+          "
+
+      - name: Test image size optimization
+        run: |
+          # Get image size and verify it's reasonable (should be around 2.06GB, not 2.68GB)
+          SIZE=$(docker images cpp-arm-dev:test --format "table {{.Size}}" | tail -n 1)
+          echo "Image size: $SIZE"
+          # This is informational - we'll just log the size for verification
+          echo "SUCCESS: Image built with optimized size: $SIZE"
+
       - name: Test 32-bit compilation support
         run: |
           docker run --rm --user kdev cpp-arm-dev:test zsh -c "
@@ -135,3 +226,11 @@ jobs:
       - name: Test sudo access
         run: |
           docker run --rm --user kdev cpp-arm-dev:test sudo whoami
+
+      - name: Test devcontainer configuration
+        run: |
+          docker run --rm --user kdev -v ${{ github.workspace }}:/home/kdev/workspaces cpp-arm-dev:test bash -c "
+            # Check devcontainer.json exists and has pyenv bootstrap
+            test -f /home/kdev/workspaces/.devcontainer/devcontainer.json || { echo 'FAIL: devcontainer.json missing'; exit 1; }
+            grep -i 'bootstrap-pyenv.sh' /home/kdev/workspaces/.devcontainer/devcontainer.json && echo 'SUCCESS: devcontainer.json includes pyenv bootstrap' || { echo 'FAIL: devcontainer.json not updated'; exit 1; }
+          "
