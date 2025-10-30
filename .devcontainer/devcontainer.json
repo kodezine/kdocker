@@ -75,10 +75,12 @@
     "postCreateCommand": [
         "git config --global --add safe.directory /home/kdev/workspaces/project",
         "git config --global core.autocrlf input",
+        "/home/kdev/workspaces/project/.devcontainer/bootstrap-pyenv.sh",
         "echo '🚀 STM32 Development Environment Ready!'",
         "echo '📋 Check tool status: stm32-tools status'", 
         "echo '🔧 Install GNU Arm: stm32-tools gnuarm'",
-        "echo '⚡ Install everything: stm32-tools all'"
+        "echo '⚡ Install everything: stm32-tools all'",
+        "echo '🐍 Python env: pyenv install 3.12.0 && pyenv global 3.12.0'"
     ],
     
     // Keep container running

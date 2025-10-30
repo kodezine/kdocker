@@ -54,12 +54,18 @@ case $choice in
     *)
         print_info "Manual setup selected"
         echo "Available commands:"
-        echo "  stm32-tools                    - Interactive installer"
-        echo "  stm32-tools gnuarm             - Install GNU Arm toolchain"
-        echo "  stm32-tools armtools           - Install both ARM toolchains" 
-        echo "  stm32-tools stm32tools         - Install STM32 debug tools"
-        echo "  stm32-tools all                - Install everything"
-        echo "  stm32-tools status             - Show installation status"
+        echo "  STM32 Tools:"
+        echo "    stm32-tools                  - Interactive installer"
+        echo "    stm32-tools gnuarm           - Install GNU Arm toolchain"
+        echo "    stm32-tools armtools         - Install both ARM toolchains" 
+        echo "    stm32-tools stm32tools       - Install STM32 debug tools"
+        echo "    stm32-tools all              - Install everything"
+        echo "    stm32-tools status           - Show installation status"
+        echo ""
+        echo "  Python Development:"
+        echo "    ./.devcontainer/bootstrap-pyenv.sh  - Install pyenv"
+        echo "    pyenv install 3.12.0        - Install Python 3.12.0"
+        echo "    pyenv global 3.12.0         - Set global Python version"
         ;;
 esac
 

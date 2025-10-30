@@ -86,7 +86,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
 RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.13 1 \
     && update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
 
-RUN python3 -m pip install --no-cache-dir gcovr
+RUN python3 -m pip install --no-cache-dir gcovr pre-commit
 
 # Remove ubuntu user
 RUN userdel -r ubuntu
@@ -197,13 +197,24 @@ RUN echo '#!/bin/bash' > ${KDEV_HOME}/.welcome \
     && echo 'echo "  - STM32CubeProgrammer (ST official)"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "  - Additional development tools"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "🐍 Python Development (bootstrap on-demand):"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - pyenv (Python version management)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - pre-commit (Git hooks framework)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "🚀 Quick Start:"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools                    - Interactive installer"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools gnuarm             - Install GNU Arm only"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools armtools           - Install both ARM toolchains"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools stm32tools         - Install STM32 debug tools"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools all                - Install everything"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  stm32-tools status             - Show installation status"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  STM32 Development:"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools                  - Interactive installer"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools gnuarm           - Install GNU Arm only"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools armtools         - Install both ARM toolchains"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools stm32tools       - Install STM32 debug tools"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools all              - Install everything"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    stm32-tools status           - Show installation status"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  Python Development (On-Demand):"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    ./.devcontainer/bootstrap-pyenv.sh  - Install pyenv"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    pyenv install 3.12.0         - Install Python 3.12.0"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    pyenv global 3.12.0          - Set global Python version"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "    pre-commit install           - Install pre-commit hooks"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "💡 Tip: Start with \"stm32-tools gnuarm\" for basic STM32 development"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "============================================"' >> ${KDEV_HOME}/.welcome \
