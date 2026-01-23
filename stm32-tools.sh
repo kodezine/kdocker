@@ -66,8 +66,8 @@ install_gnu_arm() {
     cd "$TEMP_DIR"
     
     print_info "Downloading GNU Arm Toolchain 14.3 (~500MB)..."
-    wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
-    wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
+    wget -c -t 10 -T 30 https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz
+    wget -c -t 10 -T 30 https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
     
     print_info "Verifying download..."
     sha256sum -c arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz.sha256asc
@@ -99,8 +99,8 @@ install_arm_atfe() {
     cd "$TEMP_DIR"
     
     print_info "Downloading ATFE 21.1 (~3GB)..."
-    wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz
-    wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
+    wget -c -t 10 -T 30 https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz
+    wget -c -t 10 -T 30 https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
     
     print_info "Verifying download..."
     sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
@@ -109,8 +109,8 @@ install_arm_atfe() {
     tar -xf ATfE-21.1.1-Linux-x86_64.tar.xz -C "$TOOLCHAIN_DIR"
     
     print_info "Downloading ATFE newlib overlay..."
-    wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz
-    wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz.sha256
+    wget -c -t 10 -T 30 https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz
+    wget -c -t 10 -T 30 https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-newlib-overlay-21.1.1.tar.xz.sha256
     
     print_info "Verifying overlay..."
     sha256sum -c ATfE-newlib-overlay-21.1.1.tar.xz.sha256

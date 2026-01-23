@@ -12,14 +12,14 @@ ARCH_SUFFIX="x86_64"
 function downloadAndExtract {
     FILE_TO_DOWNLOAD=$1
     BASE_URL="https://developer.arm.com/-/media/Files/downloads/gnu/${ARM_GCC_VERSION}/binrel/"
-    WGET_FLAGS="-q --show-progress"
+    WGET_FLAGS="-q --show-progress -c -t 10 -T 30"
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
     
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading $FILE_TO_DOWNLOAD..."
-    wget -nc "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
+    wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
     
     if [ $? -ne 0 ]; then
         echo "Failed to download $FILE_TO_DOWNLOAD" >&2

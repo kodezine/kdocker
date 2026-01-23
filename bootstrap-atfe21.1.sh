@@ -12,14 +12,14 @@ ARCH_SUFFIX="Linux-x86_64"
 function downloadAndExtract {
     FILE_TO_DOWNLOAD=$1
     BASE_URL="https://github.com/arm/arm-toolchain/releases/download/release-${ATFE_VERSION}-ATfE/"
-    WGET_FLAGS="-q --show-progress"
+    WGET_FLAGS="-q --show-progress -c -t 10 -T 30"
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
     
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading $FILE_TO_DOWNLOAD..."
-    wget -nc "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
+    wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
     
     if [ $? -ne 0 ]; then
         echo "Failed to download $FILE_TO_DOWNLOAD" >&2
@@ -29,7 +29,7 @@ function downloadAndExtract {
     # Also download the SHA256 checksum file
     SHA256_FILE="${FILE_TO_DOWNLOAD}.sha256"
     echo "Downloading checksum file..."
-    wget -nc "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
+    wget "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
     
     if [ $? -ne 0 ]; then
         echo "Failed to download $SHA256_FILE" >&2
@@ -58,14 +58,14 @@ function downloadAndExtract {
 function downloadAndExtractOverlay {
     FILE_TO_DOWNLOAD=$1
     BASE_URL="https://github.com/arm/arm-toolchain/releases/download/release-${ATFE_VERSION}-ATfE/"
-    WGET_FLAGS="-q --show-progress"
+    WGET_FLAGS="-q --show-progress -c -t 10 -T 30"
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
     
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading overlay $FILE_TO_DOWNLOAD..."
-    wget -nc "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
+    wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
     
     if [ $? -ne 0 ]; then
         echo "Failed to download overlay $FILE_TO_DOWNLOAD" >&2
@@ -75,7 +75,7 @@ function downloadAndExtractOverlay {
     # Download overlay checksum
     SHA256_FILE="${FILE_TO_DOWNLOAD}.sha256"
     echo "Downloading overlay checksum file..."
-    wget -nc "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
+    wget "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
     
     if [ $? -ne 0 ]; then
         echo "Failed to download overlay $SHA256_FILE" >&2
