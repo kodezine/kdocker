@@ -12,7 +12,7 @@ The `stm32-tools` script provides on-demand installation and management of STM32
 # Interactive installer - choose what you need
 stm32-tools
 
-# Quick STM32 development setup (most common)  
+# Quick STM32 development setup (most common)
 stm32-tools gnuarm
 
 # Install everything for comprehensive development
@@ -23,7 +23,7 @@ stm32-tools all
 
 ```bash
 stm32-tools gnuarm             # GNU ARM Toolchain 14.3 (~500MB)
-stm32-tools atfe              # ARM Toolchain for Embedded 21.1 (~3GB)  
+stm32-tools atfe              # ARM Toolchain for Embedded 21.1 (~3GB)
 stm32-tools armtools          # Both ARM toolchains
 stm32-tools stm32tools        # STM32 debug/programming tools (~200MB)
 stm32-tools devtools          # Development utilities
@@ -38,12 +38,12 @@ stm32-tools --version         # Show stm32-tools script version
 stm32-tools --help            # Show help information
 ```
 
-### PATH Management  
+### PATH Management
 ```bash
 stm32-tools updatepath        # Add installed tools to PATH
                              # Offers user choice:
                              # 1. Auto-update shell config
-                             # 2. Skip (manual later)  
+                             # 2. Skip (manual later)
                              # 3. Show export command
 ```
 
@@ -57,7 +57,7 @@ stm32-tools uninstall <tool>  # Remove specific tool (future feature)
 
 ### Download Process
 1. **Secure Download**: HTTPS from official ARM/ST repositories
-2. **SHA256 Verification**: All downloads cryptographically verified  
+2. **SHA256 Verification**: All downloads cryptographically verified
 3. **Caching**: Downloads cached in `~/.toolchains/stm32tools/.downloads/`
 4. **User Installation**: Tools install in `~/.toolchains/` (no root required)
 
@@ -72,10 +72,10 @@ stm32-tools uninstall <tool>  # Remove specific tool (future feature)
 ## Tool Details
 
 ### GNU ARM Toolchain 14.3.rel1
-**Size**: ~500MB  
-**Components**: 
+**Size**: ~500MB
+**Components**:
 - `arm-none-eabi-gcc` - C compiler
-- `arm-none-eabi-g++` - C++ compiler  
+- `arm-none-eabi-g++` - C++ compiler
 - `arm-none-eabi-gdb` - Debugger
 - `arm-none-eabi-objcopy`, `arm-none-eabi-objdump` - Binary utilities
 
@@ -87,7 +87,7 @@ arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf ma
 ```
 
 ### ARM Toolchain for Embedded (ATFE) 21.1.1
-**Size**: ~3GB  
+**Size**: ~3GB
 **Components**:
 - `clang` - Modern LLVM-based C/C++ compiler
 - `llvm-objcopy`, `llvm-objdump` - LLVM binary utilities
@@ -95,13 +95,13 @@ arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf ma
 
 **Usage**:
 ```bash
-# After installation and PATH update  
+# After installation and PATH update
 clang --version
 clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb -o firmware.elf main.c
 ```
 
 ### STM32 Development Tools
-**Size**: ~200MB  
+**Size**: ~200MB
 **Components**:
 - **STLink Tools**: Programming and debugging via ST-Link
 - **OpenOCD**: Open On-Chip Debugger (pre-installed in base image)
@@ -117,7 +117,7 @@ The `stm32-tools` script **never modifies your shell configuration without permi
 2. **Notification**: User is informed about PATH update options
 3. **Choice**: User chooses how to handle PATH updates:
    - Automatic shell config modification
-   - Skip for later (`stm32-tools updatepath`)  
+   - Skip for later (`stm32-tools updatepath`)
    - Manual export command display
 
 ### PATH Update Options
@@ -127,11 +127,11 @@ The `stm32-tools` script **never modifies your shell configuration without permi
 stm32-tools updatepath
 # Choose "1" when prompted
 
-# Option 2: Manual for current session  
+# Option 2: Manual for current session
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$PATH"
 
 # Option 3: Skip and decide later
-stm32-tools updatepath  
+stm32-tools updatepath
 # Choose "2" when prompted
 ```
 
@@ -151,18 +151,18 @@ set(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mthumb --specs=nosys.specs")
 ```
 
-### VS Code tasks.json  
+### VS Code tasks.json
 ```json
 {
   "version": "2.0.0",
   "tasks": [
     {
       "label": "Build STM32 Firmware",
-      "type": "shell", 
+      "type": "shell",
       "command": "arm-none-eabi-gcc",
       "args": [
         "-mcpu=cortex-m4",
-        "-mthumb", 
+        "-mthumb",
         "--specs=nosys.specs",
         "-o", "firmware.elf",
         "main.c"
@@ -186,7 +186,7 @@ ls -la ~/.local/bin/stm32-tools
 echo $PATH | grep -o ".local/bin"
 ```
 
-**"Download failed"**  
+**"Download failed"**
 ```bash
 # Check network connectivity
 curl -I https://github.com/arm/arm-toolchain/releases
@@ -197,8 +197,8 @@ stm32-tools gnuarm
 ```
 
 **"arm-none-eabi-gcc not found after installation"**
-```bash  
-# Check installation 
+```bash
+# Check installation
 stm32-tools status
 
 # Update PATH
@@ -215,7 +215,7 @@ export PATH="$HOME/gnuarm14.3/bin:$PATH"
 # For scripts/CI - auto-select option 2 (skip PATH update)
 echo '2' | stm32-tools gnuarm
 
-# For scripts/CI - auto-select option 1 (update PATH)  
+# For scripts/CI - auto-select option 1 (update PATH)
 echo '1' | stm32-tools gnuarm
 ```
 

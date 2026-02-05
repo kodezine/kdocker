@@ -41,7 +41,7 @@ check_git_repo() {
         log_info "Please run 'git init' first"
         exit 1
     fi
-    
+
     log_success "Git repository detected"
 }
 
@@ -51,9 +51,9 @@ install_precommit() {
         log_success "pre-commit is already installed ($(pre-commit --version))"
         return 0
     fi
-    
+
     log_info "Installing pre-commit..."
-    
+
     # Try different installation methods
     if command -v pip3 >/dev/null 2>&1; then
         pip3 install --user pre-commit
@@ -70,48 +70,48 @@ install_precommit() {
         log_info "  or visit: https://pre-commit.com/#installation"
         exit 1
     fi
-    
+
     log_success "pre-commit installed successfully"
 }
 
 # Setup Git hooks using pre-commit
 setup_git_hooks() {
     log_info "Setting up Git hooks with pre-commit..."
-    
+
     # Add user local bin to PATH if not already there
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         export PATH="$HOME/.local/bin:$PATH"
     fi
-    
+
     # Check if core.hooksPath is set and temporarily unset it for this repo
     if git config core.hooksPath >/dev/null 2>&1; then
         log_info "Temporarily unsetting core.hooksPath for this repository..."
         git config --local core.hooksPath ""
     fi
-    
+
     # Install pre-commit hooks
     if ! pre-commit install; then
         log_error "Failed to install pre-commit hooks"
         exit 1
     fi
-    
+
     # Install commit message hooks
     if ! pre-commit install --hook-type commit-msg; then
         log_warning "Failed to install commit-msg hooks (optional)"
     fi
-    
+
     # Install pre-push hooks
     if ! pre-commit install --hook-type pre-push; then
         log_warning "Failed to install pre-push hooks (optional)"
     fi
-    
+
     log_success "Git hooks installed successfully"
 }
 
 # Create custom Git hooks
 create_custom_hooks() {
     log_info "Creating custom Git hooks..."
-    
+
     # Create pre-commit hook (backup if pre-commit fails)
     cat > "${HOOKS_DIR}/pre-commit.manual" << 'EOF'
 #!/bin/bash
@@ -164,7 +164,7 @@ if git diff --cached --name-only | grep -E "\.sh$|\.bash$" >/dev/null; then
             if [ ! -x "$script" ]; then
                 echo "Warning: $script is not executable"
             fi
-            
+
             # Basic syntax check
             if ! bash -n "$script"; then
                 echo "Error: Syntax error in $script"
@@ -178,7 +178,7 @@ echo "Manual pre-commit checks completed successfully"
 EOF
 
     chmod +x "${HOOKS_DIR}/pre-commit.manual"
-    
+
     # Create post-commit hook for notifications
     cat > "${HOOKS_DIR}/post-commit" << 'EOF'
 #!/bin/bash
@@ -213,7 +213,7 @@ fi
 EOF
 
     chmod +x "${HOOKS_DIR}/post-commit"
-    
+
     # Create pre-push hook
     cat > "${HOOKS_DIR}/pre-push" << 'EOF'
 #!/bin/bash
@@ -228,10 +228,10 @@ current_branch=$(git symbolic-ref HEAD | sed -e 's,.*/\(.*\),\1,')
 
 if [[ $current_branch =~ $protected_branch ]]; then
     echo "🔒 Pushing to protected branch: $current_branch"
-    
+
     # Run comprehensive tests before pushing to main
     echo "🧪 Running comprehensive tests..."
-    
+
     # Check if Docker image builds
     if [ -f Dockerfile ]; then
         echo "🐳 Testing Docker build..."
@@ -241,11 +241,11 @@ if [[ $current_branch =~ $protected_branch ]]; then
             exit 1
         fi
         echo "✅ Docker build successful"
-        
+
         # Cleanup test image
         docker rmi stm32-dev-test >/dev/null 2>&1 || true
     fi
-    
+
     # Check if all documentation is up to date
     if [ -f README.md ] && [ -f DEVCONTAINER.md ] && [ -f PRE-COMMIT.md ]; then
         echo "✅ Documentation files present"
@@ -258,16 +258,16 @@ echo "✅ Pre-push validations completed"
 EOF
 
     chmod +x "${HOOKS_DIR}/pre-push"
-    
+
     log_success "Custom Git hooks created"
 }
 
 # Validate hook installation
 validate_hooks() {
     log_info "Validating Git hook installation..."
-    
+
     local hooks_installed=0
-    
+
     # Check pre-commit hook
     if [ -f "${HOOKS_DIR}/pre-commit" ]; then
         log_success "pre-commit hook installed"
@@ -275,7 +275,7 @@ validate_hooks() {
     else
         log_warning "pre-commit hook not found"
     fi
-    
+
     # Check commit-msg hook
     if [ -f "${HOOKS_DIR}/commit-msg" ]; then
         log_success "commit-msg hook installed"
@@ -283,18 +283,18 @@ validate_hooks() {
     else
         log_warning "commit-msg hook not found"
     fi
-    
+
     # Check custom hooks
     if [ -f "${HOOKS_DIR}/post-commit" ]; then
         log_success "post-commit hook installed"
         hooks_installed=$((hooks_installed + 1))
     fi
-    
+
     if [ -f "${HOOKS_DIR}/pre-push" ]; then
         log_success "pre-push hook installed"
         hooks_installed=$((hooks_installed + 1))
     fi
-    
+
     if [ "$hooks_installed" -gt 0 ]; then
         log_success "Git hooks validation completed ($hooks_installed hooks active)"
     else
@@ -306,27 +306,27 @@ validate_hooks() {
 # Test hooks
 test_hooks() {
     log_info "Testing Git hooks..."
-    
+
     # Add user local bin to PATH if not already there
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         export PATH="$HOME/.local/bin:$PATH"
     fi
-    
+
     # Create a test file
     echo "# Test file for Git hooks" > test_hooks_file.md
     git add test_hooks_file.md
-    
+
     # Test pre-commit hook (dry run)
     if pre-commit run --files test_hooks_file.md >/dev/null 2>&1; then
         log_success "Pre-commit hooks are working"
     else
         log_warning "Pre-commit hooks may have issues (check configuration)"
     fi
-    
+
     # Clean up test file
     git reset HEAD test_hooks_file.md >/dev/null 2>&1 || true
     rm -f test_hooks_file.md
-    
+
     log_success "Hook testing completed"
 }
 
@@ -334,11 +334,11 @@ test_hooks() {
 show_status() {
     log_info "Git Hooks Status"
     log_info "================"
-    
+
     echo ""
     echo "📁 Hooks directory: $HOOKS_DIR"
     echo ""
-    
+
     if [ -d "$HOOKS_DIR" ]; then
         echo "📋 Installed hooks:"
         for hook in "$HOOKS_DIR"/*; do
@@ -349,24 +349,24 @@ show_status() {
         done
         echo ""
     fi
-    
+
     # Add user local bin to PATH if not already there
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         export PATH="$HOME/.local/bin:$PATH"
     fi
-    
+
     # Check pre-commit status
     if command -v pre-commit >/dev/null 2>&1; then
         echo "🔧 Pre-commit framework:"
         pre-commit --version
         echo ""
-        
+
         # Show configured hooks
         echo "📋 Configured pre-commit hooks:"
         pre-commit run --all-files --dry-run 2>/dev/null | grep -E "^- " | head -10
         echo ""
     fi
-    
+
     echo "💡 Usage:"
     echo "  - Hooks run automatically on git commit/push"
     echo "  - Manual run: pre-commit run --all-files"
@@ -377,7 +377,7 @@ show_status() {
 # Main setup function
 main() {
     local command="${1:-setup}"
-    
+
     case "$command" in
         "setup"|"install"|"s")
             log_info "Setting up Git hooks for STM32 Docker Environment"

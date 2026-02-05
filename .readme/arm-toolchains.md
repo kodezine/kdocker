@@ -17,7 +17,7 @@ arm-none-eabi-gcc                # Install GNU ARM toolchain directly
 clang                            # Install ATFE toolchain directly
 
 # Method 2: Interactive installation
-stm32-tools gnuarm               # GNU ARM toolchain for STM32 development  
+stm32-tools gnuarm               # GNU ARM toolchain for STM32 development
 stm32-tools atfe                 # ATFE for modern LLVM-based development
 stm32-tools armtools             # Both toolchains
 ```
@@ -25,7 +25,7 @@ stm32-tools armtools             # Both toolchains
 ### Bootstrap Scripts (New Feature!)
 Bootstrap scripts provide direct toolchain installation via compiler names:
 - **`arm-none-eabi-gcc`**: Installs GNU ARM Toolchain 14.3 on first run
-- **`clang`**: Installs ATFE 21.1 on first run  
+- **`clang`**: Installs ATFE 21.1 on first run
 - **Perfect Compatibility**: Works alongside `stm32-tools` installations
 - **Same Result**: Identical toolchain installations and locations
 
@@ -34,7 +34,7 @@ See **[Bootstrap Scripts Guide](bootstrap-scripts.md)** for complete documentati
 ### Installation Process
 All toolchains are installed with:
 - ✅ **SHA256 verification** for security
-- ✅ **User-level installation** in `~/.toolchains/`  
+- ✅ **User-level installation** in `~/.toolchains/`
 - ✅ **Symbolic links** for easy access (`~/gnuarm14.3`, `~/atfe21.1`)
 - ✅ **Optional PATH updates** with user consent
 
@@ -52,7 +52,7 @@ stm32-tools gnuarm
 ~/gnuarm14.3/bin/
 ```
 
-### Components  
+### Components
 - **GCC 14.3.1** - C/C++ compiler for ARM
 - **Newlib** - Embedded C library
 - **GDB** - GNU debugger for ARM
@@ -90,7 +90,7 @@ arm-none-eabi-gcc \
   -o firmware.elf \
   main.c
 
-# With optimization and debugging  
+# With optimization and debugging
 arm-none-eabi-gcc \
   -mcpu=cortex-m4 \
   -mthumb \
@@ -104,12 +104,12 @@ arm-none-eabi-gcc \
 
 ## ARM Toolchain for Embedded (ATfE) 21.1.1
 
-### Installation & Location  
+### Installation & Location
 ```bash
 # Install ATFE toolchain
 stm32-tools atfe
 
-# Installation location  
+# Installation location
 ~/.toolchains/stm32tools/ATfE-21.1.1-Linux-x86_64/
 
 # Convenient symlink
@@ -119,7 +119,7 @@ stm32-tools atfe
 ### Components
 - **LLVM/Clang 21.1.1** - Modern compiler infrastructure
 - **Newlib overlay** - Embedded C library support
-- **LLD linker** - Fast LLVM linker  
+- **LLD linker** - Fast LLVM linker
 - **LLVM tools** - objcopy, objdump, size, etc.
 
 ### Usage
@@ -138,7 +138,7 @@ clang++
 
 # LLVM tools
 llvm-objcopy
-llvm-objdump  
+llvm-objdump
 llvm-size
 ```
 

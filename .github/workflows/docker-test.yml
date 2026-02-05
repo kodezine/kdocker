@@ -30,7 +30,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-
       - name: Install and Test ARM Toolchains
         run: |
           docker run --rm --user kdev cpp-arm-dev:test bash -c "
@@ -38,35 +37,35 @@ jobs:
             # Install GNU ARM toolchain (non-interactive)
             echo '2' | stm32-tools gnuarm
             echo 'GNU ARM installation complete'
-            
-            # Install ATFE toolchain (non-interactive)  
+
+            # Install ATFE toolchain (non-interactive)
             echo '2' | stm32-tools atfe
             echo 'ATFE installation complete'
-            
+
             echo ''
             echo 'Verifying ARM toolchain installations...'
             echo 'GNU ARM toolchain:'
             ls -la /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc
             echo 'ATFE toolchain:'
             ls -la /home/kdev/atfe21.1/bin/clang
-            
+
             echo ''
             echo 'Testing ARM toolchain versions...'
             /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc --version
             /home/kdev/atfe21.1/bin/clang --version
-            
+
             echo ''
             echo 'Testing ARM cross-compilation...'
             echo 'int main(){return 0;}' > /tmp/test.c
             /home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
             file /tmp/test.elf
             echo 'ARM cross-compilation: SUCCESS'
-            
+
             echo ''
             echo 'Verifying symlinks:'
             ls -la /home/kdev/atfe21.1
             ls -la /home/kdev/gnuarm14.3
-            
+
             echo ''
             echo 'Toolchain status:'
             stm32-tools status | grep -A10 'ARM Toolchains'
@@ -106,7 +105,6 @@ jobs:
         run: |
           docker run --rm --user kdev cpp-arm-dev:test ruby --version
           docker run --rm --user kdev cpp-arm-dev:test perl --version
-
 
       - name: Test gcovr
         run: docker run --rm --user kdev cpp-arm-dev:test gcovr --version
@@ -155,7 +153,7 @@ jobs:
             git init
             git config user.email 'test@example.com'
             git config user.name 'Test User'
-            
+
             # Create minimal pre-commit config
             cat > .pre-commit-config.yaml << 'EOF'
           repos:
@@ -165,10 +163,10 @@ jobs:
                 - id: trailing-whitespace
                 - id: end-of-file-fixer
           EOF
-            
+
             # Run setup
             setup-pre-commit /tmp/test-with-config
-            
+
             # Verify hooks installed
             test -f .git/hooks/pre-commit && echo 'SUCCESS: pre-commit hook file created' || { echo 'FAIL: Hook file missing'; exit 1; }
             grep -q 'pre-commit' .git/hooks/pre-commit && echo 'SUCCESS: Hook file contains pre-commit' || { echo 'FAIL: Hook file invalid'; exit 1; }
@@ -184,7 +182,7 @@ jobs:
             git init
             git config user.email 'test@example.com'
             git config user.name 'Test User'
-            
+
             cat > .pre-commit-config.yaml << 'EOF'
           repos:
             - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -192,11 +190,11 @@ jobs:
               hooks:
                 - id: trailing-whitespace
           EOF
-            
+
             # Run setup twice
             setup-pre-commit /tmp/test-idempotent
             setup-pre-commit /tmp/test-idempotent | tee /tmp/output3.log
-            
+
             # Second run should detect existing installation
             grep -q 'already installed' /tmp/output3.log && echo 'SUCCESS: Idempotent behavior confirmed' || { echo 'FAIL: Should detect existing hooks'; exit 1; }
           "
@@ -211,7 +209,7 @@ jobs:
             git init
             git config user.email 'test@example.com'
             git config user.name 'Test User'
-            
+
             cat > .pre-commit-config.yaml << 'EOF'
           repos:
             - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -219,16 +217,16 @@ jobs:
               hooks:
                 - id: trailing-whitespace
           EOF
-            
+
             setup-pre-commit /tmp/test-hook-exec
-            
+
             # Create file with trailing whitespace
             echo 'content with trailing whitespace    ' > test.txt
             git add test.txt
-            
+
             # Hooks should run (and fix the whitespace)
             git commit -m 'test' || echo 'Hooks executed'
-            
+
             echo 'SUCCESS: Pre-commit hooks can execute'
           "
 
@@ -258,13 +256,13 @@ jobs:
             cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
             chmod +x /tmp/bootstrap-pyenv.sh
             /tmp/bootstrap-pyenv.sh
-            
+
             # Verify pyenv is installed and functional
             source ~/.zshrc
             export PYENV_ROOT=\"\$HOME/.pyenv\"
             export PATH=\"\$PYENV_ROOT/bin:\$PATH\"
             eval \"\$(pyenv init -)\"
-            
+
             pyenv --version
             pyenv install --list | head -5
             echo 'SUCCESS: pyenv bootstrap completed'
@@ -277,7 +275,7 @@ jobs:
             cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
             chmod +x /tmp/bootstrap-pyenv.sh
             /tmp/bootstrap-pyenv.sh
-            
+
             # Verify key dependencies are installed
             dpkg -l | grep -E 'libssl-dev|zlib1g-dev|libreadline-dev|libffi-dev'
             echo 'SUCCESS: pyenv dependencies verified'
@@ -289,7 +287,7 @@ jobs:
             # Copy bootstrap script
             cp /home/kdev/workspaces/.devcontainer/bootstrap-pyenv.sh /tmp/
             chmod +x /tmp/bootstrap-pyenv.sh
-            
+
             # Run twice - second run should detect existing installation
             /tmp/bootstrap-pyenv.sh
             echo '--- Running bootstrap again (should detect existing) ---'
@@ -325,8 +323,6 @@ jobs:
             gcc -m32 -o /tmp/test32 /tmp/test.c
             file /tmp/test32
           "
-
-
 
       - name: Test kdev user configuration
         run: |

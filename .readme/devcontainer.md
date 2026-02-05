@@ -17,7 +17,7 @@ This guide shows how to use the STM32 development container with Visual Studio C
 - **WSL2** (Windows Subsystem for Linux 2) - Required for best performance
 - **Git for Windows** - For git operations and SSH key management
 
-#### Linux  
+#### Linux
 - Docker Engine or Docker Desktop
 - Docker Compose (usually included)
 
@@ -42,11 +42,11 @@ wsl --install
 3. **Important**: Enable WSL2 integration during setup
 4. Restart Windows when prompted
 
-#### Step 3: Configure Docker Desktop  
+#### Step 3: Configure Docker Desktop
 1. Open Docker Desktop
 2. Go to Settings → General
 3. ✅ **Enable "Use WSL 2 based engine"**
-4. Go to Settings → Resources → WSL Integration  
+4. Go to Settings → Resources → WSL Integration
 5. ✅ **Enable integration with your default WSL distro**
 6. ✅ **Enable integration with additional distros** (Ubuntu, etc.)
 7. Click "Apply & Restart"
@@ -75,7 +75,7 @@ Create `.devcontainer/devcontainer.json` with Windows optimizations:
     "vscode": {
       "extensions": [
         "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools", 
+        "ms-vscode.cmake-tools",
         "marus25.cortex-debug",
         "dan-c-underwood.arm"
       ]
@@ -146,13 +146,13 @@ code C:\dev\your-stm32-project
 # Check WSL2 status
 wsl --status
 
-# Restart WSL2 if needed  
+# Restart WSL2 if needed
 wsl --shutdown
 # Wait 10 seconds, then start Docker Desktop
 ```
 
 #### Permission Issues
-```powershell  
+```powershell
 # Run VS Code as Administrator if needed
 # Right-click VS Code → "Run as Administrator"
 ```
@@ -177,7 +177,7 @@ Create `.devcontainer/devcontainer.json` in your STM32 project:
     "vscode": {
       "extensions": [
         "ms-vscode.cpptools",
-        "ms-vscode.cmake-tools", 
+        "ms-vscode.cmake-tools",
         "marus25.cortex-debug",
         "dan-c-underwood.arm"
       ]
@@ -197,7 +197,7 @@ Create `.devcontainer/devcontainer.json` in your STM32 project:
 
 ### 2. Start Development
 1. Open your STM32 project folder in VS Code
-2. Press `F1` → "Dev Containers: Reopen in Container"  
+2. Press `F1` → "Dev Containers: Reopen in Container"
 3. Container builds and installs GNU ARM toolchain automatically
 4. Your project is mounted at `/home/kdev/workspaces/project`
 
@@ -206,7 +206,7 @@ Create `.devcontainer/devcontainer.json` in your STM32 project:
 # Verify ARM toolchain installation
 stm32-tools status
 
-# Add tools to PATH 
+# Add tools to PATH
 stm32-tools updatepath
 
 # Verify STM32 toolchain
@@ -489,11 +489,11 @@ wsl --shutdown
 ```
 
 #### "Docker daemon is not running"
-1. Open Docker Desktop manually  
+1. Open Docker Desktop manually
 2. Check system tray for Docker whale icon
 3. Right-click → "Start Docker Desktop"
 
-#### WSL2 Integration Issues  
+#### WSL2 Integration Issues
 ```powershell
 # Check WSL2 distros
 wsl --list --verbose
@@ -566,7 +566,7 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -d 3
 
 ### Performance Optimization on Windows
 
-#### Slow file operations  
+#### Slow file operations
 **Use WSL2 file system:**
 ```bash
 # Clone projects in WSL2, not Windows file system
@@ -628,7 +628,7 @@ docker context ls
 # View Docker Desktop logs
 # Docker Desktop → Settings → Troubleshoot → Get Support → View Logs
 
-# Restart WSL2 completely  
+# Restart WSL2 completely
 wsl --shutdown
 # Wait 8-10 seconds before restarting
 ```

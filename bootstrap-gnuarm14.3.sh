@@ -6,7 +6,7 @@ TOOLCHAIN_DIR="$KDEV_HOME/.toolchains/stm32tools"
 ARM_GCC_INSTALL_DIR=$TOOLCHAIN_DIR/arm-gnu-toolchain-$ARM_GCC_VERSION-x86_64-arm-none-eabi
 DOWNLOAD_DIR=${DOWNLOAD_DIR:-/tmp}
 ALLOW_INSECURE_DOWNLOAD=${ALLOW_INSECURE_DOWNLOAD:-false}
-# Fixed architecture for consistency  
+# Fixed architecture for consistency
 ARCH_SUFFIX="x86_64"
 
 function downloadAndExtract {
@@ -16,11 +16,11 @@ function downloadAndExtract {
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
-    
+
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading $FILE_TO_DOWNLOAD..."
     wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to download $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -29,7 +29,7 @@ function downloadAndExtract {
     mkdir -p "$TOOLCHAIN_DIR"
     echo "Extracting $FILE_TO_DOWNLOAD to $TOOLCHAIN_DIR..."
     tar xf "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" -C "$TOOLCHAIN_DIR"
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to extract $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -56,11 +56,11 @@ function linkAsDefault {
 
 function install {
     PACKAGE_FILE="arm-gnu-toolchain-${ARM_GCC_VERSION}-${ARCH_SUFFIX}-arm-none-eabi.tar.xz"
-    
+
     if [ ! -d "$ARM_GCC_INSTALL_DIR" ]; then
         echo "Requested version $ARM_GCC_VERSION is not installed"
         downloadAndExtract "$PACKAGE_FILE"
-        
+
         if verifyInstallation "$ARM_GCC_INSTALL_DIR"; then
             echo "arm-none-eabi-gcc $ARM_GCC_VERSION installed successfully"
         else
@@ -70,7 +70,7 @@ function install {
     else
         echo "arm-none-eabi-gcc $ARM_GCC_VERSION is already installed at $ARM_GCC_INSTALL_DIR"
     fi
-    
+
     linkAsDefault
 }
 

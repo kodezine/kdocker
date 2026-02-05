@@ -1,9 +1,9 @@
 {
-    "timeout": "10s",
-    "retryOn404": true,
-    "retryCount": 3,
+    "aliveStatusCodes": [
+        200,
+        206
+    ],
     "fallbackHttpStatus": 200,
-    "aliveStatusCodes": [200, 206],
     "ignorePatterns": [
         {
             "pattern": "^https://github\\.com/.*/blob/.*#L\\d+$"
@@ -20,5 +20,8 @@
             "pattern": "^(.*)\\?.*$",
             "replacement": "$1"
         }
-    ]
+    ],
+    "retryCount": 3,
+    "retryOn404": true,
+    "timeout": "10s"
 }

@@ -6,7 +6,7 @@ This document summarizes the transformation of the STM32 development Docker imag
 
 ### Image Size Reduction
 - **Original Monolithic Image**: 8.01GB
-- **Optimized On-Demand Image**: 2.57GB  
+- **Optimized On-Demand Image**: 2.57GB
 - **🏆 Size Reduction**: 5.44GB (68% smaller!)
 
 ### Flexibility Improvements
@@ -19,14 +19,14 @@ This document summarizes the transformation of the STM32 development Docker imag
 ```dockerfile
 # Everything installed during build
 RUN download_and_install_gnu_arm_toolchain     # ~500MB
-RUN download_and_install_atfe_toolchain        # ~3GB  
+RUN download_and_install_atfe_toolchain        # ~3GB
 RUN download_and_install_stm32cubeprogrammer   # ~500MB
 RUN install_openocd_and_stlink_tools           # ~100MB
 # Result: 8GB+ image regardless of actual needs
 ```
 
 ### After: On-Demand Architecture
-```dockerfile  
+```dockerfile
 # Minimal base with installation framework
 COPY stm32-tools.sh /usr/local/bin/stm32-tools
 RUN setup_base_dependencies                     # ~150MB
@@ -40,16 +40,16 @@ RUN setup_base_dependencies                     # ~150MB
 stm32-tools                    # Interactive menu
 # ======================================
 # ARM Toolchains:
-# 1) Install GNU Arm Toolchain 14.3 (~500MB)  
+# 1) Install GNU Arm Toolchain 14.3 (~500MB)
 # 2) Install Arm Compiler for Embedded 21.1 (~3GB)
-# 
+#
 # STM32 Debug/Programming Tools:
 # 3) Install OpenOCD
 # 4) Install STLink Tools
 # 5) Install STM32CubeProgrammer
 ```
 
-### Command Line Installation  
+### Command Line Installation
 ```bash
 stm32-tools gnuarm             # Install GNU Arm only (~500MB)
 stm32-tools atfe              # Install ATFE only (~3GB)
@@ -89,14 +89,14 @@ stm32-tools <specific-tools>
 ### VS Code Development Container
 - **Automatic Setup**: Container starts with welcome message and tool status
 - **Extension Integration**: Pre-configured C/C++, Cortex Debug, Serial Monitor
-- **Hardware Access**: ST-Link and USB device passthrough configured  
+- **Hardware Access**: ST-Link and USB device passthrough configured
 - **Intelligent Paths**: Tool paths automatically configured when installed
 
 ### Project Structure
 ```
 project/
 ├── .devcontainer/
-│   ├── devcontainer.json     # VS Code configuration  
+│   ├── devcontainer.json     # VS Code configuration
 │   ├── docker-compose.yml    # Advanced container setup
 │   └── setup.sh             # Automated tool installation
 ├── .vscode-sample/           # Sample VS Code settings
@@ -110,7 +110,7 @@ project/
 
 ### Build Time Improvements
 - **Image Pull**: 2.6GB vs 8GB (69% faster download)
-- **Container Start**: Instant vs waiting for heavy tool initialization  
+- **Container Start**: Instant vs waiting for heavy tool initialization
 - **Layer Caching**: Smaller layers cache more efficiently
 
 ### Storage Efficiency
@@ -127,7 +127,7 @@ project/
 
 ### Robust Installation Framework
 - **SHA256 Verification**: All downloads cryptographically verified
-- **Progress Indicators**: Real-time download and extraction progress  
+- **Progress Indicators**: Real-time download and extraction progress
 - **Error Handling**: Graceful failure handling with helpful error messages
 - **Cleanup**: Automatic temporary file cleanup after installation
 - **Path Management**: Automatic PATH updates and shell integration
@@ -146,14 +146,14 @@ project/
 - **Easy Experimentation**: Try tools without committing to full install
 - **Clean Environments**: Easy to reset and reconfigure
 
-### For Organizations  
+### For Organizations
 - **Reduced Infrastructure**: Less storage and bandwidth
 - **Standardized Base**: Common foundation with flexible tooling
 - **Cost Efficiency**: Particularly beneficial in cloud environments
 - **Scalable**: Efficient for large development teams
 
 ### For Education
-- **Progressive Learning**: Start simple, add complexity gradually  
+- **Progressive Learning**: Start simple, add complexity gradually
 - **Resource Friendly**: Lower hardware requirements for students
 - **Demonstration Ready**: Easy to show different tool combinations
 - **Reproducible**: Consistent environments across all students
@@ -161,7 +161,7 @@ project/
 ## 🏆 Key Achievements
 
 1. **68% Size Reduction**: From 8.01GB to 2.57GB base image
-2. **100% Functionality Maintained**: All original capabilities preserved  
+2. **100% Functionality Maintained**: All original capabilities preserved
 3. **Enhanced User Experience**: Interactive installer with progress feedback
 4. **DevContainer Ready**: Complete VS Code integration with sample configs
 5. **Hardware Compatibility**: Full ST-Link and USB device support
@@ -172,7 +172,7 @@ project/
 
 ### Potential Additions
 - **Additional Toolchains**: RISC-V, ESP32, Nordic SDK support
-- **Cloud Integration**: Pre-built images for major cloud providers  
+- **Cloud Integration**: Pre-built images for major cloud providers
 - **Version Management**: Multiple toolchain versions side-by-side
 - **Package Manager**: Custom package management for embedded tools
 - **Templates**: Project templates for common STM32 configurations

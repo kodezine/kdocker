@@ -1,21 +1,21 @@
 {
     "name": "STM32 Development Environment (On-Demand Tools)",
     "image": "stm32-dev-minimal:latest",
-    
+
     // Run as kdev user (UID 1000)
     "remoteUser": "kdev",
     "containerUser": "kdev",
-    
+
     // Mount project files to kdev's workspace
     "workspaceFolder": "/home/kdev/workspaces/project",
     "mounts": [
         "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind,consistency=cached",
         "source=${localEnv:HOME}/.ssh,target=/home/kdev/.ssh,type=bind,consistency=cached,readonly"
     ],
-    
+
     // Forward ports for debugging
     "forwardPorts": [3333, 4444, 8080],
-    
+
     "customizations": {
         "vscode": {
             "extensions": [
@@ -24,28 +24,28 @@
                 "ms-vscode.cpptools-extension-pack",
                 "ms-vscode.cmake-tools",
                 "twxs.cmake",
-                
+
                 // Embedded Development
                 "marus25.cortex-debug",
                 "dan-c-underwood.arm",
                 "ms-vscode.vscode-serial-monitor",
-                
+
                 // Build & Debug
                 "webfreak.debug",
                 "ms-vscode.makefile-tools",
-                
+
                 // General Development
                 "ms-python.python",
-                "ms-python.vscode-pylance", 
+                "ms-python.vscode-pylance",
                 "eamodio.gitlens"
             ],
             "settings": {
                 "terminal.integrated.defaultProfile.linux": "zsh",
-                
+
                 // C/C++ Configuration (will work when toolchain is installed)
                 "C_Cpp.default.compilerPath": "/home/kdev/gnuarm14.3/bin/arm-none-eabi-gcc",
                 "C_Cpp.default.cStandard": "c11",
-                "C_Cpp.default.cppStandard": "c++17", 
+                "C_Cpp.default.cppStandard": "c++17",
                 "C_Cpp.default.includePath": [
                     "${workspaceFolder}/src/**",
                     "${workspaceFolder}/include/**",
@@ -55,22 +55,22 @@
                     "STM32F4XX",
                     "USE_HAL_DRIVER"
                 ],
-                
+
                 // CMake Configuration
                 "cmake.configureOnOpen": true,
                 "cmake.generator": "Unix Makefiles",
-                
+
                 // Cortex Debug Configuration
                 "cortex-debug.armToolchainPath": "/home/kdev/gnuarm14.3/bin",
                 "cortex-debug.openocdPath": "/usr/bin/openocd",
-                
+
                 // General Settings
                 "python.defaultInterpreterPath": "/usr/bin/python3",
                 "files.eol": "\n"
             }
         }
     },
-    
+
     // Setup commands after container creation
     "postCreateCommand": [
         "git config --global --add safe.directory /home/kdev/workspaces/project",
@@ -78,21 +78,21 @@
         "setup-pre-commit /home/kdev/workspaces/project",
         "/home/kdev/workspaces/project/.devcontainer/bootstrap-pyenv.sh",
         "echo '🚀 STM32 Development Environment Ready!'",
-        "echo '📋 Check tool status: stm32-tools status'", 
+        "echo '📋 Check tool status: stm32-tools status'",
         "echo '🔧 Install GNU Arm: stm32-tools gnuarm'",
         "echo '⚡ Install everything: stm32-tools all'",
         "echo '🐍 Python env: pyenv install 3.12.0 && pyenv global 3.12.0'"
     ],
-    
+
     // Keep container running
     "shutdownAction": "stopContainer",
-    
+
     // Hardware access for ST-Link and USB devices
     "runArgs": [
-        "--privileged", 
+        "--privileged",
         "--device=/dev:/dev"
     ],
-    
+
     // Environment variables
     "containerEnv": {
         "DISPLAY": "${localEnv:DISPLAY}",

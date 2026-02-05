@@ -25,49 +25,49 @@ Create `.devcontainer/devcontainer.json`:
 {
     "name": "STM32 Development Environment",
     "image": "stm32-dev-minimal:latest",
-    
+
     // Run as kdev user (UID 1000)
     "remoteUser": "kdev",
     "containerUser": "kdev",
-    
+
     // Mount project files
     "workspaceFolder": "/home/kdev/workspaces/project",
     "mounts": [
         "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind,consistency=cached"
     ],
-    
+
     // Forward ports for debugging
     "forwardPorts": [3333, 4444, 8080],
-    
+
     // VS Code settings
     "settings": {
         "terminal.integrated.shell.linux": "/bin/zsh",
         "terminal.integrated.defaultProfile.linux": "zsh"
     },
-    
+
     // Install recommended extensions
     "extensions": [
         "ms-vscode.cpptools",
-        "ms-vscode.cpptools-extension-pack", 
+        "ms-vscode.cpptools-extension-pack",
         "ms-vscode.cmake-tools",
         "marus25.cortex-debug",
         "dan-c-underwood.arm",
         "ms-vscode.vscode-serial-monitor",
         "webfreak.debug"
     ],
-    
+
     // Run commands after container creation
     "postCreateCommand": "setup-pre-commit /workspaces/project && stm32-tools status",
-    
+
     // Keep container running
     "shutdownAction": "stopContainer",
-    
+
     // Hardware access for ST-Link
     "runArgs": [
         "--privileged",
         "--device=/dev:/dev"
     ],
-    
+
     // Environment variables
     "containerEnv": {
         "DISPLAY": "${localEnv:DISPLAY}",
@@ -110,17 +110,17 @@ And update `.devcontainer/devcontainer.json`:
     "service": "stm32-dev",
     "workspaceFolder": "/home/kdev/workspaces/project",
     "remoteUser": "kdev",
-    
+
     "settings": {
         "terminal.integrated.shell.linux": "/bin/zsh"
     },
-    
+
     "extensions": [
         "ms-vscode.cpptools",
         "ms-vscode.cmake-tools",
         "marus25.cortex-debug"
     ],
-    
+
     "postCreateCommand": "stm32-tools status"
 }
 ```
@@ -191,16 +191,16 @@ Essential extensions for STM32 development:
     "ms-vscode.cpptools",
     "ms-vscode.cpptools-extension-pack",
     "ms-vscode.cmake-tools",
-    
+
     // Embedded Development
     "marus25.cortex-debug",
     "dan-c-underwood.arm",
     "ms-vscode.vscode-serial-monitor",
-    
+
     // Build & Debug
     "webfreak.debug",
     "ms-vscode.makefile-tools",
-    
+
     // Git & Utilities
     "eamodio.gitlens",
     "ms-vsliveshare.vsliveshare"
@@ -225,13 +225,13 @@ Create `.vscode/settings.json`:
         "STM32F4XX",
         "USE_HAL_DRIVER"
     ],
-    
+
     "cmake.configureOnOpen": true,
     "cmake.generator": "Unix Makefiles",
-    
+
     "cortex-debug.armToolchainPath": "/home/kdev/gnuarm14.3/bin",
     "cortex-debug.openocdPath": "/usr/bin/openocd",
-    
+
     "terminal.integrated.defaultProfile.linux": "zsh"
 }
 ```
@@ -299,7 +299,7 @@ Create `.vscode/tasks.json`:
         },
         {
             "label": "Flash Firmware",
-            "type": "shell", 
+            "type": "shell",
             "command": "st-flash",
             "args": ["write", "build/firmware.bin", "0x8000000"],
             "group": "build",
@@ -519,7 +519,7 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
    ```bash
    # Check ST-Link connection
    st-info --probe
-   
+
    # Verify OpenOCD installation
    stm32-tools openocd
    ```

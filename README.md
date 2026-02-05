@@ -11,7 +11,7 @@ A lightweight, optimized Docker environment for C++ and STM32 embedded developme
 - 🐳 **Small Base Image**: ~2GB (68% size reduction)
 - 🛠️ **On-Demand Tools**: ARM toolchains install when needed
 - � **Bootstrap Scripts**: Direct toolchain installation via compiler names
-- �🔒 **Secure**: Non-root user, SHA256 verified downloads  
+- �🔒 **Secure**: Non-root user, SHA256 verified downloads
 - 🎯 **STM32 Ready**: GNU ARM 14.3, ATFE 21.1, OpenOCD, ST-Link- ✨ **Code Quality**: Pre-commit hooks auto-configure on startup- 🪟 **Windows Support**: Full WSL2 + Docker Desktop integration
 - 📦 **Pre-built Images**: Available on GitHub Container Registry
 
@@ -79,7 +79,7 @@ docker run -it --rm --privileged \
 stm32-tools gnuarm
 arm-none-eabi-gcc --version
 
-# Method 2: Direct bootstrap installation  
+# Method 2: Direct bootstrap installation
 arm-none-eabi-gcc     # Installs GNU ARM toolchain automatically
 arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs \
   -o firmware.elf main.c
@@ -106,9 +106,9 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
 arm-none-eabi-gcc              # Install & use GNU ARM directly
 clang                          # Install & use ATFE directly
 
-# STM32 Tools Commands  
+# STM32 Tools Commands
 stm32-tools                    # Interactive installer
-stm32-tools gnuarm             # Install GNU ARM (~500MB)  
+stm32-tools gnuarm             # Install GNU ARM (~500MB)
 stm32-tools status             # Show installation status
 
 # ARM Cross-compilation
@@ -119,9 +119,9 @@ docker run -it --rm --privileged -v /dev/bus/usb:/dev/bus/usb ghcr.io/kodezine/k
 ```
 
 ## System Requirements
-- **Docker**: 20.10+  
+- **Docker**: 20.10+
 - **Space**: 2GB base, +500MB-3GB for ARM toolchains
-- **RAM**: 4GB recommended  
+- **RAM**: 4GB recommended
 - **USB**: `--privileged` flag for STM32 debugging
 
 ## License

@@ -1,6 +1,6 @@
 # Example pre-commit configuration for STM32 embedded projects
 # Copy this to your project root as `.pre-commit-config.yaml`
-# 
+#
 # Usage:
 #   1. Copy this file to your project root
 #   2. Open your project in the kdocker dev container
@@ -19,10 +19,10 @@ repos:
       - id: check-yaml
       - id: check-json
       - id: check-added-large-files
-        args: ['--maxkb=5000']  # 5MB limit
+        args: ["--maxkb=5000"] # 5MB limit
       - id: check-merge-conflict
       - id: mixed-line-ending
-        args: ['--fix=lf']
+        args: ["--fix=lf"]
 
   # C/C++ code formatting
   - repo: https://github.com/pre-commit/mirrors-clang-format
