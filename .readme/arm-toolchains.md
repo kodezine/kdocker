@@ -23,7 +23,9 @@ stm32-tools armtools             # Both toolchains
 ```
 
 ### Bootstrap Scripts (New Feature!)
+
 Bootstrap scripts provide direct toolchain installation via compiler names:
+
 - **`arm-none-eabi-gcc`**: Installs GNU ARM Toolchain 14.3 on first run
 - **`clang`**: Installs ATFE 21.1 on first run
 - **Perfect Compatibility**: Works alongside `stm32-tools` installations
@@ -32,7 +34,9 @@ Bootstrap scripts provide direct toolchain installation via compiler names:
 See **[Bootstrap Scripts Guide](bootstrap-scripts.md)** for complete documentation.
 
 ### Installation Process
+
 All toolchains are installed with:
+
 - ✅ **SHA256 verification** for security
 - ✅ **User-level installation** in `~/.toolchains/`
 - ✅ **Symbolic links** for easy access (`~/gnuarm14.3`, `~/atfe21.1`)
@@ -41,6 +45,7 @@ All toolchains are installed with:
 ## GNU ARM Toolchain 14.3.rel1
 
 ### Installation & Location
+
 ```bash
 # Install GNU ARM toolchain
 stm32-tools gnuarm
@@ -53,6 +58,7 @@ stm32-tools gnuarm
 ```
 
 ### Components
+
 - **GCC 14.3.1** - C/C++ compiler for ARM
 - **Newlib** - Embedded C library
 - **GDB** - GNU debugger for ARM
@@ -105,6 +111,7 @@ arm-none-eabi-gcc \
 ## ARM Toolchain for Embedded (ATfE) 21.1.1
 
 ### Installation & Location
+
 ```bash
 # Install ATFE toolchain
 stm32-tools atfe
@@ -117,6 +124,7 @@ stm32-tools atfe
 ```
 
 ### Components
+
 - **LLVM/Clang 21.1.1** - Modern compiler infrastructure
 - **Newlib overlay** - Embedded C library support
 - **LLD linker** - Fast LLVM linker
@@ -174,10 +182,12 @@ clang \
 ## GNU ARM Toolchain 14.3.rel1
 
 ### Location
+
 - Full path: `/opt/arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi`
 - Symlink: `/opt/gnuarm14.3`
 
 ### Components
+
 - GCC 14.3.0
 - Newlib C library
 - GDB for ARM
@@ -224,31 +234,37 @@ clang \
 ## Common Targets
 
 ### Cortex-M0/M0+
+
 ```bash
 -mcpu=cortex-m0 -mthumb
 ```
 
 ### Cortex-M3
+
 ```bash
 -mcpu=cortex-m3 -mthumb
 ```
 
 ### Cortex-M4 (no FPU)
+
 ```bash
 -mcpu=cortex-m4 -mthumb
 ```
 
 ### Cortex-M4 (with FPU)
+
 ```bash
 -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ```
 
 ### Cortex-M7 (with DP FPU)
+
 ```bash
 -mcpu=cortex-m7 -mthumb -mfloat-abi=hard -mfpu=fpv5-d16
 ```
 
 ### Cortex-A Series
+
 ```bash
 -mcpu=cortex-a9 -marm
 ```
@@ -317,16 +333,19 @@ set(CMAKE_CXX_FLAGS_INIT "-mcpu=cortex-m4 -mthumb")
 ## Creating Binary Files
 
 ### Generate HEX file
+
 ```bash
 /opt/atfe21.1/bin/arm-none-eabi-objcopy -O ihex firmware.elf firmware.hex
 ```
 
 ### Generate BIN file
+
 ```bash
 /opt/atfe21.1/bin/arm-none-eabi-objcopy -O binary firmware.elf firmware.bin
 ```
 
 ### Check size
+
 ```bash
 /opt/atfe21.1/bin/arm-none-eabi-size firmware.elf
 ```

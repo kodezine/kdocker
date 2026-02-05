@@ -161,7 +161,7 @@ repos:
         pass_filenames: false
         verbose: true
 
-      # Ensure shell scripts are executable  
+      # Ensure shell scripts are executable
       - id: shell-executable
         name: Ensure shell scripts are executable
         entry: bash

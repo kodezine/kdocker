@@ -36,10 +36,12 @@ docker buildx build --platform linux/amd64 -t cpp-arm-dev .
 ## Build Time
 
 Expected build times:
+
 - **First build**: 15-25 minutes (depending on internet speed)
 - **Subsequent builds**: 5-10 minutes (with layer caching)
 
 The longest steps are:
+
 1. Downloading ARM toolchains (~500MB each)
 2. Installing system packages
 3. Python installation and setup
@@ -57,6 +59,7 @@ DOCKER_BUILDKIT=1 docker build -t cpp-arm-dev .
 ### Layer Caching
 
 The Dockerfile is structured to maximize layer caching:
+
 - System packages are installed first
 - Toolchains are downloaded in separate layers
 - Frequently changing items are near the end
@@ -145,6 +148,7 @@ docker history cpp-arm-dev
 ### Download Failures
 
 If ARM toolchain downloads fail:
+
 1. Check your internet connection
 2. Verify the URLs are still valid
 3. Try building again (downloads may resume)
@@ -152,6 +156,7 @@ If ARM toolchain downloads fail:
 ### SHA256 Verification Failures
 
 If checksum verification fails:
+
 ```bash
 # Remove the sha256sum check temporarily to diagnose
 # Or verify the checksums manually
@@ -162,6 +167,7 @@ cat ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 ### Out of Disk Space
 
 The build requires ~10GB free space:
+
 ```bash
 # Clean up Docker
 docker system prune -a
@@ -173,6 +179,7 @@ docker system df
 ### Python apt_pkg Errors
 
 If you encounter `ModuleNotFoundError: No module named 'apt_pkg'`:
+
 - Ensure Ruby/Perl are installed before Python 3.13
 - The Dockerfile is already ordered correctly to avoid this
 
@@ -191,6 +198,7 @@ docker image prune
 ### Updating Base Image
 
 To get security updates:
+
 ```bash
 # Pull latest Ubuntu 24.04
 docker pull ubuntu:24.04

@@ -183,8 +183,8 @@ install_stlink() {
 
     # Configure with CMake for user installation
     cmake -DCMAKE_INSTALL_PREFIX="$TOOLCHAIN_DIR/stlink" \
-          -DCMAKE_BUILD_TYPE=Release \
-          .
+        -DCMAKE_BUILD_TYPE=Release \
+        .
 
     # Build with all available cores
     make -j$(nproc)
@@ -326,19 +326,19 @@ offer_path_update() {
 
     read -p "Choose option [1/2/3]: " path_choice
     case $path_choice in
-        1)
-            update_path_silent
-            ;;
-        2)
-            print_info "Skipped PATH update. Run 'stm32-tools updatepath' when ready"
-            ;;
-        3)
-            print_info "Add this to your shell profile manually:"
-            echo 'export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"'
-            ;;
-        *)
-            print_info "Invalid choice. Skipping PATH update"
-            ;;
+    1)
+        update_path_silent
+        ;;
+    2)
+        print_info "Skipped PATH update. Run 'stm32-tools updatepath' when ready"
+        ;;
+    3)
+        print_info "Add this to your shell profile manually:"
+        echo 'export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"'
+        ;;
+    *)
+        print_info "Invalid choice. Skipping PATH update"
+        ;;
     esac
 }
 
@@ -348,7 +348,7 @@ update_path_silent() {
 
     # Add to .zshrc
     if ! grep -q "Development Tools PATH" "$HOME/.zshrc" 2>/dev/null; then
-        cat >> "$HOME/.zshrc" << 'EOF'
+        cat >>"$HOME/.zshrc" <<'EOF'
 
 # Development Tools PATH
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
@@ -360,7 +360,7 @@ EOF
 
     # Add to .bashrc (if it exists)
     if [ -f "$HOME/.bashrc" ] && ! grep -q "Development Tools PATH" "$HOME/.bashrc"; then
-        cat >> "$HOME/.bashrc" << 'EOF'
+        cat >>"$HOME/.bashrc" <<'EOF'
 
 # Development Tools PATH
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
@@ -379,18 +379,18 @@ update_path() {
     # Ask for user confirmation
     read -p "Do you want to update PATH in your shell profiles? [y/N]: " confirm
     case $confirm in
-        [yY][eE][sS]|[yY])
-            print_info "Updating PATH in shell profiles..."
-            ;;
-        *)
-            print_info "Skipping PATH update. You can run 'stm32-tools updatepath' later"
-            return 0
-            ;;
+    [yY][eE][sS] | [yY])
+        print_info "Updating PATH in shell profiles..."
+        ;;
+    *)
+        print_info "Skipping PATH update. You can run 'stm32-tools updatepath' later"
+        return 0
+        ;;
     esac
 
     # Add to .zshrc
     if ! grep -q "Development Tools PATH" "$HOME/.zshrc" 2>/dev/null; then
-        cat >> "$HOME/.zshrc" << 'EOF'
+        cat >>"$HOME/.zshrc" <<'EOF'
 
 # Development Tools PATH
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
@@ -402,7 +402,7 @@ EOF
 
     # Add to .bashrc (if it exists)
     if [ -f "$HOME/.bashrc" ] && ! grep -q "Development Tools PATH" "$HOME/.bashrc"; then
-        cat >> "$HOME/.bashrc" << 'EOF'
+        cat >>"$HOME/.bashrc" <<'EOF'
 
 # Development Tools PATH
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$HOME/.toolchains/stm32tools/stlink/bin:$HOME/.toolchains/stm32tools/stm32cubeprog/bin:$HOME/.local/bin:$PATH"
@@ -501,70 +501,73 @@ main() {
             read -p "Choose an option [1-13]: " choice
 
             case $choice in
-                1) install_gnu_arm ;;
-                2) install_arm_atfe ;;
-                3) install_openocd ;;
-                4) install_stlink ;;
-                5) install_stm32cubeprog ;;
-                6) install_stm32cubeide_cli ;;
-                7) install_dev_tools ;;
-                8)
-                    install_gnu_arm
-                    install_arm_atfe
-                    ;;
-                9)
-                    install_openocd
-                    install_stlink
-                    install_dev_tools
-                    print_info "Note: STM32CubeProgrammer requires manual download"
-                    ;;
-                10)
-                    install_gnu_arm
-                    install_arm_atfe
-                    install_openocd
-                    install_stlink
-                    install_dev_tools
-                    print_info "Note: STM32CubeProgrammer requires manual download"
-                    ;;
-                11) update_path ;;
-                12) show_status ;;
-                13) print_info "Exiting..."; break ;;
-                *) print_error "Invalid option. Please choose 1-13." ;;
+            1) install_gnu_arm ;;
+            2) install_arm_atfe ;;
+            3) install_openocd ;;
+            4) install_stlink ;;
+            5) install_stm32cubeprog ;;
+            6) install_stm32cubeide_cli ;;
+            7) install_dev_tools ;;
+            8)
+                install_gnu_arm
+                install_arm_atfe
+                ;;
+            9)
+                install_openocd
+                install_stlink
+                install_dev_tools
+                print_info "Note: STM32CubeProgrammer requires manual download"
+                ;;
+            10)
+                install_gnu_arm
+                install_arm_atfe
+                install_openocd
+                install_stlink
+                install_dev_tools
+                print_info "Note: STM32CubeProgrammer requires manual download"
+                ;;
+            11) update_path ;;
+            12) show_status ;;
+            13)
+                print_info "Exiting..."
+                break
+                ;;
+            *) print_error "Invalid option. Please choose 1-13." ;;
             esac
             echo
         done
     else
         # Command line mode
         case "$1" in
-            "gnuarm") install_gnu_arm ;;
-            "atfe") install_arm_atfe ;;
-            "openocd") install_openocd ;;
-            "stlink") install_stlink ;;
-            "cubeprog") install_stm32cubeprog ;;
-            "cubeide") install_stm32cubeide_cli ;;
-            "devtools") install_dev_tools ;;
-            "armtools")
-                install_gnu_arm
-                install_arm_atfe
-                ;;
-            "stm32tools")
-                install_openocd
-                install_stlink
-                install_dev_tools
-                ;;
-            "all")
-                install_gnu_arm
-                install_arm_atfe
-                install_openocd
-                install_stlink
-                install_dev_tools
-                ;;
-            "status") show_status ;;
-            "updatepath") update_path ;;
-            *)
-                echo "Usage: $0 [gnuarm|atfe|openocd|stlink|cubeprog|cubeide|devtools|armtools|stm32tools|all|status|updatepath]"
-                echo "Run without arguments for interactive mode"
-                ;;
+        "gnuarm") install_gnu_arm ;;
+        "atfe") install_arm_atfe ;;
+        "openocd") install_openocd ;;
+        "stlink") install_stlink ;;
+        "cubeprog") install_stm32cubeprog ;;
+        "cubeide") install_stm32cubeide_cli ;;
+        "devtools") install_dev_tools ;;
+        "armtools")
+            install_gnu_arm
+            install_arm_atfe
+            ;;
+        "stm32tools")
+            install_openocd
+            install_stlink
+            install_dev_tools
+            ;;
+        "all")
+            install_gnu_arm
+            install_arm_atfe
+            install_openocd
+            install_stlink
+            install_dev_tools
+            ;;
+        "status") show_status ;;
+        "updatepath") update_path ;;
+        *)
+            echo "Usage: $0 [gnuarm|atfe|openocd|stlink|cubeprog|cubeide|devtools|armtools|stm32tools|all|status|updatepath]"
+            echo "Run without arguments for interactive mode"
+            ;;
         esac
     fi
 }

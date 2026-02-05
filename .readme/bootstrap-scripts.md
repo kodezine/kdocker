@@ -7,13 +7,16 @@ The kdocker environment now includes **bootstrap scripts** that provide an alter
 ## What's New in This Release
 
 ### 🚀 Bootstrap Script Integration
+
 - **Direct Toolchain Installation**: Install toolchains using dedicated bootstrap scripts
 - **Unified Installation Location**: Bootstrap scripts and `stm32-tools` install to the same directories
 - **Perfect Compatibility**: No conflicts between installation methods
 - **Simplified Access**: Bootstrap scripts accessible as compiler names
 
 ### 📁 Installation Structure
+
 Both bootstrap scripts and `stm32-tools` now install toolchains to the unified location:
+
 ```
 ~/.toolchains/stm32tools/
 ├── arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi/  # GNU ARM
@@ -21,7 +24,9 @@ Both bootstrap scripts and `stm32-tools` now install toolchains to the unified l
 ```
 
 ### 🔗 Access Methods
+
 Bootstrap scripts are available through multiple access points:
+
 ```bash
 # Direct compiler names (new bootstrap method)
 arm-none-eabi-gcc    # Installs GNU ARM toolchain
@@ -43,6 +48,7 @@ clang                # Installs ATFE toolchain
 **Purpose**: Installs GNU ARM Toolchain 14.3.rel1 for STM32 development
 
 **Usage**:
+
 ```bash
 # Install GNU ARM toolchain
 arm-none-eabi-gcc
@@ -53,6 +59,7 @@ arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf ma
 ```
 
 **Features**:
+
 - Downloads `arm-gnu-toolchain-14.3.rel1-x86_64-arm-none-eabi.tar.xz`
 - SHA256 checksum verification
 - Installs to `~/.toolchains/stm32tools/`
@@ -64,6 +71,7 @@ arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf ma
 **Purpose**: Installs ARM Toolchain for Embedded (ATFE) 21.1.1 with LLVM/Clang
 
 **Usage**:
+
 ```bash
 # Install ATFE toolchain
 clang
@@ -74,6 +82,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb -o firmware.elf main.c
 ```
 
 **Features**:
+
 - Downloads `ATfE-21.1.1-Linux-x86_64.tar.xz`
 - Downloads and installs newlib overlay
 - SHA256 checksum verification for both packages
@@ -85,6 +94,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb -o firmware.elf main.c
 ## Installation Behavior
 
 ### First Run (Toolchain Not Installed)
+
 When you run a bootstrap script for the first time:
 
 1. **Download Phase**
@@ -102,6 +112,7 @@ When you run a bootstrap script for the first time:
    - Behaves like the actual compiler from that point forward
 
 ### Subsequent Runs (Toolchain Installed)
+
 - **Immediate Execution**: No installation overhead
 - **Direct Compiler Access**: Runs the actual installed compiler
 - **Full Compatibility**: Works exactly like standard toolchain installation
@@ -109,6 +120,7 @@ When you run a bootstrap script for the first time:
 ## Compatibility with stm32-tools
 
 ### Perfect Interoperability
+
 Bootstrap scripts and `stm32-tools` are fully compatible:
 
 ```bash
@@ -128,7 +140,9 @@ clang --version
 ```
 
 ### Unified Installation Detection
+
 Both methods recognize existing installations:
+
 - Bootstrap scripts detect `stm32-tools` installations
 - `stm32-tools` detects bootstrap installations
 - No duplicate downloads or conflicting installations
@@ -136,18 +150,23 @@ Both methods recognize existing installations:
 ## Technical Details
 
 ### Architecture Support
+
 Both bootstrap scripts are configured for:
+
 - **Target Architecture**: `linux-x86_64` (fixed, no dynamic detection)
 - **Container Optimization**: Specifically targets Docker container environment
 - **Consistency**: Matches `stm32-tools` package selection
 
 ### Package Verification
+
 Security features include:
+
 - **SHA256 Checksums**: All packages verified before extraction
 - **Trusted Sources**: Downloads from official ARM and GitHub releases
 - **Integrity Checks**: Extraction validation
 
 ### Directory Structure
+
 ```
 /home/kdev/
 ├── .toolchains/
@@ -165,11 +184,13 @@ Security features include:
 ## Migration and Compatibility
 
 ### Existing Users
+
 - **No Breaking Changes**: Existing `stm32-tools` installations continue working
 - **Enhanced Options**: Bootstrap scripts provide additional installation methods
 - **Unified Experience**: All methods result in identical installations
 
 ### New Users
+
 - **Multiple Entry Points**: Choose between `stm32-tools` interactive mode or direct bootstrap
 - **Consistent Results**: Same toolchains, same locations, same functionality
 - **Flexibility**: Mix and match installation methods as needed
@@ -177,6 +198,7 @@ Security features include:
 ## Examples
 
 ### Quick STM32 Development Setup
+
 ```bash
 # Option 1: Direct bootstrap installation
 arm-none-eabi-gcc
@@ -188,6 +210,7 @@ stm32-tools gnuarm
 ```
 
 ### Advanced LLVM Development
+
 ```bash
 # Install ATFE with bootstrap
 clang
@@ -198,6 +221,7 @@ stm32-tools status
 ```
 
 ### Mixed Installation Workflow
+
 ```bash
 # Install GNU ARM with bootstrap
 arm-none-eabi-gcc
@@ -215,17 +239,20 @@ clang --version
 ## Benefits
 
 ### For Users
+
 - **Faster Setup**: Direct compiler access without menu navigation
 - **Intuitive Commands**: Use compiler names directly
 - **Flexible Installation**: Choose your preferred installation method
 - **Zero Conflicts**: All methods work together seamlessly
 
 ### For Automation
+
 - **Scriptable Installation**: Bootstrap in CI/CD pipelines
 - **Predictable Behavior**: Fixed architecture, consistent packages
 - **Integration Friendly**: Works with existing `stm32-tools` workflows
 
 ### For Development
+
 - **Unified Codebase**: Single toolchain management system
 - **Consistent Updates**: Changes benefit both installation methods
 - **Maintainable**: Shared directory structure and verification logic

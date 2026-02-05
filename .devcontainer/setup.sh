@@ -28,45 +28,45 @@ echo ""
 read -p "Choose setup option (1-4) or press Enter for manual setup: " choice
 
 case $choice in
-    1)
-        print_success "Minimal setup selected - you're ready to go!"
-        print_info "Install tools later with: stm32-tools <toolname>"
-        ;;
-    2)
-        print_info "Installing GNU Arm Toolchain..."
-        stm32-tools gnuarm
-        stm32-tools updatepath
-        print_success "Basic STM32 setup complete!"
-        ;;
-    3)
-        print_info "Installing GNU Arm + STM32 tools..."
-        stm32-tools gnuarm
-        stm32-tools stm32tools
-        stm32-tools updatepath
-        print_success "Full STM32 setup complete!"
-        ;;
-    4)
-        print_info "Installing all available tools..."
-        stm32-tools all
-        stm32-tools updatepath
-        print_success "Everything installed!"
-        ;;
-    *)
-        print_info "Manual setup selected"
-        echo "Available commands:"
-        echo "  STM32 Tools:"
-        echo "    stm32-tools                  - Interactive installer"
-        echo "    stm32-tools gnuarm           - Install GNU Arm toolchain"
-        echo "    stm32-tools armtools         - Install both ARM toolchains"
-        echo "    stm32-tools stm32tools       - Install STM32 debug tools"
-        echo "    stm32-tools all              - Install everything"
-        echo "    stm32-tools status           - Show installation status"
-        echo ""
-        echo "  Python Development:"
-        echo "    ./.devcontainer/bootstrap-pyenv.sh  - Install pyenv"
-        echo "    pyenv install 3.12.0        - Install Python 3.12.0"
-        echo "    pyenv global 3.12.0         - Set global Python version"
-        ;;
+1)
+    print_success "Minimal setup selected - you're ready to go!"
+    print_info "Install tools later with: stm32-tools <toolname>"
+    ;;
+2)
+    print_info "Installing GNU Arm Toolchain..."
+    stm32-tools gnuarm
+    stm32-tools updatepath
+    print_success "Basic STM32 setup complete!"
+    ;;
+3)
+    print_info "Installing GNU Arm + STM32 tools..."
+    stm32-tools gnuarm
+    stm32-tools stm32tools
+    stm32-tools updatepath
+    print_success "Full STM32 setup complete!"
+    ;;
+4)
+    print_info "Installing all available tools..."
+    stm32-tools all
+    stm32-tools updatepath
+    print_success "Everything installed!"
+    ;;
+*)
+    print_info "Manual setup selected"
+    echo "Available commands:"
+    echo "  STM32 Tools:"
+    echo "    stm32-tools                  - Interactive installer"
+    echo "    stm32-tools gnuarm           - Install GNU Arm toolchain"
+    echo "    stm32-tools armtools         - Install both ARM toolchains"
+    echo "    stm32-tools stm32tools       - Install STM32 debug tools"
+    echo "    stm32-tools all              - Install everything"
+    echo "    stm32-tools status           - Show installation status"
+    echo ""
+    echo "  Python Development:"
+    echo "    ./.devcontainer/bootstrap-pyenv.sh  - Install pyenv"
+    echo "    pyenv install 3.12.0        - Install Python 3.12.0"
+    echo "    pyenv global 3.12.0         - Set global Python version"
+    ;;
 esac
 
 echo ""

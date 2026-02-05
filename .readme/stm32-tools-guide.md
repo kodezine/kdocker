@@ -32,6 +32,7 @@ stm32-tools devtools          # Development utilities
 ## Management Commands
 
 ### Status and Information
+
 ```bash
 stm32-tools status            # Show installation status of all tools
 stm32-tools --version         # Show stm32-tools script version
@@ -39,6 +40,7 @@ stm32-tools --help            # Show help information
 ```
 
 ### PATH Management
+
 ```bash
 stm32-tools updatepath        # Add installed tools to PATH
                              # Offers user choice:
@@ -48,6 +50,7 @@ stm32-tools updatepath        # Add installed tools to PATH
 ```
 
 ### Cleanup Commands
+
 ```bash
 stm32-tools clean             # Clean download cache
 stm32-tools uninstall <tool>  # Remove specific tool (future feature)
@@ -56,6 +59,7 @@ stm32-tools uninstall <tool>  # Remove specific tool (future feature)
 ## Installation Details
 
 ### Download Process
+
 1. **Secure Download**: HTTPS from official ARM/ST repositories
 2. **SHA256 Verification**: All downloads cryptographically verified
 3. **Caching**: Downloads cached in `~/.toolchains/stm32tools/.downloads/`
@@ -72,14 +76,17 @@ stm32-tools uninstall <tool>  # Remove specific tool (future feature)
 ## Tool Details
 
 ### GNU ARM Toolchain 14.3.rel1
+
 **Size**: ~500MB
 **Components**:
+
 - `arm-none-eabi-gcc` - C compiler
 - `arm-none-eabi-g++` - C++ compiler
 - `arm-none-eabi-gdb` - Debugger
 - `arm-none-eabi-objcopy`, `arm-none-eabi-objdump` - Binary utilities
 
 **Usage**:
+
 ```bash
 # After installation and PATH update
 arm-none-eabi-gcc --version
@@ -87,13 +94,16 @@ arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o firmware.elf ma
 ```
 
 ### ARM Toolchain for Embedded (ATFE) 21.1.1
+
 **Size**: ~3GB
 **Components**:
+
 - `clang` - Modern LLVM-based C/C++ compiler
 - `llvm-objcopy`, `llvm-objdump` - LLVM binary utilities
 - Newlib overlay for embedded development
 
 **Usage**:
+
 ```bash
 # After installation and PATH update
 clang --version
@@ -101,8 +111,10 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb -o firmware.elf main.c
 ```
 
 ### STM32 Development Tools
+
 **Size**: ~200MB
 **Components**:
+
 - **STLink Tools**: Programming and debugging via ST-Link
 - **OpenOCD**: Open On-Chip Debugger (pre-installed in base image)
 - **STM32CubeProgrammer**: Official ST programming tool
@@ -111,6 +123,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb -o firmware.elf main.c
 ## PATH Management Philosophy
 
 ### User Consent Approach
+
 The `stm32-tools` script **never modifies your shell configuration without permission**:
 
 1. **Installation**: Tools install but PATH is not automatically modified
@@ -138,6 +151,7 @@ stm32-tools updatepath
 ## Integration Examples
 
 ### CMake Integration
+
 ```cmake
 # CMakeLists.txt for STM32
 set(CMAKE_SYSTEM_NAME Generic)
@@ -152,6 +166,7 @@ set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mthumb --specs=nosys.specs")
 ```
 
 ### VS Code tasks.json
+
 ```json
 {
   "version": "2.0.0",
@@ -178,6 +193,7 @@ set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mthumb --specs=nosys.specs")
 ### Common Issues
 
 **"stm32-tools: command not found"**
+
 ```bash
 # Ensure container has the script
 ls -la ~/.local/bin/stm32-tools
@@ -187,6 +203,7 @@ echo $PATH | grep -o ".local/bin"
 ```
 
 **"Download failed"**
+
 ```bash
 # Check network connectivity
 curl -I https://github.com/arm/arm-toolchain/releases
@@ -197,6 +214,7 @@ stm32-tools gnuarm
 ```
 
 **"arm-none-eabi-gcc not found after installation"**
+
 ```bash
 # Check installation
 stm32-tools status
@@ -211,6 +229,7 @@ export PATH="$HOME/gnuarm14.3/bin:$PATH"
 ## Advanced Usage
 
 ### Non-Interactive Installation
+
 ```bash
 # For scripts/CI - auto-select option 2 (skip PATH update)
 echo '2' | stm32-tools gnuarm
@@ -220,7 +239,9 @@ echo '1' | stm32-tools gnuarm
 ```
 
 ### Custom Installation Directory
+
 The installation directory is currently fixed at `~/.toolchains/stm32tools/` but future versions may support customization.
 
 ### Offline Usage
+
 Once tools are installed, they work offline. The download cache in `~/.toolchains/stm32tools/.downloads/` can be preserved for faster reinstallation.

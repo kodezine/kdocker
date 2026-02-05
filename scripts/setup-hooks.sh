@@ -113,7 +113,7 @@ create_custom_hooks() {
     log_info "Creating custom Git hooks..."
 
     # Create pre-commit hook (backup if pre-commit fails)
-    cat > "${HOOKS_DIR}/pre-commit.manual" << 'EOF'
+    cat >"${HOOKS_DIR}/pre-commit.manual" <<'EOF'
 #!/bin/bash
 
 # Manual pre-commit hook for STM32 Docker Environment
@@ -180,7 +180,7 @@ EOF
     chmod +x "${HOOKS_DIR}/pre-commit.manual"
 
     # Create post-commit hook for notifications
-    cat > "${HOOKS_DIR}/post-commit" << 'EOF'
+    cat >"${HOOKS_DIR}/post-commit" <<'EOF'
 #!/bin/bash
 
 # Post-commit hook for STM32 Docker Environment
@@ -215,7 +215,7 @@ EOF
     chmod +x "${HOOKS_DIR}/post-commit"
 
     # Create pre-push hook
-    cat > "${HOOKS_DIR}/pre-push" << 'EOF'
+    cat >"${HOOKS_DIR}/pre-push" <<'EOF'
 #!/bin/bash
 
 # Pre-push hook for STM32 Docker Environment
@@ -313,7 +313,7 @@ test_hooks() {
     fi
 
     # Create a test file
-    echo "# Test file for Git hooks" > test_hooks_file.md
+    echo "# Test file for Git hooks" >test_hooks_file.md
     git add test_hooks_file.md
 
     # Test pre-commit hook (dry run)
@@ -379,77 +379,77 @@ main() {
     local command="${1:-setup}"
 
     case "$command" in
-        "setup"|"install"|"s")
-            log_info "Setting up Git hooks for STM32 Docker Environment"
-            log_info "=================================================="
-            check_git_repo
-            install_precommit
-            setup_git_hooks
-            create_custom_hooks
-            validate_hooks
-            test_hooks
-            log_success "Git hooks setup completed successfully!"
-            show_status
-            ;;
-        "status"|"st")
-            show_status
-            ;;
-        "test"|"t")
-            test_hooks
-            ;;
-        "uninstall"|"remove"|"u")
-            log_info "Uninstalling Git hooks..."
-            # Add user local bin to PATH
-            if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-                export PATH="$HOME/.local/bin:$PATH"
-            fi
-            pre-commit uninstall >/dev/null 2>&1 || true
-            pre-commit uninstall --hook-type commit-msg >/dev/null 2>&1 || true
-            pre-commit uninstall --hook-type pre-push >/dev/null 2>&1 || true
-            rm -f "${HOOKS_DIR}/post-commit"
-            rm -f "${HOOKS_DIR}/pre-push"
-            rm -f "${HOOKS_DIR}/pre-commit.manual"
-            log_success "Git hooks uninstalled"
-            ;;
-        "update"|"up")
-            log_info "Updating pre-commit hooks..."
-            # Add user local bin to PATH
-            if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-                export PATH="$HOME/.local/bin:$PATH"
-            fi
-            pre-commit autoupdate
-            pre-commit install
-            log_success "Pre-commit hooks updated"
-            ;;
-        "help"|"h"|"--help")
-            echo "Git Hooks Setup Script for STM32 Docker Environment"
-            echo ""
-            echo "Usage: $0 [command]"
-            echo ""
-            echo "Commands:"
-            echo "  setup, install, s  - Install and configure Git hooks (default)"
-            echo "  status, st         - Show current Git hooks status"
-            echo "  test, t           - Test Git hooks functionality"
-            echo "  uninstall, u      - Remove all Git hooks"
-            echo "  update, up        - Update pre-commit hooks to latest versions"
-            echo "  help, h           - Show this help"
-            echo ""
-            echo "Git Hooks Configured:"
-            echo "  pre-commit        - Code quality and linting checks"
-            echo "  commit-msg        - Conventional commit message validation"
-            echo "  post-commit       - Success notifications and suggestions"
-            echo "  pre-push          - Comprehensive validation before push"
-            echo ""
-            ;;
-        *)
-            log_error "Unknown command: $command"
-            log_info "Use '$0 help' for usage information"
-            exit 1
-            ;;
+    "setup" | "install" | "s")
+        log_info "Setting up Git hooks for STM32 Docker Environment"
+        log_info "=================================================="
+        check_git_repo
+        install_precommit
+        setup_git_hooks
+        create_custom_hooks
+        validate_hooks
+        test_hooks
+        log_success "Git hooks setup completed successfully!"
+        show_status
+        ;;
+    "status" | "st")
+        show_status
+        ;;
+    "test" | "t")
+        test_hooks
+        ;;
+    "uninstall" | "remove" | "u")
+        log_info "Uninstalling Git hooks..."
+        # Add user local bin to PATH
+        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+        pre-commit uninstall >/dev/null 2>&1 || true
+        pre-commit uninstall --hook-type commit-msg >/dev/null 2>&1 || true
+        pre-commit uninstall --hook-type pre-push >/dev/null 2>&1 || true
+        rm -f "${HOOKS_DIR}/post-commit"
+        rm -f "${HOOKS_DIR}/pre-push"
+        rm -f "${HOOKS_DIR}/pre-commit.manual"
+        log_success "Git hooks uninstalled"
+        ;;
+    "update" | "up")
+        log_info "Updating pre-commit hooks..."
+        # Add user local bin to PATH
+        if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+        pre-commit autoupdate
+        pre-commit install
+        log_success "Pre-commit hooks updated"
+        ;;
+    "help" | "h" | "--help")
+        echo "Git Hooks Setup Script for STM32 Docker Environment"
+        echo ""
+        echo "Usage: $0 [command]"
+        echo ""
+        echo "Commands:"
+        echo "  setup, install, s  - Install and configure Git hooks (default)"
+        echo "  status, st         - Show current Git hooks status"
+        echo "  test, t           - Test Git hooks functionality"
+        echo "  uninstall, u      - Remove all Git hooks"
+        echo "  update, up        - Update pre-commit hooks to latest versions"
+        echo "  help, h           - Show this help"
+        echo ""
+        echo "Git Hooks Configured:"
+        echo "  pre-commit        - Code quality and linting checks"
+        echo "  commit-msg        - Conventional commit message validation"
+        echo "  post-commit       - Success notifications and suggestions"
+        echo "  pre-push          - Comprehensive validation before push"
+        echo ""
+        ;;
+    *)
+        log_error "Unknown command: $command"
+        log_info "Use '$0 help' for usage information"
+        exit 1
+        ;;
     esac
 }
 
 # Execute if run directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
     main "$@"
 fi

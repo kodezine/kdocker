@@ -9,12 +9,14 @@ This directory contains ready-to-use templates for projects using the kdocker de
 A minimal devcontainer configuration for STM32 development.
 
 **Features:**
+
 - ✅ Pre-commit hooks auto-install
 - ✅ GNU ARM toolchain installation
 - ✅ Basic VS Code extensions
 - ✅ ST-Link hardware access
 
 **Usage:**
+
 ```bash
 # 1. Copy to your project
 mkdir -p .devcontainer
@@ -29,12 +31,14 @@ cp examples/devcontainer-basic.json .devcontainer/devcontainer.json
 A starter pre-commit configuration for embedded C/C++ projects.
 
 **Hooks included:**
+
 - C/C++ formatting (clang-format)
 - Shell script linting (shellcheck)
 - Markdown linting
 - General file validation
 
 **Usage:**
+
 ```bash
 # Copy to your project root
 cp examples/pre-commit-config-template.yaml .pre-commit-config.yaml
@@ -47,12 +51,14 @@ cp examples/pre-commit-config-template.yaml .pre-commit-config.yaml
 ### Minimal Setup (Auto-configured)
 
 1. **Copy devcontainer config:**
+
    ```bash
    mkdir -p .devcontainer
    cp examples/devcontainer-basic.json .devcontainer/devcontainer.json
    ```
 
 2. **Optional: Add pre-commit config:**
+
    ```bash
    cp examples/pre-commit-config-template.yaml .pre-commit-config.yaml
    ```
@@ -65,6 +71,7 @@ cp examples/pre-commit-config-template.yaml .pre-commit-config.yaml
 ### What Happens Automatically
 
 When you open the dev container:
+
 1. ✅ Pre-commit hooks install (if `.pre-commit-config.yaml` exists)
 2. ✅ GNU ARM toolchain installs
 3. ✅ Git configuration applied
@@ -73,6 +80,7 @@ When you open the dev container:
 ### Customization
 
 **Disable pre-commit auto-setup:**
+
 ```json
 {
   "postCreateCommand": "stm32-tools gnuarm"
@@ -80,6 +88,7 @@ When you open the dev container:
 ```
 
 **Install all STM32 tools:**
+
 ```json
 {
   "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder} && stm32-tools all"
@@ -87,6 +96,7 @@ When you open the dev container:
 ```
 
 **Skip toolchain installation:**
+
 ```json
 {
   "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder}"

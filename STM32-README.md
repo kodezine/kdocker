@@ -22,11 +22,13 @@ The container includes a convenient script to install STM32-specific tools as ne
 ### Usage
 
 #### Interactive Installation
+
 ```bash
 stm32-tools
 ```
 
 #### Command Line Installation
+
 ```bash
 # Install specific tools
 stm32-tools openocd        # Install OpenOCD
@@ -52,6 +54,7 @@ STM32CubeProgrammer requires manual download due to license agreements:
 ## Hardware Support
 
 The container includes udev rules for ST-Link devices:
+
 - ST-Link V1, V2, V2-1, V3
 - Proper USB permissions configured
 - User added to `dialout` and `plugdev` groups
@@ -59,17 +62,20 @@ The container includes udev rules for ST-Link devices:
 ## Running the Container
 
 ### Basic Usage
+
 ```bash
 docker build -t stm32-dev .
 docker run -it --rm stm32-dev
 ```
 
 ### With ST-Link Hardware Support
+
 ```bash
 docker run -it --rm --privileged -v /dev:/dev stm32-dev
 ```
 
 ### With Volume Mounting
+
 ```bash
 docker run -it --rm -v $(pwd):/home/kdev/workspaces/project stm32-dev
 ```
@@ -93,6 +99,7 @@ All tools are automatically added to PATH when installed.
 ## Examples
 
 ### Quick Setup for STM32 Development
+
 ```bash
 # Start container
 docker run -it --privileged -v /dev:/dev -v $(pwd):/home/kdev/workspaces/project stm32-dev
@@ -107,6 +114,7 @@ STM32_Programmer_CLI -l
 ```
 
 ### OpenOCD Debugging Session
+
 ```bash
 # Install OpenOCD
 stm32-tools openocd

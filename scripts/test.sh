@@ -301,7 +301,7 @@ validate_security() {
     # Test that container doesn't run as root by default
     local user_check
     user_check=$(docker exec "${CONTAINER_NAME}" /bin/bash -c "whoami")
-    if [[ "${user_check}" == "root" ]]; then
+    if [[ ${user_check} == "root" ]]; then
         log_warning "Container runs as root user"
     else
         log_info "Container runs as non-root user: ${user_check}"
@@ -319,7 +319,7 @@ generate_test_report() {
 
     local report_file="${PROJECT_ROOT}/test-report.md"
 
-    cat > "${report_file}" << EOF
+    cat >"${report_file}" <<EOF
 # STM32 Docker Environment Test Report
 
 **Test Date:** $(date)
@@ -413,72 +413,72 @@ main() {
     local command="${1:-all}"
 
     case "${command}" in
-        "validate"|"v")
-            validate_docker_image
-            ;;
-        "basic"|"b")
-            test_container_basic
-            ;;
-        "tools"|"t")
-            test_development_tools
-            ;;
-        "precommit"|"pc")
-            test_precommit_setup
-            ;;
-        "stm32"|"s")
-            test_stm32_tools_script
-            ;;
-        "network"|"n")
-            test_network_connectivity
-            ;;
-        "user"|"u")
-            test_user_setup
-            ;;
-        "performance"|"p")
-            benchmark_performance
-            ;;
-        "security"|"sec")
-            validate_security
-            ;;
-        "report"|"r")
-            generate_test_report
-            ;;
-        "cleanup"|"c")
-            cleanup
-            ;;
-        "all"|"a"|"")
-            run_all_tests
-            ;;
-        "help"|"h"|"--help")
-            echo "STM32 Docker Environment Test Script"
-            echo ""
-            echo "Usage: $0 [command]"
-            echo ""
-            echo "Commands:"
-            echo "  validate, v     - Validate Docker image"
-            echo "  basic, b        - Test basic container functionality"
-            echo "  tools, t        - Test development tools"
-            echo "  precommit, pc   - Test pre-commit auto-setup"
-            echo "  stm32, s        - Test STM32 tools script"
-            echo "  network, n      - Test network connectivity"
-            echo "  user, u         - Test user setup"
-            echo "  performance, p  - Run performance benchmarks"
-            echo "  security, sec   - Run security validation"
-            echo "  report, r       - Generate test report"
-            echo "  cleanup, c      - Clean up test resources"
-            echo "  all, a          - Run all tests (default)"
-            echo "  help, h         - Show this help"
-            echo ""
-            ;;
-        *)
-            log_error "Unknown command: ${command}"
-            log_info "Use '$0 help' for usage information"
-            exit 1
-            ;;
+    "validate" | "v")
+        validate_docker_image
+        ;;
+    "basic" | "b")
+        test_container_basic
+        ;;
+    "tools" | "t")
+        test_development_tools
+        ;;
+    "precommit" | "pc")
+        test_precommit_setup
+        ;;
+    "stm32" | "s")
+        test_stm32_tools_script
+        ;;
+    "network" | "n")
+        test_network_connectivity
+        ;;
+    "user" | "u")
+        test_user_setup
+        ;;
+    "performance" | "p")
+        benchmark_performance
+        ;;
+    "security" | "sec")
+        validate_security
+        ;;
+    "report" | "r")
+        generate_test_report
+        ;;
+    "cleanup" | "c")
+        cleanup
+        ;;
+    "all" | "a" | "")
+        run_all_tests
+        ;;
+    "help" | "h" | "--help")
+        echo "STM32 Docker Environment Test Script"
+        echo ""
+        echo "Usage: $0 [command]"
+        echo ""
+        echo "Commands:"
+        echo "  validate, v     - Validate Docker image"
+        echo "  basic, b        - Test basic container functionality"
+        echo "  tools, t        - Test development tools"
+        echo "  precommit, pc   - Test pre-commit auto-setup"
+        echo "  stm32, s        - Test STM32 tools script"
+        echo "  network, n      - Test network connectivity"
+        echo "  user, u         - Test user setup"
+        echo "  performance, p  - Run performance benchmarks"
+        echo "  security, sec   - Run security validation"
+        echo "  report, r       - Generate test report"
+        echo "  cleanup, c      - Clean up test resources"
+        echo "  all, a          - Run all tests (default)"
+        echo "  help, h         - Show this help"
+        echo ""
+        ;;
+    *)
+        log_error "Unknown command: ${command}"
+        log_info "Use '$0 help' for usage information"
+        exit 1
+        ;;
     esac
 }
 
 # Execute if run directly
-if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+if [[ ${BASH_SOURCE[0]} == "${0}" ]]; then
     main "$@"
 fi

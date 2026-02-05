@@ -438,6 +438,7 @@ The devcontainer configuration includes:
 ```
 
 This provides access to:
+
 - ST-Link debuggers
 - Serial ports (UART)
 - USB devices
@@ -503,12 +504,14 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
 ### Common Issues
 
 1. **Permission Denied for USB Devices**
+
    ```bash
    # Check if running with correct privileges
    docker run --privileged --device=/dev:/dev stm32-dev-minimal
    ```
 
 2. **Tool Not Found After Installation**
+
    ```bash
    # Update PATH in current session
    stm32-tools updatepath
@@ -516,6 +519,7 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
    ```
 
 3. **OpenOCD Connection Failed**
+
    ```bash
    # Check ST-Link connection
    st-info --probe
@@ -525,6 +529,7 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg
    ```
 
 4. **Extension Installation Failed**
+
    ```bash
    # Rebuild container
    # Command Palette -> "Dev Containers: Rebuild Container"

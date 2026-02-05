@@ -18,6 +18,7 @@ A lightweight, optimized Docker environment for C++ and STM32 embedded developme
 ## 🚀 Quick Start
 
 ### Using Pre-built Image (Recommended)
+
 ```bash
 # Pull and run the latest image
 docker pull ghcr.io/kodezine/kdocker:latest
@@ -30,6 +31,7 @@ stm32-tools status    # Check installation
 ```
 
 ### Building from Source
+
 ```bash
 git clone https://github.com/kodezine/kdocker.git
 cd kdocker
@@ -38,7 +40,9 @@ docker run -it --rm cpp-arm-dev
 ```
 
 ### VS Code DevContainer
+
 1. Add `.devcontainer/devcontainer.json` to your project:
+
 ```json
 {
   "name": "STM32 Development",
@@ -47,6 +51,7 @@ docker run -it --rm cpp-arm-dev
   "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder} && stm32-tools gnuarm"
 }
 ```
+
 2. Open in VS Code → F1 → "Dev Containers: Reopen in Container"
 
 **Note**: Pre-commit hooks auto-install if you have `.pre-commit-config.yaml` in your repo.
@@ -54,6 +59,7 @@ docker run -it --rm cpp-arm-dev
 ## STM32 Development Examples
 
 ### Basic STM32 Compilation
+
 ```bash
 # Install ARM toolchain
 stm32-tools gnuarm
@@ -66,6 +72,7 @@ file firmware.elf
 ```
 
 ### With VS Code + STM32 Extension
+
 ```bash
 # For STM32 debugging with ST-Link
 docker run -it --rm --privileged \
@@ -93,6 +100,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
 ## 📚 Documentation
 
 ### Complete Guides
+
 - **[Bootstrap Scripts](.readme/bootstrap-scripts.md)** - Direct toolchain installation via compiler names
 - **[STM32 Tools Command Reference](.readme/stm32-tools-guide.md)** - Complete `stm32-tools` usage guide
 - **[ARM Toolchain Usage](.readme/arm-toolchains.md)** - GNU ARM & ATFE compilation examples
@@ -101,6 +109,7 @@ clang --target=arm-none-eabi -mcpu=cortex-m4 -mthumb \
 - **[Troubleshooting Guide](.readme/troubleshooting.md)** - Common issues and solutions
 
 ### Quick References
+
 ```bash
 # Bootstrap Installation (New!)
 arm-none-eabi-gcc              # Install & use GNU ARM directly
@@ -119,6 +128,7 @@ docker run -it --rm --privileged -v /dev/bus/usb:/dev/bus/usb ghcr.io/kodezine/k
 ```
 
 ## System Requirements
+
 - **Docker**: 20.10+
 - **Space**: 2GB base, +500MB-3GB for ARM toolchains
 - **RAM**: 4GB recommended
