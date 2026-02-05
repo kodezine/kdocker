@@ -16,7 +16,7 @@ repos:
       - id: check-toml
       - id: check-xml
       - id: check-added-large-files
-        args: ['--maxkb=10000']  # 10MB limit
+        args: ["--maxkb=10000"] # 10MB limit
       - id: check-case-conflict
       - id: check-executables-have-shebangs
       - id: check-merge-conflict
@@ -25,7 +25,7 @@ repos:
       - id: detect-private-key
       - id: fix-byte-order-marker
       - id: mixed-line-ending
-        args: ['--fix=lf']
+        args: ["--fix=lf"]
 
   # JSON formatting and validation
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -42,6 +42,13 @@ repos:
       - id: yamllint
         args: [-d, relaxed]
 
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v4.0.0-alpha.8
+    hooks:
+      - id: prettier
+        types_or: [yaml]
+        args: [--print-width=100, --prose-wrap=preserve]
+
   # Shell script linting and formatting
   - repo: https://github.com/shellcheck-py/shellcheck-py
     rev: v0.9.0.6
@@ -49,13 +56,13 @@ repos:
       - id: shellcheck
         args: [--severity=warning]
         files: \.(sh|bash|zsh)$
-        exclude: ^(.devcontainer/setup\.sh)$  # Exclude interactive setup script
+        exclude: ^(.devcontainer/setup\.sh)$ # Exclude interactive setup script
 
   - repo: https://github.com/scop/pre-commit-shfmt
     rev: v3.7.0-4
     hooks:
       - id: shfmt
-        args: [-w, -s, -i, '4']  # Write, simplify, indent with 4 spaces
+        args: [-w, -s, -i, "4"] # Write, simplify, indent with 4 spaces
         files: \.(sh|bash|zsh)$
 
   # Docker linting
@@ -63,7 +70,7 @@ repos:
     rev: v2.12.0
     hooks:
       - id: hadolint-docker
-        args: [--ignore, DL3008, --ignore, DL3009]  # Ignore apt package pinning warnings
+        args: [--ignore, DL3008, --ignore, DL3009] # Ignore apt package pinning warnings
 
   # Markdown linting and formatting
   - repo: https://github.com/igorshubovych/markdownlint-cli
@@ -108,7 +115,7 @@ repos:
     rev: v1.4.0
     hooks:
       - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
+        args: ["--baseline", ".secrets.baseline"]
         exclude: ^(.*\.lock|.*\.log)$
 
   # Additional file type specific checks
@@ -127,7 +134,7 @@ repos:
       - id: devcontainer-json-validation
         name: DevContainer JSON Validation
         entry: bash
-        args: [-c, 'python3 -m json.tool < .devcontainer/devcontainer.json > /dev/null']
+        args: [-c, "python3 -m json.tool < .devcontainer/devcontainer.json > /dev/null"]
         language: system
         files: ^\.devcontainer/.*\.json$
         pass_filenames: false
@@ -145,7 +152,11 @@ repos:
       - id: check-todos
         name: Check for TODO/FIXME
         entry: bash
-        args: [-c, 'if grep -rn "TODO\|FIXME\|XXX\|HACK" --include="*.sh" --include="*.py" --include="*.js" --include="*.md" .; then echo "Found TODO/FIXME comments. Please address them."; exit 1; fi']
+        args:
+          [
+            -c,
+            'if grep -rn "TODO\|FIXME\|XXX\|HACK" --include="*.sh" --include="*.py" --include="*.js" --include="*.md" --exclude="PRE-COMMIT.md" --exclude="GIT-HOOKS.md" .; then echo "Found TODO/FIXME comments. Please address them."; exit 1; fi',
+          ]
         language: system
         pass_filenames: false
         verbose: true
@@ -154,7 +165,7 @@ repos:
       - id: shell-executable
         name: Ensure shell scripts are executable
         entry: bash
-        args: [-c, 'find . -name "*.sh" -type f ! -executable -exec chmod +x {} \;']
+        args: [-c, 'find . -name "*.sh" -type f ! -perm +111 -exec chmod +x {} \;']
         language: system
         pass_filenames: false
 
@@ -208,8 +219,8 @@ ci:
 
     for more information, see https://pre-commit.ci
   autofix_prs: true
-  autoupdate_branch: ''
-  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
   autoupdate_schedule: weekly
   skip: []
   submodules: false
