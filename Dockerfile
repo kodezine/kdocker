@@ -154,6 +154,10 @@ RUN chmod +x $KDEV_HOME/.toolchains/bootstrap/bin/arm-none-eabi-gcc\
 COPY stm32-tools.sh ${KDEV_HOME}/.local/bin/stm32-tools
 RUN chmod +x ${KDEV_HOME}/.local/bin/stm32-tools
 
+# Copy pre-commit auto-setup script for downstream dev containers
+COPY scripts/setup-pre-commit.sh ${KDEV_HOME}/.local/bin/setup-pre-commit
+RUN chmod +x ${KDEV_HOME}/.local/bin/setup-pre-commit
+
 # Install ST-Link udev rules for proper device access
 RUN echo '# ST-Link V1' > /etc/udev/rules.d/49-stlinkv1.rules \
     && echo 'SUBSYSTEM=="usb", ATTR{idVendor}=="0483", ATTR{idProduct}=="3744", MODE="0666"' >> /etc/udev/rules.d/49-stlinkv1.rules \
@@ -199,7 +203,10 @@ RUN echo '#!/bin/bash' > ${KDEV_HOME}/.welcome \
     && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "🐍 Python Development (bootstrap on-demand):"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "  - pyenv (Python version management)"' >> ${KDEV_HOME}/.welcome \
-    && echo 'echo "  - pre-commit (Git hooks framework)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "✨ Code Quality:"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - pre-commit (Git hooks framework - pre-installed)"' >> ${KDEV_HOME}/.welcome \
+    && echo 'echo "  - Auto-configures when .pre-commit-config.yaml exists"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo ""' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "🚀 Quick Start:"' >> ${KDEV_HOME}/.welcome \
     && echo 'echo "  STM32 Development:"' >> ${KDEV_HOME}/.welcome \

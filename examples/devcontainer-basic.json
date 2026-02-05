@@ -1,0 +1,44 @@
+{
+  "name": "STM32 Development",
+  "image": "ghcr.io/kodezine/kdocker:latest",
+  
+  // User configuration
+  "remoteUser": "kdev",
+  "containerUser": "kdev",
+  
+  // Workspace configuration
+  "workspaceFolder": "/home/kdev/workspaces/project",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind,consistency=cached"
+  ],
+  
+  // Port forwarding for debugging
+  "forwardPorts": [3333, 4444],
+  
+  // VS Code extensions
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "marus25.cortex-debug",
+        "dan-c-underwood.arm"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "files.eol": "\n"
+      }
+    }
+  },
+  
+  // Auto-setup: Pre-commit hooks + ARM toolchain
+  "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder} && stm32-tools gnuarm",
+  
+  // Hardware access for ST-Link
+  "runArgs": [
+    "--privileged",
+    "--device=/dev:/dev"
+  ],
+  
+  "shutdownAction": "stopContainer"
+}

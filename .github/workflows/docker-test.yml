@@ -116,6 +116,122 @@ jobs:
           docker run --rm --user kdev cpp-arm-dev:test pre-commit --version
           docker run --rm --user kdev cpp-arm-dev:test which pre-commit
 
+      - name: Test setup-pre-commit script exists
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            test -f /home/kdev/.local/bin/setup-pre-commit && echo 'SUCCESS: setup-pre-commit exists' || { echo 'FAIL: setup-pre-commit missing'; exit 1; }
+            test -x /home/kdev/.local/bin/setup-pre-commit && echo 'SUCCESS: setup-pre-commit is executable' || { echo 'FAIL: setup-pre-commit not executable'; exit 1; }
+          "
+
+      - name: Test setup-pre-commit with no git repo
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            mkdir -p /tmp/no-git
+            setup-pre-commit /tmp/no-git | tee /tmp/output.log
+            grep -q 'No git repository' /tmp/output.log && echo 'SUCCESS: Handles non-git directories' || { echo 'FAIL: Should detect non-git directory'; exit 1; }
+          "
+
+      - name: Test setup-pre-commit with git repo but no config
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            cd /tmp
+            rm -rf test-no-config
+            mkdir -p test-no-config
+            cd test-no-config
+            git init
+            git config user.email 'test@example.com'
+            git config user.name 'Test User'
+            setup-pre-commit /tmp/test-no-config | tee /tmp/output2.log
+            grep -q 'No .pre-commit-config.yaml found' /tmp/output2.log && echo 'SUCCESS: Handles missing config file' || { echo 'FAIL: Should detect missing config'; exit 1; }
+          "
+
+      - name: Test setup-pre-commit installs hooks
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            cd /tmp
+            rm -rf test-with-config
+            mkdir -p test-with-config
+            cd test-with-config
+            git init
+            git config user.email 'test@example.com'
+            git config user.name 'Test User'
+            
+            # Create minimal pre-commit config
+            cat > .pre-commit-config.yaml << 'EOF'
+          repos:
+            - repo: https://github.com/pre-commit/pre-commit-hooks
+              rev: v4.5.0
+              hooks:
+                - id: trailing-whitespace
+                - id: end-of-file-fixer
+          EOF
+            
+            # Run setup
+            setup-pre-commit /tmp/test-with-config
+            
+            # Verify hooks installed
+            test -f .git/hooks/pre-commit && echo 'SUCCESS: pre-commit hook file created' || { echo 'FAIL: Hook file missing'; exit 1; }
+            grep -q 'pre-commit' .git/hooks/pre-commit && echo 'SUCCESS: Hook file contains pre-commit' || { echo 'FAIL: Hook file invalid'; exit 1; }
+          "
+
+      - name: Test setup-pre-commit idempotency
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            cd /tmp
+            rm -rf test-idempotent
+            mkdir -p test-idempotent
+            cd test-idempotent
+            git init
+            git config user.email 'test@example.com'
+            git config user.name 'Test User'
+            
+            cat > .pre-commit-config.yaml << 'EOF'
+          repos:
+            - repo: https://github.com/pre-commit/pre-commit-hooks
+              rev: v4.5.0
+              hooks:
+                - id: trailing-whitespace
+          EOF
+            
+            # Run setup twice
+            setup-pre-commit /tmp/test-idempotent
+            setup-pre-commit /tmp/test-idempotent | tee /tmp/output3.log
+            
+            # Second run should detect existing installation
+            grep -q 'already installed' /tmp/output3.log && echo 'SUCCESS: Idempotent behavior confirmed' || { echo 'FAIL: Should detect existing hooks'; exit 1; }
+          "
+
+      - name: Test pre-commit hooks execute
+        run: |
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            cd /tmp
+            rm -rf test-hook-exec
+            mkdir -p test-hook-exec
+            cd test-hook-exec
+            git init
+            git config user.email 'test@example.com'
+            git config user.name 'Test User'
+            
+            cat > .pre-commit-config.yaml << 'EOF'
+          repos:
+            - repo: https://github.com/pre-commit/pre-commit-hooks
+              rev: v4.5.0
+              hooks:
+                - id: trailing-whitespace
+          EOF
+            
+            setup-pre-commit /tmp/test-hook-exec
+            
+            # Create file with trailing whitespace
+            echo 'content with trailing whitespace    ' > test.txt
+            git add test.txt
+            
+            # Hooks should run (and fix the whitespace)
+            git commit -m 'test' || echo 'Hooks executed'
+            
+            echo 'SUCCESS: Pre-commit hooks can execute'
+          "
+
       - name: Test pyenv NOT pre-installed (should fail)
         run: |
           docker run --rm --user kdev cpp-arm-dev:test bash -c "

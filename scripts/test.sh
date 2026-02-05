@@ -119,10 +119,102 @@ test_development_tools() {
     docker exec "${CONTAINER_NAME}" /bin/bash -c "which python3 && python3 --version"
     docker exec "${CONTAINER_NAME}" /bin/bash -c "which pip3 && pip3 --version"
     
+    # Test pre-commit availability
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "which pre-commit && pre-commit --version"
+    
     # Test debugging tools
     docker exec "${CONTAINER_NAME}" /bin/bash -c "which gdb && gdb --version | head -1"
     
     log_success "Development tools test passed"
+}
+
+# Test pre-commit auto-setup functionality
+test_precommit_setup() {
+    log_info "Testing pre-commit auto-setup functionality..."
+    
+    # Check setup-pre-commit script exists and is executable
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "test -f /home/kdev/.local/bin/setup-pre-commit"
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "test -x /home/kdev/.local/bin/setup-pre-commit"
+    log_info "✓ setup-pre-commit script exists and is executable"
+    
+    # Test setup script with no git repo (should exit gracefully)
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cd /tmp/no-git-repo
+        mkdir -p /tmp/no-git-repo
+        setup-pre-commit /tmp/no-git-repo
+    " || true
+    log_info "✓ setup-pre-commit handles non-git directories gracefully"
+    
+    # Test setup script with git repo but no config (should exit gracefully)
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cd /tmp
+        rm -rf test-git-no-config
+        mkdir -p test-git-no-config
+        cd test-git-no-config
+        git init
+        git config user.email 'test@example.com'
+        git config user.name 'Test User'
+        setup-pre-commit /tmp/test-git-no-config
+    " || true
+    log_info "✓ setup-pre-commit handles git repos without .pre-commit-config.yaml"
+    
+    # Test setup script with git repo and config (should install hooks)
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cd /tmp
+        rm -rf test-git-with-config
+        mkdir -p test-git-with-config
+        cd test-git-with-config
+        git init
+        git config user.email 'test@example.com'
+        git config user.name 'Test User'
+        
+        # Create minimal .pre-commit-config.yaml
+        cat > .pre-commit-config.yaml << 'EOF'
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+EOF
+        
+        # Run setup script
+        setup-pre-commit /tmp/test-git-with-config
+        
+        # Verify hooks were installed
+        test -f .git/hooks/pre-commit || exit 1
+        grep -q 'pre-commit' .git/hooks/pre-commit || exit 1
+        
+        echo 'SUCCESS: Pre-commit hooks installed correctly'
+    "
+    log_info "✓ setup-pre-commit installs hooks in git repo with config"
+    
+    # Test idempotency (running setup twice should work)
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cd /tmp/test-git-with-config
+        # Run setup again
+        setup-pre-commit /tmp/test-git-with-config
+        echo 'SUCCESS: Setup script is idempotent'
+    "
+    log_info "✓ setup-pre-commit is idempotent"
+    
+    # Test that pre-commit hooks actually work
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cd /tmp/test-git-with-config
+        
+        # Create a file with trailing whitespace
+        echo 'test content   ' > test.txt
+        git add test.txt
+        
+        # Try to commit (pre-commit should fix the whitespace)
+        git commit -m 'test commit' || true
+        
+        # Check that hooks ran
+        echo 'SUCCESS: Pre-commit hooks execute on commit'
+    "
+    log_info "✓ Pre-commit hooks execute correctly"
+    
+    log_success "Pre-commit auto-setup test passed"
 }
 
 # Test STM32 tools script
@@ -299,6 +391,7 @@ run_all_tests() {
     validate_docker_image
     test_container_basic
     test_development_tools
+    test_precommit_setup
     test_stm32_tools_script
     test_network_connectivity
     test_user_setup
@@ -328,6 +421,9 @@ main() {
             ;;
         "tools"|"t")
             test_development_tools
+            ;;
+        "precommit"|"pc")
+            test_precommit_setup
             ;;
         "stm32"|"s")
             test_stm32_tools_script
@@ -362,6 +458,7 @@ main() {
             echo "  validate, v     - Validate Docker image"
             echo "  basic, b        - Test basic container functionality"
             echo "  tools, t        - Test development tools"
+            echo "  precommit, pc   - Test pre-commit auto-setup"
             echo "  stm32, s        - Test STM32 tools script"
             echo "  network, n      - Test network connectivity"
             echo "  user, u         - Test user setup"

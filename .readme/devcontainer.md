@@ -85,7 +85,7 @@ Create `.devcontainer/devcontainer.json` with Windows optimizations:
     "source=${localWorkspaceFolder},target=/home/kdev/workspaces/project,type=bind"
   ],
   "remoteUser": "kdev",
-  "postCreateCommand": "stm32-tools gnuarm && echo 'STM32 development environment ready!'",
+  "postCreateCommand": "setup-pre-commit /home/kdev/workspaces/project && stm32-tools gnuarm && echo 'STM32 development environment ready!'",
   "settings": {
     "terminal.integrated.defaultProfile.linux": "zsh",
     "files.eol": "\n",
@@ -191,7 +191,7 @@ Create `.devcontainer/devcontainer.json` in your STM32 project:
   "runArgs": [
     "--device=/dev/bus/usb:/dev/bus/usb"
   ],
-  "postCreateCommand": "stm32-tools gnuarm && echo 'STM32 development environment ready!'"
+  "postCreateCommand": "setup-pre-commit /home/kdev/workspaces/project && stm32-tools gnuarm && echo 'STM32 development environment ready!'"
 }
 ```
 

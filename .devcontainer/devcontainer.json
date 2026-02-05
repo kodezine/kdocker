@@ -75,6 +75,7 @@
     "postCreateCommand": [
         "git config --global --add safe.directory /home/kdev/workspaces/project",
         "git config --global core.autocrlf input",
+        "setup-pre-commit /home/kdev/workspaces/project",
         "/home/kdev/workspaces/project/.devcontainer/bootstrap-pyenv.sh",
         "echo '🚀 STM32 Development Environment Ready!'",
         "echo '📋 Check tool status: stm32-tools status'", 
