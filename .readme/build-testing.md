@@ -5,6 +5,7 @@
 This project uses **comprehensive GitHub Actions workflows** to ensure quality and reliability:
 
 ### 🔨 Build Pipeline (`docker-build.yml`)
+
 - ✅ **Multi-platform builds** - Linux/AMD64 with ARM64 planned
 - ✅ **Automated testing** - Container functionality validation
 - ✅ **Security scanning** - Dependency and image vulnerability checks
@@ -12,6 +13,7 @@ This project uses **comprehensive GitHub Actions workflows** to ensure quality a
 - ✅ **Size optimization** - Build artifact size monitoring
 
 ### 🧪 Test Suite (`docker-test.yml`)
+
 - ✅ **Core functionality** - GCC, Clang, CMake, Python compilation tests
 - ✅ **ARM toolchain installation** - On-demand GNU ARM and ATFE installation
 - ✅ **Cross-compilation testing** - STM32 Cortex-M4 firmware compilation with `--specs=nosys.specs`
@@ -20,6 +22,7 @@ This project uses **comprehensive GitHub Actions workflows** to ensure quality a
 - ✅ **Code coverage tools** - gcovr functionality validation
 
 ### 📦 Release Pipeline (`docker-release.yml`)
+
 - ✅ **Tagged releases** - Automatic Docker image releases on version tags
 - ✅ **Container attestation** - Signed build provenance for security
 - ✅ **Multi-registry support** - GitHub Container Registry with Docker Hub planned
@@ -27,6 +30,7 @@ This project uses **comprehensive GitHub Actions workflows** to ensure quality a
 ## Manual Build Verification
 
 ### Complete Test Suite
+
 To verify a successful build locally (same tests as CI):
 
 ```bash
@@ -62,6 +66,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ### Individual Component Testing
 
 #### Core Development Tools
+
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing core tools...'
@@ -76,6 +81,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```
 
 #### ARM Toolchain Installation
+
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing ARM toolchain installation...'
@@ -98,6 +104,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```
 
 #### STM32 Cross-compilation
+
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing STM32 cross-compilation...'
@@ -140,6 +147,7 @@ EOF
 ### Performance Testing
 
 #### Container Size Analysis
+
 ```bash
 # Check image size
 docker images cpp-arm-dev:test
@@ -156,6 +164,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```
 
 #### Compilation Speed Test
+
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing compilation speed...'
@@ -196,6 +205,7 @@ EOF
 The CI pipeline validates:
 
 ### 100% Core Tools Coverage
+
 - **GCC/G++**: C/C++ compilation with various standards (C++17, C++20)
 - **Clang/Clang++**: Alternative compiler with different optimization profiles
 - **CMake**: Project configuration and build system generation
@@ -205,6 +215,7 @@ The CI pipeline validates:
 - **gcovr**: Code coverage report generation
 
 ### ARM Development Coverage
+
 - **GNU ARM 14.3**: Cross-compilation for ARM Cortex-M series
 - **ATFE 21.1**: Modern LLVM-based ARM compilation (optional)
 - **Embedded specs**: `--specs=nosys.specs` for minimal system calls
@@ -212,6 +223,7 @@ The CI pipeline validates:
 - **FPU configurations**: Hard float, soft float, no FPU options
 
 ### STM32 Toolchain Coverage
+
 - **ST-Link tools**: Device programming and debugging
 - **OpenOCD**: Open source debugging interface
 - **GDB multiarch**: ARM debugging support
@@ -219,6 +231,7 @@ The CI pipeline validates:
 - **Firmware flashing**: Binary upload to microcontrollers
 
 ### Security & User Experience Coverage
+
 - **Non-root operation**: All development as `kdev` user (UID 1000)
 - **PATH management**: User-controlled shell configuration
 - **SSH key mounting**: Secure git credential access
@@ -226,6 +239,7 @@ The CI pipeline validates:
 - **User consent**: No automatic system modifications
 
 ### Container Integration Coverage
+
 - **DevContainer support**: VS Code integration testing
 - **USB device access**: Privileged container mode for hardware debugging
 - **File system performance**: Bind mount optimization
@@ -235,6 +249,7 @@ The CI pipeline validates:
 ## Image Verification
 
 ### Pre-built Image Testing
+
 ```bash
 # Pull and verify pre-built image
 docker pull ghcr.io/kodezine/kdocker:latest
@@ -249,6 +264,7 @@ docker run --rm --user kdev ghcr.io/kodezine/kdocker:latest bash -c "
 ```
 
 ### Security Scanning
+
 ```bash
 # Scan for vulnerabilities (requires docker scout or similar)
 docker scout quickview ghcr.io/kodezine/kdocker:latest
@@ -260,18 +276,22 @@ docker scout cves ghcr.io/kodezine/kdocker:latest
 ## Continuous Integration
 
 ### GitHub Actions Status
+
 - **Build Status**: [![Build and Release](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml)
 - **Test Status**: [![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)
 - **Release Status**: [![Docker Release](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml)
 
 ### Test Execution Frequency
+
 - **On every push** to `main` and `develop` branches
 - **On every pull request** targeting `main`
 - **On tagged releases** for version builds
 - **Manual dispatch** for ad-hoc testing
 
 ### Quality Gates
+
 All tests must pass before:
+
 - **Merging pull requests** to main branch
 - **Publishing container images** to registry
 - **Creating release tags** with version numbers
@@ -280,6 +300,7 @@ All tests must pass before:
 ## Local Development Testing
 
 ### Pre-commit Testing
+
 ```bash
 # Test before committing changes
 make test-local    # If Makefile available
@@ -289,6 +310,7 @@ make test-local    # If Makefile available
 ```
 
 ### Integration Testing
+
 ```bash
 # Test with real STM32 project
 git clone https://github.com/STMicroelectronics/STM32CubeF4.git /tmp/stm32-project

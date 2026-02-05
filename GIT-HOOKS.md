@@ -5,6 +5,7 @@ This repository uses **Git hooks** to automatically enforce code quality, securi
 ## 🚀 Quick Setup
 
 ### Automatic Setup
+
 ```bash
 # Setup all Git hooks automatically
 ./scripts/setup-hooks.sh
@@ -14,6 +15,7 @@ make setup-hooks
 ```
 
 ### Manual Setup
+
 ```bash
 # Install pre-commit framework
 pip install pre-commit
@@ -27,10 +29,12 @@ pre-commit install --hook-type pre-push
 ## 🪝 Configured Git Hooks
 
 ### 1. **Pre-commit Hook**
+
 **Triggers:** Before each `git commit`
 **Purpose:** Code quality validation and automatic fixes
 
 **Checks performed:**
+
 - ✅ **File validation** (trailing whitespace, line endings, large files)
 - ✅ **JSON/YAML formatting** (auto-fix with proper indentation)
 - ✅ **Shell script linting** (ShellCheck with severity warnings)
@@ -40,6 +44,7 @@ pre-commit install --hook-type pre-push
 - ✅ **Merge conflict detection**
 
 **Example output:**
+
 ```
 Trim Trailing Whitespace.................................................Passed
 Fix End of Files.........................................................Passed
@@ -49,10 +54,12 @@ hadolint.................................................................Passed
 ```
 
 ### 2. **Commit Message Hook**
+
 **Triggers:** During `git commit` (message validation)
 **Purpose:** Enforce conventional commit format
 
 **Format enforced:**
+
 ```
 <type>[optional scope]: <description>
 
@@ -64,6 +71,7 @@ hadolint.................................................................Passed
 **Valid types:** `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `ci`, `build`
 
 **Examples:**
+
 ```bash
 git commit -m "feat(docker): add ARM toolchain on-demand installation"
 git commit -m "fix(devcontainer): correct USB device permissions"
@@ -71,20 +79,24 @@ git commit -m "docs: update setup instructions for Git hooks"
 ```
 
 ### 3. **Pre-push Hook**
+
 **Triggers:** Before `git push`
 **Purpose:** Comprehensive validation before sharing code
 
 **Validations:**
+
 - 🐳 **Docker build test** (ensures Dockerfile builds successfully)
 - 📚 **Documentation completeness** (check required files exist)
 - 🔒 **Protected branch checks** (extra validation for main/master)
 - 🧪 **Comprehensive testing** (for protected branches)
 
 ### 4. **Post-commit Hook**
+
 **Triggers:** After successful `git commit`
 **Purpose:** Provide feedback and suggestions
 
 **Features:**
+
 - ✅ **Success confirmation** with commit details
 - 🐳 **Docker-related commit detection** (suggests running tests)
 - 📚 **Documentation update detection** (suggests version updates)
@@ -93,6 +105,7 @@ git commit -m "docs: update setup instructions for Git hooks"
 ## 🔧 Git Hooks Management
 
 ### Check Status
+
 ```bash
 # Show current Git hooks status
 ./scripts/setup-hooks.sh status
@@ -103,6 +116,7 @@ ls -la .git/hooks/
 ```
 
 ### Test Hooks
+
 ```bash
 # Test Git hooks functionality
 ./scripts/setup-hooks.sh test
@@ -115,6 +129,7 @@ pre-commit run shellcheck
 ```
 
 ### Update Hooks
+
 ```bash
 # Update all hooks to latest versions
 ./scripts/setup-hooks.sh update
@@ -124,6 +139,7 @@ pre-commit autoupdate
 ```
 
 ### Disable/Enable Hooks
+
 ```bash
 # Temporarily disable all hooks
 git config core.hooksPath /dev/null
@@ -139,6 +155,7 @@ SKIP=shellcheck git commit -m "commit message"
 ```
 
 ### Uninstall Hooks
+
 ```bash
 # Remove all Git hooks
 ./scripts/setup-hooks.sh uninstall
@@ -150,6 +167,7 @@ pre-commit uninstall --hook-type commit-msg
 ## 🚀 Development Workflow with Git Hooks
 
 ### 1. **Initial Setup**
+
 ```bash
 # Clone repository
 git clone <repository-url>
@@ -160,6 +178,7 @@ make dev-setup  # Includes Git hooks setup
 ```
 
 ### 2. **Daily Development**
+
 ```bash
 # Make changes
 vim Dockerfile
@@ -177,6 +196,7 @@ git push origin feature-branch
 ### 3. **Hook Feedback Examples**
 
 **Successful commit:**
+
 ```
 $ git commit -m "feat(docker): add ARM toolchain support"
 
@@ -195,6 +215,7 @@ hadolint.................................................................Passed
 ```
 
 **Failed validation:**
+
 ```
 $ git commit -m "fix something"
 
@@ -210,6 +231,7 @@ Please use format: feat|fix|docs|style|refactor|perf|test|chore|ci|build: descri
 ```
 
 ### 4. **Bypassing Hooks (When Necessary)**
+
 ```bash
 # Emergency commit (skip all hooks)
 git commit --no-verify -m "hotfix: critical security patch"
@@ -221,7 +243,9 @@ SKIP=hadolint git commit -m "fix(docker): temporary workaround"
 ## 🔧 Customization
 
 ### Adding New Hooks
+
 Edit `.pre-commit-config.yaml`:
+
 ```yaml
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
@@ -230,6 +254,7 @@ Edit `.pre-commit-config.yaml`:
 ```
 
 ### Custom Project Hook
+
 ```yaml
 - repo: local
   hooks:
@@ -241,6 +266,7 @@ Edit `.pre-commit-config.yaml`:
 ```
 
 ### Modifying Hook Behavior
+
 ```yaml
 - id: shellcheck
   args: [--severity=error]  # Change severity level
@@ -254,12 +280,14 @@ Edit `.pre-commit-config.yaml`:
 ### Common Issues
 
 1. **Hooks not running:**
+
    ```bash
    # Reinstall hooks
    pre-commit install --overwrite
    ```
 
 2. **Pre-commit not found:**
+
    ```bash
    # Install pre-commit
    pip install --user pre-commit
@@ -268,6 +296,7 @@ Edit `.pre-commit-config.yaml`:
    ```
 
 3. **Docker validation fails:**
+
    ```bash
    # Ensure Docker is running
    docker info
@@ -277,6 +306,7 @@ Edit `.pre-commit-config.yaml`:
    ```
 
 4. **Shell script errors:**
+
    ```bash
    # Fix shell script syntax
    shellcheck scripts/setup-hooks.sh
@@ -286,6 +316,7 @@ Edit `.pre-commit-config.yaml`:
    ```
 
 5. **Slow hook execution:**
+
    ```bash
    # Run hooks once to cache dependencies
    pre-commit run --all-files
@@ -295,11 +326,13 @@ Edit `.pre-commit-config.yaml`:
    ```
 
 ### Performance Optimization
+
 - **File exclusions**: Add patterns to exclude generated files
 - **Selective running**: Use `files` and `exclude` patterns
 - **Local caching**: Pre-commit caches dependencies automatically
 
 ### Hook Debugging
+
 ```bash
 # Debug specific hook
 pre-commit run shellcheck --verbose
@@ -323,12 +356,14 @@ pre-commit run --all-files --show-diff-on-failure
 6. **Granular Control**: Different hooks for different Git operations
 
 ### 🔄 **Integration with Existing Tools:**
+
 - ✅ **VS Code**: Git integration shows hook results
 - ✅ **IDEs**: Most IDEs respect Git hooks
 - ✅ **CI/CD**: Same hooks run in automated pipelines
 - ✅ **Git GUI**: Works with any Git interface
 
 ### 📈 **Scalability:**
+
 - ✅ **Team onboarding**: New developers get hooks automatically
 - ✅ **Configuration updates**: Centrally managed via `.pre-commit-config.yaml`
 - ✅ **Language support**: Extensible to any language/tool

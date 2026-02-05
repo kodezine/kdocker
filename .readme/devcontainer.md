@@ -7,21 +7,25 @@ This guide shows how to use the STM32 development container with Visual Studio C
 ## Prerequisites
 
 ### All Platforms
+
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
 ### Platform-Specific Requirements
 
 #### Windows 10/11
+
 - **Docker Desktop for Windows** - [Download here](https://www.docker.com/products/docker-desktop/)
 - **WSL2** (Windows Subsystem for Linux 2) - Required for best performance
 - **Git for Windows** - For git operations and SSH key management
 
 #### Linux
+
 - Docker Engine or Docker Desktop
 - Docker Compose (usually included)
 
 #### macOS
+
 - Docker Desktop for Mac
 - Xcode Command Line Tools (for git)
 
@@ -30,6 +34,7 @@ This guide shows how to use the STM32 development container with Visual Studio C
 ### 1. Install Prerequisites for Windows
 
 #### Step 1: Install WSL2
+
 ```powershell
 # Run in PowerShell as Administrator
 wsl --install
@@ -37,12 +42,14 @@ wsl --install
 ```
 
 #### Step 2: Install Docker Desktop
+
 1. Download [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
 2. Run the installer
 3. **Important**: Enable WSL2 integration during setup
 4. Restart Windows when prompted
 
 #### Step 3: Configure Docker Desktop
+
 1. Open Docker Desktop
 2. Go to Settings → General
 3. ✅ **Enable "Use WSL 2 based engine"**
@@ -52,6 +59,7 @@ wsl --install
 7. Click "Apply & Restart"
 
 #### Step 4: Install VS Code and Extensions
+
 ```powershell
 # Install VS Code if not already installed
 winget install Microsoft.VisualStudioCode
@@ -60,6 +68,7 @@ winget install Microsoft.VisualStudioCode
 ```
 
 Install required extensions in VS Code:
+
 - **Dev Containers** (`ms-vscode-remote.remote-containers`)
 - **WSL** (`ms-vscode-remote.remote-wsl`) - Optional but recommended
 
@@ -99,6 +108,7 @@ Create `.devcontainer/devcontainer.json` with Windows optimizations:
 For STM32 debugging with ST-Link on Windows:
 
 #### Option A: USB Passthrough (Recommended)
+
 ```json
 {
   // Add to devcontainer.json
@@ -111,7 +121,9 @@ For STM32 debugging with ST-Link on Windows:
 ```
 
 #### Option B: Use ST-Link Utilities on Windows Host
+
 Install ST-Link utilities on Windows host and use network debugging:
+
 1. Install [STM32CubeIDE](https://www.st.com/en/development-tools/stm32cubeide.html) or [ST-Link Utilities](https://www.st.com/en/development-tools/stsw-link004.html)
 2. Use OpenOCD in container with TCP connection
 3. Configure VS Code to debug via network connection
@@ -119,6 +131,7 @@ Install ST-Link utilities on Windows host and use network debugging:
 ### 4. Windows File System Performance
 
 #### Use WSL2 File System (Recommended)
+
 ```bash
 # Clone your project in WSL2 for best performance
 cd /home/username/
@@ -130,6 +143,7 @@ code .
 ```
 
 #### Windows File System (Alternative)
+
 ```bash
 # If using Windows file system
 # Clone to Windows directory
@@ -142,6 +156,7 @@ code C:\dev\your-stm32-project
 ### 5. Windows-Specific Troubleshooting
 
 #### Docker Desktop Not Starting
+
 ```powershell
 # Check WSL2 status
 wsl --status
@@ -152,12 +167,14 @@ wsl --shutdown
 ```
 
 #### Permission Issues
+
 ```powershell
 # Run VS Code as Administrator if needed
 # Right-click VS Code → "Run as Administrator"
 ```
 
 #### Line Ending Issues
+
 ```bash
 # In the container terminal
 git config --global core.autocrlf false
@@ -167,6 +184,7 @@ git config --global core.eol lf
 ## Quick Setup for STM32 Development
 
 ### 1. Create DevContainer Configuration
+
 Create `.devcontainer/devcontainer.json` in your STM32 project:
 
 ```json
@@ -196,12 +214,14 @@ Create `.devcontainer/devcontainer.json` in your STM32 project:
 ```
 
 ### 2. Start Development
+
 1. Open your STM32 project folder in VS Code
 2. Press `F1` → "Dev Containers: Reopen in Container"
 3. Container builds and installs GNU ARM toolchain automatically
 4. Your project is mounted at `/home/kdev/workspaces/project`
 
 ### 3. First-Time Setup in Container
+
 ```bash
 # Verify ARM toolchain installation
 stm32-tools status
@@ -274,6 +294,7 @@ The following VS Code extensions are automatically installed:
 ```
 
 Runs after container creation:
+
 - Marks workspace as safe directory for git
 - Configures git to use LF line endings
 
@@ -375,6 +396,7 @@ If you modify the Dockerfile:
 ### Container Won't Start
 
 Check Docker Desktop is running:
+
 ```bash
 docker ps
 ```
@@ -382,6 +404,7 @@ docker ps
 ### SSH Keys Not Working
 
 Ensure your SSH keys are in `~/.ssh/`:
+
 ```bash
 ls -la ~/.ssh/
 ```
@@ -389,6 +412,7 @@ ls -la ~/.ssh/
 ### Extensions Not Installing
 
 Manually install in the container:
+
 1. Open Extensions panel (`Ctrl+Shift+X`)
 2. Search for the extension
 3. Click Install
@@ -396,6 +420,7 @@ Manually install in the container:
 ### Performance Issues on macOS
 
 The `cached` consistency mode should help, but you can also try:
+
 - Use Docker Desktop with VirtioFS
 - Reduce the number of files in your workspace
 - Add commonly rebuilt directories to `.dockerignore`
@@ -447,6 +472,7 @@ Update `devcontainer.json`:
 This container runs as the non-root user `kdev` (UID 1000) by default for better security:
 
 **Features:**
+
 - User `kdev` with home directory `/home/kdev`
 - Passwordless sudo access for development tasks
 - SSH keys mounted to `/home/kdev/.ssh`
@@ -478,6 +504,7 @@ USER $USERNAME
 ### Docker Desktop Issues
 
 #### "Docker Desktop is starting..." (stuck)
+
 ```powershell
 # Restart Docker Desktop service
 net stop com.docker.service
@@ -489,11 +516,13 @@ wsl --shutdown
 ```
 
 #### "Docker daemon is not running"
+
 1. Open Docker Desktop manually
 2. Check system tray for Docker whale icon
 3. Right-click → "Start Docker Desktop"
 
 #### WSL2 Integration Issues
+
 ```powershell
 # Check WSL2 distros
 wsl --list --verbose
@@ -507,6 +536,7 @@ wsl --install -d Ubuntu
 ### VS Code DevContainer Issues
 
 #### Container builds but won't start on Windows
+
 ```json
 // Add to devcontainer.json for Windows compatibility
 {
@@ -518,6 +548,7 @@ wsl --install -d Ubuntu
 ```
 
 #### File permission issues (Windows file system)
+
 ```json
 // Use bind mount with specific options
 {
@@ -533,7 +564,9 @@ wsl --install -d Ubuntu
 ### STM32 Hardware Issues on Windows
 
 #### ST-Link not detected in container
+
 **Solution 1: Use ST-Link on Windows host**
+
 ```bash
 # In container: Use OpenOCD with network debugging
 openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "bindto 0.0.0.0"
@@ -543,6 +576,7 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "bindto 0.0.0.0"
 ```
 
 **Solution 2: USB Device passthrough (Advanced)**
+
 ```powershell
 # Install usbipd-win on Windows host
 winget install usbipd
@@ -555,6 +589,7 @@ usbipd attach --wsl --busid <BUSID>
 ```
 
 #### OpenOCD connection issues
+
 ```bash
 # In container: Check for existing processes
 sudo pkill openocd
@@ -567,7 +602,9 @@ openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -d 3
 ### Performance Optimization on Windows
 
 #### Slow file operations
+
 **Use WSL2 file system:**
+
 ```bash
 # Clone projects in WSL2, not Windows file system
 cd /home/username/projects/
@@ -576,6 +613,7 @@ code ./project  # Opens in VS Code with DevContainer
 ```
 
 #### Container startup slow
+
 ```json
 // Optimize devcontainer.json
 {
@@ -592,6 +630,7 @@ code ./project  # Opens in VS Code with DevContainer
 ### Git and SSH on Windows
 
 #### SSH keys not working in container
+
 ```powershell
 # On Windows: Ensure SSH keys are in standard location
 ls C:\Users\%USERNAME%\.ssh\
@@ -602,6 +641,7 @@ chmod 644 ~/.ssh/id_rsa.pub
 ```
 
 #### Line ending issues
+
 ```bash
 # Configure git globally in container
 git config --global core.autocrlf false

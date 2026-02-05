@@ -38,6 +38,7 @@ Sudo Access: Passwordless (NOPASSWD:ALL)
 ## Running the Container
 
 ### Basic Usage
+
 ```bash
 # Build the image
 docker build -t cpp-arm-dev .
@@ -50,6 +51,7 @@ whoami  # Should output: kdev
 ```
 
 ### With Workspace Mount
+
 ```bash
 # Mount current directory
 docker run -it --rm -v $(pwd):/workspace cpp-arm-dev
@@ -62,6 +64,7 @@ docker run -it --rm \
 ```
 
 ### Using Sudo
+
 ```bash
 # Inside the container, you can use sudo without password
 sudo apt update
@@ -69,6 +72,7 @@ sudo systemctl status  # if needed
 ```
 
 ### File Permissions
+
 ```bash
 # Files created in /workspace will have kdev ownership
 touch /workspace/test.txt
@@ -102,6 +106,7 @@ arm-none-eabi-gcc --version  # Works directly
 ## Shell Configuration
 
 ### Zsh with Oh My Zsh
+
 The `kdev` user is configured with **zsh** as the default shell and includes **Oh My Zsh** for enhanced functionality:
 
 ```bash
@@ -117,6 +122,7 @@ cat ~/.zshrc
 ```
 
 ### Features
+
 - **Syntax highlighting**: Better command visibility
 - **Auto-completion**: Enhanced tab completion
 - **Git integration**: Git status in prompt
@@ -124,6 +130,7 @@ cat ~/.zshrc
 - **Themes**: Customizable appearance
 
 ### Customization
+
 ```bash
 # Edit zsh configuration
 nano ~/.zshrc
@@ -141,16 +148,19 @@ source ~/.zshrc
 ## Benefits
 
 ### Security
+
 - **Principle of least privilege**: No unnecessary root access
 - **File ownership**: Files match host user permissions (UID 1001)
 - **Read-only SSH**: SSH keys mounted read-only for security
 
 ### Compatibility
+
 - **Host file permissions**: Works better with host file systems
 - **IDE integration**: Better VS Code file watching and permissions
 - **Docker best practices**: Follows security recommendations
 
 ### Development Experience
+
 - **Sudo available**: Can install packages when needed
 - **Standard user**: Behaves like normal Linux user account
 - **Tool compatibility**: All development tools work normally
@@ -174,6 +184,7 @@ Most development tasks don't require root access and work unchanged.
 ## Troubleshooting
 
 ### Permission Issues
+
 ```bash
 # If you need to fix file permissions
 sudo chown -R kdev:kdev /workspace
@@ -184,6 +195,7 @@ groups
 ```
 
 ### SSH Key Issues
+
 ```bash
 # Check SSH key permissions
 ls -la ~/.ssh/
@@ -196,6 +208,7 @@ sudo chmod 700 ~/.ssh
 ```
 
 ### Package Installation
+
 ```bash
 # Install packages (requires sudo)
 sudo apt update

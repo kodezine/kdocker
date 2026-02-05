@@ -5,6 +5,7 @@
 ### ARM Toolchain Installation Fails
 
 #### Problem: "Download failed" or "Connection timeout"
+
 ```bash
 # Check network connectivity
 curl -I https://github.com/arm/arm-toolchain/releases
@@ -18,6 +19,7 @@ stm32-tools gnuarm
 ```
 
 #### Problem: "SHA256 verification failed"
+
 ```bash
 # Clear corrupted download cache
 rm -rf ~/.toolchains/stm32tools/.downloads/
@@ -28,6 +30,7 @@ stm32-tools gnuarm
 ```
 
 #### Problem: "No space left on device"
+
 ```bash
 # Check available space
 df -h ~/.toolchains/
@@ -43,6 +46,7 @@ stm32-tools gnuarm  # Instead of 'all'
 ### PATH Issues
 
 #### Problem: "arm-none-eabi-gcc: command not found"
+
 ```bash
 # Check installation status
 stm32-tools status
@@ -58,9 +62,11 @@ which arm-none-eabi-gcc
 ```
 
 #### Problem: "PATH not updated after installation"
+
 The container respects user choice and doesn't automatically modify PATH.
 
 **Solutions:**
+
 ```bash
 # Option 1: Use updatepath command
 stm32-tools updatepath
@@ -78,6 +84,7 @@ source ~/.zshrc
 ### USB Device Access
 
 #### Problem: "ST-Link not detected"
+
 ```bash
 # Run container with USB access
 docker run -it --rm --privileged \
@@ -93,6 +100,7 @@ ls -la /etc/udev/rules.d/49-stlink*
 ```
 
 #### Problem: "Permission denied" accessing STM32
+
 ```bash
 # Add user to dialout group (should be automatic)
 groups | grep dialout
@@ -107,6 +115,7 @@ docker run -it --rm --privileged cpp-arm-dev
 ### OpenOCD Issues
 
 #### Problem: "OpenOCD fails to connect"
+
 ```bash
 # Install STM32 debugging tools if not installed
 stm32-tools stm32tools
@@ -124,11 +133,13 @@ sudo pkill st-util
 ### Docker Build Fails
 
 #### Problem: "Cannot connect to Docker daemon"
+
 ```
 Cannot connect to the Docker daemon at unix:///var/run/docker.sock
 ```
 
 **Solution:**
+
 - Ensure Docker Desktop is running
 - Check Docker service status: `systemctl status docker` (Linux)
 - Restart Docker: `sudo systemctl restart docker` (Linux)
@@ -136,6 +147,7 @@ Cannot connect to the Docker daemon at unix:///var/run/docker.sock
 #### Problem: "No space left on device"
 
 **Solution:**
+
 ```bash
 # Clean up Docker
 docker system prune -a -f
@@ -150,6 +162,7 @@ docker volume prune
 #### Problem: Download failures during build
 
 **Solution:**
+
 ```bash
 # Retry the build (Docker will cache successful layers)
 docker build -t cpp-arm-dev .
@@ -166,14 +179,17 @@ docker build --network=host -t cpp-arm-dev .
 #### Problem: Checksum mismatch
 
 **Solution:**
+
 1. Check if the download URLs have been updated
 2. Verify checksums manually:
+
 ```bash
 cd /tmp
 wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz
 wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 ```
+
 3. Update Dockerfile with correct URLs/checksums
 
 ## Runtime Issues
@@ -183,6 +199,7 @@ sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 #### Problem: "docker: Error response from daemon"
 
 **Solution:**
+
 ```bash
 # Check Docker logs
 docker logs <container-id>
@@ -199,6 +216,7 @@ docker info
 #### Problem: "bash: /opt/atfe21.1/bin/clang: No such file or directory"
 
 **Solution:**
+
 ```bash
 # Check if toolchain was extracted
 docker run --rm cpp-arm-dev ls -la /opt/
@@ -241,6 +259,7 @@ docker build --no-cache -t cpp-arm-dev .
 #### Problem: pip packages not found
 
 **Solution:**
+
 ```bash
 # Check Python version
 docker run --rm cpp-arm-dev python --version
@@ -259,6 +278,7 @@ docker run --rm cpp-arm-dev python -m pip install gcovr
 #### Problem: "Failed to connect to the remote extension host server"
 
 **Solution:**
+
 1. Restart Docker Desktop
 2. Rebuild container: `F1` → "Dev Containers: Rebuild Container"
 3. Check Docker is accessible: `docker ps`
@@ -269,7 +289,9 @@ docker run --rm cpp-arm-dev python -m pip install gcovr
 #### Problem: Extensions fail to install in container
 
 **Solution:**
+
 1. Check internet connection in container:
+
 ```bash
 docker run --rm cpp-arm-dev ping -c 3 google.com
 ```
@@ -286,6 +308,7 @@ docker run --rm cpp-arm-dev ping -c 3 google.com
 #### Problem: Git operations fail with SSH
 
 **Solution:**
+
 ```bash
 # Verify SSH mount
 docker run --rm -v ~/.ssh:/root/.ssh:ro cpp-arm-dev ls -la /root/.ssh/
@@ -303,8 +326,10 @@ docker run --rm -v ~/.ssh:/root/.ssh:ro cpp-arm-dev ssh -T git@github.com
 #### Problem: Files created in container have wrong permissions
 
 **Solution:**
+
 1. Run as non-root user (see [DevContainer Setup](.devcontainer.md))
 2. Or fix permissions on host:
+
 ```bash
 sudo chown -R $USER:$USER .
 ```
@@ -316,6 +341,7 @@ sudo chown -R $USER:$USER .
 #### Problem: "Could not find CMAKE_MAKE_PROGRAM"
 
 **Solution:**
+
 ```bash
 # Specify generator explicitly
 cmake -G Ninja ..
@@ -327,6 +353,7 @@ cmake -G "Unix Makefiles" ..
 #### Problem: Toolchain file not working
 
 **Solution:**
+
 ```bash
 # Use absolute path
 cmake -DCMAKE_TOOLCHAIN_FILE=/workspace/cmake/toolchain.cmake ..
@@ -350,6 +377,7 @@ arm-none-eabi-gcc -fno-stack-protector ...
 ```
 
 Or in CMakeLists.txt:
+
 ```cmake
 add_compile_options(-fno-stack-protector)
 ```
@@ -357,6 +385,7 @@ add_compile_options(-fno-stack-protector)
 #### Problem: "cannot find -lstdc++"
 
 **Solution:**
+
 ```bash
 # Use g++ instead of gcc for C++
 /opt/atfe21.3/bin/arm-none-eabi-g++ ...
@@ -370,13 +399,16 @@ arm-none-eabi-gcc -lstdc++ ...
 ### Slow Build Times
 
 **Solution:**
+
 1. Use ccache:
+
 ```bash
 export CC="ccache gcc"
 export CXX="ccache g++"
 ```
 
 2. Use Ninja instead of Make:
+
 ```bash
 cmake -G Ninja ..
 ```
@@ -389,9 +421,11 @@ cmake -G Ninja ..
 
 **Solution:**
 On macOS, use VirtioFS (Docker Desktop 4.6+):
+
 - Docker Desktop → Settings → General → "Use the new Virtualization framework"
 
 Or use named volumes instead of bind mounts:
+
 ```bash
 docker volume create workspace
 docker run -v workspace:/workspace cpp-arm-dev
@@ -404,6 +438,7 @@ docker run -v workspace:/workspace cpp-arm-dev
 #### Problem: "gdb: command not found"
 
 **Solution:**
+
 ```bash
 # Use full path
 /opt/atfe21.1/bin/arm-none-eabi-gdb
@@ -416,6 +451,7 @@ arm-none-eabi-gdb
 #### Problem: Can't connect to target
 
 **Solution:**
+
 ```bash
 # Check OpenOCD is running (if using OpenOCD)
 ps aux | grep openocd
@@ -464,6 +500,7 @@ docker run --rm cpp-arm-dev bash -c "
 ### Reporting Issues
 
 When reporting issues, include:
+
 1. Output of `docker --version`
 2. Output of `docker info`
 3. Complete error message

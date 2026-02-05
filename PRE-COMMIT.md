@@ -13,6 +13,7 @@ This repository uses [pre-commit](https://pre-commit.com/) to ensure code qualit
 3. Pre-commit hooks install automatically ✨
 
 **Example devcontainer.json:**
+
 ```json
 {
   "name": "My STM32 Project",
@@ -66,6 +67,7 @@ pre-commit run --all-files
 ## 🔧 Configured Hooks
 
 ### General File Validation
+
 - ✅ **Trailing whitespace removal**
 - ✅ **End-of-file fixing** (ensure files end with newline)
 - ✅ **Large file detection** (10MB limit)
@@ -74,35 +76,43 @@ pre-commit run --all-files
 - ✅ **Line ending normalization** (LF)
 
 ### JSON & YAML
+
 - ✅ **JSON validation and formatting** (4-space indentation)
 - ✅ **YAML validation and linting** (yamllint)
 - ✅ **DevContainer JSON validation**
 
 ### Shell Scripts
+
 - ✅ **ShellCheck linting** (warning level)
 - ✅ **Shell formatting** (shfmt - 4 space indentation)
 - ✅ **Executable permissions** (auto-fix)
 
 ### Docker
+
 - ✅ **Dockerfile linting** (hadolint)
 - ✅ **Docker build validation** (dry-run)
 - ✅ **Docker Compose validation**
 
 ### Markdown
+
 - ✅ **Markdown linting** (markdownlint with auto-fix)
 
 ### C/C++ (if present)
+
 - ✅ **Code formatting** (clang-format with Google style)
 
 ### Python (if present)
+
 - ✅ **Code formatting** (Black)
 - ✅ **Import sorting** (isort)
 
 ### Security
+
 - ✅ **Secret detection** (detect-secrets)
 - ✅ **TODO/FIXME detection** (warning)
 
 ### Git
+
 - ✅ **Conventional commit messages** (enforced)
 
 ## 📝 Conventional Commits
@@ -118,6 +128,7 @@ This repository enforces [Conventional Commits](https://www.conventionalcommits.
 ```
 
 ### Commit Types
+
 - `feat`: A new feature
 - `fix`: A bug fix
 - `docs`: Documentation changes
@@ -130,6 +141,7 @@ This repository enforces [Conventional Commits](https://www.conventionalcommits.
 - `build`: Build system or dependency changes
 
 ### Examples
+
 ```bash
 git commit -m "feat(docker): add on-demand ARM toolchain installation"
 git commit -m "fix(devcontainer): correct path configuration for STM32 tools"
@@ -140,13 +152,17 @@ git commit -m "chore: update dependencies to latest versions"
 ## 🔧 Configuration Files
 
 ### `.pre-commit-config.yaml`
+
 Main configuration file defining all hooks and their settings.
 
 ### `.secrets.baseline`
+
 Baseline file for detect-secrets to track known false positives.
 
 ### Excluded Files
+
 The following files/patterns are excluded from most hooks:
+
 - `.vscode/*.json` (VS Code configuration files)
 - `*.jsonc` (JSON with comments)
 - `*.patch` and `*.diff` (patch files)
@@ -156,9 +172,11 @@ The following files/patterns are excluded from most hooks:
 ## 🚀 Running Hooks
 
 ### Automatic (Recommended)
+
 Hooks run automatically on `git commit` and `git push` after installation.
 
 ### Manual Execution
+
 ```bash
 # Run all hooks on staged files
 pre-commit run
@@ -175,6 +193,7 @@ pre-commit run --files path/to/file.sh
 ```
 
 ### Skip Hooks (Emergency)
+
 ```bash
 # Skip all hooks for a commit (not recommended)
 git commit --no-verify -m "emergency fix"
@@ -186,6 +205,7 @@ SKIP=shellcheck git commit -m "commit message"
 ## 🔧 Customization
 
 ### Adding New File Types
+
 Edit `.pre-commit-config.yaml` and add new hooks or modify existing ones:
 
 ```yaml
@@ -196,6 +216,7 @@ Edit `.pre-commit-config.yaml` and add new hooks or modify existing ones:
 ```
 
 ### Adjusting Hook Configuration
+
 Modify hook arguments:
 
 ```yaml
@@ -204,6 +225,7 @@ Modify hook arguments:
 ```
 
 ### Local Custom Hooks
+
 Add repository-specific hooks:
 
 ```yaml
@@ -220,17 +242,20 @@ Add repository-specific hooks:
 ### Common Issues
 
 1. **Hook installation failed**
+
    ```bash
    pre-commit clean
    pre-commit install
    ```
 
 2. **Hooks running slowly**
+
    ```bash
    pre-commit run --all-files  # Run once to cache
    ```
 
 3. **False positive in secrets detection**
+
    ```bash
    detect-secrets scan --baseline .secrets.baseline
    ```
@@ -244,6 +269,7 @@ Add repository-specific hooks:
    - See [ShellCheck wiki](https://github.com/koalaman/shellcheck/wiki) for rules
 
 ### Updating Hooks
+
 ```bash
 # Update all hooks to latest versions
 pre-commit autoupdate
@@ -253,6 +279,7 @@ pre-commit autoupdate --repo https://github.com/hadolint/hadolint
 ```
 
 ### Bypassing Hooks During Development
+
 ```bash
 # Temporarily disable for development
 git config hooks.pre-commit false
@@ -264,11 +291,13 @@ git config hooks.pre-commit true
 ## 📊 Hook Performance
 
 View hook execution times:
+
 ```bash
 pre-commit run --all-files --verbose
 ```
 
 Optimize slow hooks by:
+
 - Excluding unnecessary files
 - Running only on changed files
 - Using faster alternatives
@@ -276,15 +305,19 @@ Optimize slow hooks by:
 ## 🔗 Integration
 
 ### CI/CD Integration
+
 The configuration includes pre-commit.ci settings for automatic updates and fixes in pull requests.
 
 ### IDE Integration
+
 Most IDEs can integrate with pre-commit:
+
 - **VS Code**: Install pre-commit extension
 - **PyCharm**: Configure as external tool
 - **Vim/Neovim**: Use pre-commit plugins
 
 ### GitHub Actions
+
 ```yaml
 name: Pre-commit
 on: [push, pull_request]

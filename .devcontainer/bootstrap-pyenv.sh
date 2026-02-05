@@ -58,7 +58,7 @@ print_info "Configuring shell environment..."
 
 # Add to .zshrc if not already present
 if ! grep -q "PYENV_ROOT" ~/.zshrc 2>/dev/null; then
-    cat >> ~/.zshrc << 'EOF'
+    cat >>~/.zshrc <<'EOF'
 
 # Pyenv configuration (auto-added by bootstrap)
 export PYENV_ROOT="$HOME/.pyenv"

@@ -6,7 +6,8 @@ The STM32 Docker development environment has been successfully migrated from a M
 
 ## 🔄 What Changed
 
-### Before (Makefile approach):
+### Before (Makefile approach)
+
 ```bash
 # Manual execution required
 make pre-commit    # Setup hooks manually
@@ -14,7 +15,8 @@ make lint          # Run linting manually
 make format        # Run formatting manually
 ```
 
-### After (Git hooks approach):
+### After (Git hooks approach)
+
 ```bash
 # Automatic execution
 git commit -m "feat: new feature"  # Hooks run automatically
@@ -24,24 +26,28 @@ git push                           # Validation runs automatically
 ## 🎯 Benefits of Git Hooks Approach
 
 ### 1. **Automatic Execution**
+
 - ✅ **Pre-commit**: Runs automatically on every `git commit`
 - ✅ **Commit-msg**: Validates message format automatically
 - ✅ **Pre-push**: Validates before every `git push`
 - ✅ **Post-commit**: Provides feedback after successful commits
 
 ### 2. **Developer Experience**
+
 - 🚀 **Zero configuration** after initial setup
 - 🔄 **Immediate feedback** during Git operations
 - 📝 **Consistent enforcement** across all team members
 - 🛡️ **Prevents bad commits** from entering history
 
 ### 3. **IDE Integration**
+
 - ✅ **VS Code**: Shows hook results in Git panel
 - ✅ **Any Git GUI**: Works with all Git interfaces
 - ✅ **Terminal**: Seamless command-line experience
 - ✅ **DevContainer**: Hooks work in containerized environments
 
 ### 4. **Team Consistency**
+
 - 👥 **Automatic setup** for new team members
 - 🔧 **Centralized configuration** via `.pre-commit-config.yaml`
 - 📚 **Enforced standards** without manual intervention
@@ -50,6 +56,7 @@ git push                           # Validation runs automatically
 ## 🚀 Quick Setup Commands
 
 ### For Contributors
+
 ```bash
 # One-time setup
 ./scripts/setup-hooks.sh setup
@@ -64,6 +71,7 @@ git push                                             # Pre-push validation
 ```
 
 ### For Project Maintainers
+
 ```bash
 # Check hooks status
 ./scripts/setup-hooks.sh status
@@ -88,6 +96,7 @@ make hooks-status
 ## 📋 Validation Coverage
 
 ### File Types Covered
+
 - 🐳 **Docker**: Dockerfile linting (hadolint)
 - 🐚 **Shell**: ShellCheck + shfmt formatting
 - 📄 **JSON**: Validation + 4-space formatting
@@ -97,6 +106,7 @@ make hooks-status
 - 📋 **General**: Whitespace, line endings, merge conflicts
 
 ### Development Tools Integration
+
 - ✅ **C/C++**: clang-format (Google style)
 - ✅ **Python**: Black formatting + isort
 - ✅ **DevContainer**: JSON validation
@@ -105,6 +115,7 @@ make hooks-status
 ## 🚦 Example Workflows
 
 ### Successful Commit Flow
+
 ```bash
 $ git commit -m "feat(docker): optimize image size"
 
@@ -120,6 +131,7 @@ hadolint....................Passed
 ```
 
 ### Failed Validation Flow
+
 ```bash
 $ git commit -m "fix stuff"
 
@@ -132,6 +144,7 @@ Please use: feat|fix|docs|style|refactor|perf|test|chore: description
 ```
 
 ### Pre-push Validation
+
 ```bash
 $ git push origin main
 
