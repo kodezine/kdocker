@@ -57,7 +57,7 @@ Create `.devcontainer/devcontainer.json`:
     ],
     
     // Run commands after container creation
-    "postCreateCommand": "stm32-tools status",
+    "postCreateCommand": "setup-pre-commit /workspaces/project && stm32-tools status",
     
     // Keep container running
     "shutdownAction": "stopContainer",
@@ -308,6 +308,113 @@ Create `.vscode/tasks.json`:
     ]
 }
 ```
+
+## ✨ Code Quality & Pre-commit Hooks
+
+The Docker image includes **automatic pre-commit hook installation** for seamless code quality enforcement. Pre-commit is pre-installed and will automatically configure your git hooks when you open the dev container.
+
+### Automatic Setup
+
+When you open your project in the dev container, the `setup-pre-commit` script runs automatically and:
+
+1. ✅ Detects if your project is a git repository
+2. ✅ Checks for `.pre-commit-config.yaml` in your project
+3. ✅ Automatically runs `pre-commit install` if not already configured
+4. ✅ Installs commit-msg hooks if configured
+
+**No manual installation required!** Just add a `.pre-commit-config.yaml` to your project.
+
+### Enabling Pre-commit in Your DevContainer
+
+Simply add the setup command to your `postCreateCommand`:
+
+```json
+{
+    "name": "STM32 Development Environment",
+    "image": "ghcr.io/kodezine/kdocker:latest",
+    "remoteUser": "kdev",
+    "postCreateCommand": "setup-pre-commit /workspaces/project && stm32-tools status"
+}
+```
+
+Or if using a custom workspace folder:
+
+```json
+{
+    "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder} && stm32-tools gnuarm"
+}
+```
+
+### Creating Your Pre-commit Configuration
+
+Create `.pre-commit-config.yaml` in your project root:
+
+```yaml
+# Minimal example for C/C++ embedded projects
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # C/C++ formatting
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v18.1.2
+    hooks:
+      - id: clang-format
+        files: \.(c|cc|cxx|cpp|h|hpp|hxx)$
+        args: [--style=Google]
+
+  # Shell script linting
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.9.0.6
+    hooks:
+      - id: shellcheck
+        files: \.(sh|bash)$
+```
+
+See the [repository's .pre-commit-config.yaml](../.pre-commit-config.yaml) for a comprehensive example with Docker, Markdown, and security hooks.
+
+### Manual Usage
+
+If you prefer manual control:
+
+```bash
+# Check setup status (automatic in postCreateCommand)
+setup-pre-commit /workspaces/project
+
+# Run hooks manually on all files
+pre-commit run --all-files
+
+# Run hooks on staged files only
+pre-commit run
+
+# Update hook versions
+pre-commit autoupdate
+
+# Temporarily skip hooks
+SKIP=clang-format git commit -m "WIP: quick fix"
+
+# Uninstall hooks
+pre-commit uninstall
+```
+
+### Skipping Auto-Setup
+
+If you don't want automatic pre-commit installation, simply don't include `setup-pre-commit` in your `postCreateCommand`:
+
+```json
+{
+    "postCreateCommand": "stm32-tools status"
+}
+```
+
+Pre-commit will still be available for manual use.
 
 ## 🔧 Hardware Configuration
 

@@ -2,7 +2,33 @@
 
 This repository uses [pre-commit](https://pre-commit.com/) to ensure code quality and consistency across all file types. The configuration automatically validates and formats Docker files, JSON, shell scripts, Markdown, and more.
 
-## 🚀 Quick Setup
+## 🎯 For Downstream Dev Container Users
+
+**Good news!** If you're using this Docker image as a dev container, pre-commit is **already installed** and will **auto-configure** when you open your project.
+
+### Automatic Setup (Zero Configuration Required)
+
+1. Add a `.pre-commit-config.yaml` to your project root
+2. Open your project in the kdocker dev container
+3. Pre-commit hooks install automatically ✨
+
+**Example devcontainer.json:**
+```json
+{
+  "name": "My STM32 Project",
+  "image": "ghcr.io/kodezine/kdocker:latest",
+  "remoteUser": "kdev",
+  "postCreateCommand": "setup-pre-commit ${containerWorkspaceFolder} && stm32-tools gnuarm"
+}
+```
+
+**That's it!** Your git hooks are ready. No manual installation needed.
+
+See the [examples/](examples/) directory for ready-to-use templates.
+
+---
+
+## 🚀 Quick Setup (For This Repository)
 
 ### 1. Install pre-commit
 
