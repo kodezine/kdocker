@@ -94,7 +94,7 @@ pre-commit run --all-files
 ### C/C++ (if present)
 - ✅ **Code formatting** (clang-format with Google style)
 
-### Python (if present)  
+### Python (if present)
 - ✅ **Code formatting** (Black)
 - ✅ **Import sorting** (isort)
 
@@ -119,7 +119,7 @@ This repository enforces [Conventional Commits](https://www.conventionalcommits.
 
 ### Commit Types
 - `feat`: A new feature
-- `fix`: A bug fix  
+- `fix`: A bug fix
 - `docs`: Documentation changes
 - `style`: Code style changes (formatting, etc.)
 - `refactor`: Code changes that neither fix bugs nor add features

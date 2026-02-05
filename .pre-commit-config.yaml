@@ -161,11 +161,15 @@ repos:
         pass_filenames: false
         verbose: true
 
-      # Ensure shell scripts are executable
+      # Ensure shell scripts are executable  
       - id: shell-executable
         name: Ensure shell scripts are executable
         entry: bash
-        args: [-c, 'find . -name "*.sh" -type f ! -perm +111 -exec chmod +x {} \;']
+        args:
+          [
+            -c,
+            'non_exec=$(find . -name "*.sh" -type f ! -perm +111 2>/dev/null); if [ -n "$non_exec" ]; then echo "$non_exec" | while read f; do chmod +x "$f"; done; exit 1; fi',
+          ]
         language: system
         pass_filenames: false
 

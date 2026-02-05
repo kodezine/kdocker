@@ -17,7 +17,7 @@ stm32-tools clean
 stm32-tools gnuarm
 ```
 
-#### Problem: "SHA256 verification failed"  
+#### Problem: "SHA256 verification failed"
 ```bash
 # Clear corrupted download cache
 rm -rf ~/.toolchains/stm32tools/.downloads/
@@ -28,7 +28,7 @@ stm32-tools gnuarm
 ```
 
 #### Problem: "No space left on device"
-```bash  
+```bash
 # Check available space
 df -h ~/.toolchains/
 
@@ -50,7 +50,7 @@ stm32-tools status
 # Update PATH if toolchain is installed
 stm32-tools updatepath
 
-# Or manually for current session  
+# Or manually for current session
 export PATH="$HOME/gnuarm14.3/bin:$PATH"
 
 # Verify
@@ -68,16 +68,16 @@ stm32-tools updatepath
 # Option 2: Manual export (temporary)
 export PATH="$HOME/gnuarm14.3/bin:$HOME/atfe21.1/bin:$PATH"
 
-# Option 3: Add to shell config permanently  
+# Option 3: Add to shell config permanently
 echo 'export PATH="$HOME/gnuarm14.3/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
 ## STM32 Hardware Issues
 
-### USB Device Access  
+### USB Device Access
 
-#### Problem: "ST-Link not detected"  
+#### Problem: "ST-Link not detected"
 ```bash
 # Run container with USB access
 docker run -it --rm --privileged \
@@ -107,7 +107,7 @@ docker run -it --rm --privileged cpp-arm-dev
 ### OpenOCD Issues
 
 #### Problem: "OpenOCD fails to connect"
-```bash  
+```bash
 # Install STM32 debugging tools if not installed
 stm32-tools stm32tools
 

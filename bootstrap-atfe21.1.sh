@@ -16,11 +16,11 @@ function downloadAndExtract {
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
-    
+
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading $FILE_TO_DOWNLOAD..."
     wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to download $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -30,7 +30,7 @@ function downloadAndExtract {
     SHA256_FILE="${FILE_TO_DOWNLOAD}.sha256"
     echo "Downloading checksum file..."
     wget "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to download $SHA256_FILE" >&2
         exit 1
@@ -39,7 +39,7 @@ function downloadAndExtract {
     echo "Verifying download..."
     cd "$DOWNLOAD_DIR"
     sha256sum -c "$SHA256_FILE"
-    
+
     if [ $? -ne 0 ]; then
         echo "Checksum verification failed" >&2
         exit 1
@@ -48,7 +48,7 @@ function downloadAndExtract {
     mkdir -p "$TOOLCHAIN_DIR"
     echo "Extracting $FILE_TO_DOWNLOAD to $TOOLCHAIN_DIR..."
     tar xf "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" -C "$TOOLCHAIN_DIR"
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to extract $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -62,11 +62,11 @@ function downloadAndExtractOverlay {
     if [ "$ALLOW_INSECURE_DOWNLOAD" == "true" ]; then
         WGET_FLAGS="$WGET_FLAGS --no-check-certificate"
     fi
-    
+
     mkdir -p $DOWNLOAD_DIR
     echo "Downloading overlay $FILE_TO_DOWNLOAD..."
     wget "$BASE_URL$FILE_TO_DOWNLOAD" -O "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" $WGET_FLAGS
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to download overlay $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -76,7 +76,7 @@ function downloadAndExtractOverlay {
     SHA256_FILE="${FILE_TO_DOWNLOAD}.sha256"
     echo "Downloading overlay checksum file..."
     wget "$BASE_URL$SHA256_FILE" -O "$DOWNLOAD_DIR/$SHA256_FILE" $WGET_FLAGS
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to download overlay $SHA256_FILE" >&2
         exit 1
@@ -85,7 +85,7 @@ function downloadAndExtractOverlay {
     echo "Verifying overlay..."
     cd "$DOWNLOAD_DIR"
     sha256sum -c "$SHA256_FILE"
-    
+
     if [ $? -ne 0 ]; then
         echo "Overlay checksum verification failed" >&2
         exit 1
@@ -93,7 +93,7 @@ function downloadAndExtractOverlay {
 
     echo "Extracting overlay $FILE_TO_DOWNLOAD to $ATFE_INSTALL_DIR..."
     tar xf "$DOWNLOAD_DIR/$FILE_TO_DOWNLOAD" -C "$ATFE_INSTALL_DIR"
-    
+
     if [ $? -ne 0 ]; then
         echo "Failed to extract overlay $FILE_TO_DOWNLOAD" >&2
         exit 1
@@ -120,10 +120,10 @@ function linkAsDefault {
 
 function installNewlibOverlay {
     NEWLIB_OVERLAY_FILE="ATfE-newlib-overlay-${ATFE_VERSION}.tar.xz"
-    
+
     echo "Installing ATfE newlib overlay..."
     downloadAndExtractOverlay "$NEWLIB_OVERLAY_FILE"
-    
+
     if [ $? -eq 0 ]; then
         echo "ATfE newlib overlay $ATFE_VERSION installed successfully"
     else
@@ -133,17 +133,17 @@ function installNewlibOverlay {
 
 function install {
     PACKAGE_FILE="ATfE-${ATFE_VERSION}-${ARCH_SUFFIX}.tar.xz"
-    
+
     if [ ! -d "$ATFE_INSTALL_DIR" ]; then
         echo "Requested version $ATFE_VERSION is not installed"
         downloadAndExtract "$PACKAGE_FILE"
-        
+
         if verifyInstallation "$ATFE_INSTALL_DIR"; then
             echo "Arm Toolchain for Embedded $ATFE_VERSION installed successfully"
-            
+
             # Install newlib overlay
             installNewlibOverlay
-            
+
             # Copy armv7m configuration file if it exists
             if [ -f "$KDEV_HOME/.toolchains/armv7m_hard_fpv4_sp_d16.cfg" ]; then
                 cp "$KDEV_HOME/.toolchains/armv7m_hard_fpv4_sp_d16.cfg" "$ATFE_INSTALL_DIR/bin/"
@@ -154,7 +154,7 @@ function install {
         fi
     else
         echo "Arm Toolchain for Embedded $ATFE_VERSION is already installed at $ATFE_INSTALL_DIR"
-        
+
         # Check if newlib overlay needs to be installed
         if [ ! -f "$ATFE_INSTALL_DIR/newlib.cfg" ]; then
             echo "Newlib overlay not detected, installing..."
@@ -162,13 +162,13 @@ function install {
         else
             echo "Newlib overlay already installed"
         fi
-        
+
         # Copy armv7m configuration file if it exists and not already copied
         if [ -f "$KDEV_HOME/.toolchains/armv7m_hard_fpv4_sp_d16.cfg" ] && [ ! -f "$ATFE_INSTALL_DIR/bin/armv7m_hard_fpv4_sp_d16.cfg" ]; then
             cp "$KDEV_HOME/.toolchains/armv7m_hard_fpv4_sp_d16.cfg" "$ATFE_INSTALL_DIR/bin/"
         fi
     fi
-    
+
     linkAsDefault
 }
 

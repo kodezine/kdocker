@@ -10,7 +10,7 @@ The STM32 Docker development environment has been successfully migrated from a M
 ```bash
 # Manual execution required
 make pre-commit    # Setup hooks manually
-make lint          # Run linting manually  
+make lint          # Run linting manually
 make format        # Run formatting manually
 ```
 
@@ -183,7 +183,7 @@ make format
 
 - ✅ **Automatic execution** prevents human error
 - ✅ **Immediate feedback** during development
-- ✅ **Team consistency** without manual intervention  
+- ✅ **Team consistency** without manual intervention
 - ✅ **Industry standard** practice
 - ✅ **IDE integration** works everywhere
 - ✅ **Scalable** for any team size

@@ -27,7 +27,7 @@
         },
         {
             "name": "Debug STM32 (ST-Link GDB)",
-            "type": "cppdbg", 
+            "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceRoot}/build/firmware.elf",
             "args": [],
@@ -56,7 +56,7 @@
             "name": "Attach to OpenOCD",
             "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/build/firmware.elf",
-            "request": "attach", 
+            "request": "attach",
             "type": "cortex-debug",
             "servertype": "openocd",
             "configFiles": [

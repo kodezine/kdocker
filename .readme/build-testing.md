@@ -6,7 +6,7 @@ This project uses **comprehensive GitHub Actions workflows** to ensure quality a
 
 ### 🔨 Build Pipeline (`docker-build.yml`)
 - ✅ **Multi-platform builds** - Linux/AMD64 with ARM64 planned
-- ✅ **Automated testing** - Container functionality validation  
+- ✅ **Automated testing** - Container functionality validation
 - ✅ **Security scanning** - Dependency and image vulnerability checks
 - ✅ **Registry publishing** - Automatic publishing to GitHub Container Registry
 - ✅ **Size optimization** - Build artifact size monitoring
@@ -39,16 +39,16 @@ docker build -t cpp-arm-dev:test .
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   # Test core development tools
   gcc --version && g++ --version && cmake --version && python --version
-  
+
   # Test ARM toolchain installation
   echo '2' | stm32-tools gnuarm >/dev/null
   arm-none-eabi-gcc --version
-  
+
   # Test STM32 cross-compilation
   echo 'int main(){return 0;}' > /tmp/test.c
   arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb --specs=nosys.specs -o /tmp/test.elf /tmp/test.c
   file /tmp/test.elf | grep 'ARM'
-  
+
   echo 'All tests passed! ✅'
 "
 
@@ -66,7 +66,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing core tools...'
   gcc --version | head -1
-  g++ --version | head -1  
+  g++ --version | head -1
   clang --version | head -1
   cmake --version | head -1
   python --version
@@ -79,7 +79,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing ARM toolchain installation...'
-  
+
   # Test GNU ARM installation
   echo '2' | stm32-tools gnuarm >/dev/null 2>&1
   if [ -x ~/gnuarm14.3/bin/arm-none-eabi-gcc ]; then
@@ -88,7 +88,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
   else
     echo 'GNU ARM 14.3: ❌'
   fi
-  
+
   # Test ATFE installation (optional, large download)
   # echo '2' | stm32-tools atfe >/dev/null 2>&1
   # if [ -x ~/atfe21.1/bin/clang ]; then
@@ -101,10 +101,10 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing STM32 cross-compilation...'
-  
+
   # Install toolchain first
   echo '2' | stm32-tools gnuarm >/dev/null 2>&1
-  
+
   # Create test firmware
   cat > /tmp/stm32_test.c << 'EOF'
 int main(void) {
@@ -126,7 +126,7 @@ EOF
     -Os -g \\
     -o /tmp/stm32_firmware.elf \\
     /tmp/stm32_test.c
-    
+
   # Verify result
   if file /tmp/stm32_firmware.elf | grep -q 'ARM.*executable'; then
     echo 'STM32 cross-compilation: ✅'
@@ -159,7 +159,7 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 ```bash
 docker run --rm --user kdev cpp-arm-dev:test bash -c "
   echo 'Testing compilation speed...'
-  
+
   # Create test C++ project
   cat > /tmp/test.cpp << 'EOF'
 #include <iostream>
@@ -170,11 +170,11 @@ docker run --rm --user kdev cpp-arm-dev:test bash -c "
 int main() {
     std::vector<int> data(1000);
     std::iota(data.begin(), data.end(), 1);
-    
+
     auto start = std::chrono::high_resolution_clock::now();
     std::sort(data.begin(), data.end(), std::greater<int>());
     auto end = std::chrono::high_resolution_clock::now();
-    
+
     std::cout << \"Sorted \" << data.size() << \" elements\" << std::endl;
     return 0;
 }
@@ -183,10 +183,10 @@ EOF
   # Test compilation times
   echo 'GCC compilation:'
   time g++ -std=c++17 -O2 -o /tmp/test_gcc /tmp/test.cpp
-  
-  echo 'Clang compilation:'  
+
+  echo 'Clang compilation:'
   time clang++ -std=c++17 -O2 -o /tmp/test_clang /tmp/test.cpp
-  
+
   echo 'Compilation speed test: ✅'
 "
 ```
@@ -204,7 +204,7 @@ The CI pipeline validates:
 - **Ruby/Perl**: Additional scripting language support
 - **gcovr**: Code coverage report generation
 
-### ARM Development Coverage  
+### ARM Development Coverage
 - **GNU ARM 14.3**: Cross-compilation for ARM Cortex-M series
 - **ATFE 21.1**: Modern LLVM-based ARM compilation (optional)
 - **Embedded specs**: `--specs=nosys.specs` for minimal system calls
@@ -212,7 +212,7 @@ The CI pipeline validates:
 - **FPU configurations**: Hard float, soft float, no FPU options
 
 ### STM32 Toolchain Coverage
-- **ST-Link tools**: Device programming and debugging  
+- **ST-Link tools**: Device programming and debugging
 - **OpenOCD**: Open source debugging interface
 - **GDB multiarch**: ARM debugging support
 - **Device detection**: USB ST-Link probe recognition
@@ -261,7 +261,7 @@ docker scout cves ghcr.io/kodezine/kdocker:latest
 
 ### GitHub Actions Status
 - **Build Status**: [![Build and Release](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml)
-- **Test Status**: [![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)  
+- **Test Status**: [![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)
 - **Release Status**: [![Docker Release](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml)
 
 ### Test Execution Frequency
@@ -273,7 +273,7 @@ docker scout cves ghcr.io/kodezine/kdocker:latest
 ### Quality Gates
 All tests must pass before:
 - **Merging pull requests** to main branch
-- **Publishing container images** to registry  
+- **Publishing container images** to registry
 - **Creating release tags** with version numbers
 - **Updating documentation** with new features
 

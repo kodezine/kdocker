@@ -94,7 +94,7 @@ The ARM toolchains are accessible via PATH for the `kdev` user:
 clang --version  # Works directly
 /opt/atfe21.1/bin/clang --version  # Also works
 
-# GNU ARM toolchain  
+# GNU ARM toolchain
 arm-none-eabi-gcc --version  # Works directly
 /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version  # Also works
 ```
@@ -145,7 +145,7 @@ source ~/.zshrc
 - **File ownership**: Files match host user permissions (UID 1001)
 - **Read-only SSH**: SSH keys mounted read-only for security
 
-### Compatibility  
+### Compatibility
 - **Host file permissions**: Works better with host file systems
 - **IDE integration**: Better VS Code file watching and permissions
 - **Docker best practices**: Follows security recommendations

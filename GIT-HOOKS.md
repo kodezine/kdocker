@@ -244,7 +244,7 @@ Edit `.pre-commit-config.yaml`:
 ```yaml
 - id: shellcheck
   args: [--severity=error]  # Change severity level
-  
+
 - id: trailing-whitespace
   exclude: ^(.*\.patch|.*\.diff)$  # Add exclusions
 ```
@@ -271,7 +271,7 @@ Edit `.pre-commit-config.yaml`:
    ```bash
    # Ensure Docker is running
    docker info
-   
+
    # Check Dockerfile syntax
    docker build -t test .
    ```
@@ -280,7 +280,7 @@ Edit `.pre-commit-config.yaml`:
    ```bash
    # Fix shell script syntax
    shellcheck scripts/setup-hooks.sh
-   
+
    # Make scripts executable
    chmod +x scripts/*.sh
    ```
@@ -289,7 +289,7 @@ Edit `.pre-commit-config.yaml`:
    ```bash
    # Run hooks once to cache dependencies
    pre-commit run --all-files
-   
+
    # Check hook performance
    pre-commit run --all-files --verbose
    ```

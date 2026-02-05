@@ -3,7 +3,7 @@ name: Build and Release Docker Image
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
     branches:
       - main
   pull_request:
@@ -21,8 +21,8 @@ jobs:
     permissions:
       contents: read
       packages: write
-      id-token: write  # Required for attestation
-      attestations: write  # Required for attestation
+      id-token: write # Required for attestation
+      attestations: write # Required for attestation
 
     steps:
       - name: Checkout repository
@@ -58,7 +58,7 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Docker image
-        id: build  # Add this ID
+        id: build # Add this ID
         uses: docker/build-push-action@v5
         with:
           context: .

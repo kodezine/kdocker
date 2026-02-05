@@ -30,7 +30,7 @@ stm32-tools
 ```bash
 # Install specific tools
 stm32-tools openocd        # Install OpenOCD
-stm32-tools stlink         # Install STLink tools  
+stm32-tools stlink         # Install STLink tools
 stm32-tools devtools       # Install additional dev tools
 stm32-tools all            # Install all available tools
 
@@ -85,7 +85,7 @@ docker run -it --rm -v $(pwd):/home/kdev/workspaces/project stm32-dev
 ## Toolchain Paths
 
 - **GNU Arm 14.3**: `~/gnuarm14.3/bin/`
-- **ATFE 21.1**: `~/atfe21.1/bin/`  
+- **ATFE 21.1**: `~/atfe21.1/bin/`
 - **STM32 Tools**: `~/.toolchains/stm32tools/*/bin/`
 
 All tools are automatically added to PATH when installed.
