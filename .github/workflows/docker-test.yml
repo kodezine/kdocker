@@ -88,10 +88,32 @@ jobs:
           docker run --rm --user kdev cpp-arm-dev:test zsh -c "
             /home/kdev/atfe21.1/bin/clang --version
           "
-      - name: Test GCC
+      - name: Test GCC version and variants
         run: |
-          docker run --rm --user kdev cpp-arm-dev:test gcc --version
-          docker run --rm --user kdev cpp-arm-dev:test g++ --version
+          echo "Testing GCC 14 installation and configuration..."
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            echo '=== GCC Version ==='
+            gcc --version | head -1
+            g++ --version | head -1
+            gcov --version | head -1
+
+            echo ''
+            echo '=== Verify GCC 14 ==='
+            gcc --version | grep -q 'gcc (Ubuntu [0-9]*-[0-9]*ubuntu[0-9]*) 14\.' && echo 'SUCCESS: GCC 14.x detected' || { echo 'FAIL: GCC 14 not found'; exit 1; }
+            g++ --version | grep -q 'g++ (Ubuntu [0-9]*-[0-9]*ubuntu[0-9]*) 14\.' && echo 'SUCCESS: G++ 14.x detected' || { echo 'FAIL: G++ 14 not found'; exit 1; }
+
+            echo ''
+            echo '=== Verify Update Alternatives ==='
+            update-alternatives --query gcc | grep 'Value: /usr/bin/gcc-14' && echo 'SUCCESS: gcc points to gcc-14' || { echo 'FAIL: gcc not pointing to gcc-14'; exit 1; }
+            update-alternatives --query g++ | grep 'Value: /usr/bin/g++-14' && echo 'SUCCESS: g++ points to g++-14' || { echo 'FAIL: g++ not pointing to g++-14'; exit 1; }
+
+            echo ''
+            echo '=== Verify GCC 14 Files ==='
+            which gcc-14 && echo 'SUCCESS: gcc-14 found in PATH' || { echo 'FAIL: gcc-14 not in PATH'; exit 1; }
+            which g++-14 && echo 'SUCCESS: g++-14 found in PATH' || { echo 'FAIL: g++-14 not in PATH'; exit 1; }
+            /usr/bin/gcc-14 --version | head -1
+            /usr/bin/g++-14 --version | head -1
+          "
 
       - name: Test CMake
         run: docker run --rm --user kdev cpp-arm-dev:test cmake --version
@@ -316,12 +338,62 @@ jobs:
           # This is informational - we'll just log the size for verification
           echo "SUCCESS: Image built with optimized size: $SIZE"
 
-      - name: Test 32-bit compilation support
+      - name: Test 32-bit and 64-bit compilation support
         run: |
-          docker run --rm --user kdev cpp-arm-dev:test zsh -c "
-            echo 'int main(){return 0;}' > /tmp/test.c
-            gcc -m32 -o /tmp/test32 /tmp/test.c
-            file /tmp/test32
+          docker run --rm --user kdev cpp-arm-dev:test bash -c "
+            echo '=== Testing GCC 14 Multilib Support ==='
+
+            # Create test program
+            cat > /tmp/test.c << 'EOF'
+          #include <stdio.h>
+          int main() {
+              printf(\"Hello from %zu-bit program\\n\", sizeof(void*) * 8);
+              return 0;
+          }
+          EOF
+
+            echo ''
+            echo '=== 64-bit Compilation Test ==='
+            gcc-14 -m64 -o /tmp/test64 /tmp/test.c
+            file /tmp/test64 | grep -q 'x86-64' && echo 'SUCCESS: 64-bit binary created' || { echo 'FAIL: Not a 64-bit binary'; exit 1; }
+            /tmp/test64
+
+            echo ''
+            echo '=== 32-bit Compilation Test ==='
+            gcc-14 -m32 -o /tmp/test32 /tmp/test.c
+            file /tmp/test32 | grep -q '80386' && echo 'SUCCESS: 32-bit binary created' || { echo 'FAIL: Not a 32-bit binary'; exit 1; }
+            echo 'SUCCESS: 32-bit binary compiles (execution requires 32-bit libs at runtime)'
+
+            echo ''
+            echo '=== Using default gcc (should be gcc-14) ==='
+            gcc -m64 -o /tmp/test64_default /tmp/test.c
+            file /tmp/test64_default | grep -q 'x86-64' && echo 'SUCCESS: Default gcc 64-bit works' || { echo 'FAIL'; exit 1; }
+            /tmp/test64_default
+
+            gcc -m32 -o /tmp/test32_default /tmp/test.c
+            file /tmp/test32_default | grep -q '80386' && echo 'SUCCESS: Default gcc 32-bit works' || { echo 'FAIL'; exit 1; }
+
+            echo ''
+            echo '=== C++ Compilation Tests ==='
+            cat > /tmp/test.cpp << 'EOF'
+          #include <iostream>
+          int main() {
+              std::cout << \"C++14 test: \" << sizeof(void*) * 8 << \"-bit program\" << std::endl;
+              return 0;
+          }
+          EOF
+
+            g++-14 -std=c++14 -m64 -o /tmp/testcpp64 /tmp/test.cpp
+            /tmp/testcpp64
+            echo 'SUCCESS: C++ 64-bit compilation works'
+
+            g++-14 -std=c++14 -m32 -o /tmp/testcpp32 /tmp/test.cpp
+            file /tmp/testcpp32 | grep -q '80386' && echo 'SUCCESS: C++ 32-bit compilation works' || { echo 'FAIL'; exit 1; }
+
+            echo ''
+            echo '=== Cleanup ==='
+            rm -f /tmp/test.c /tmp/test.cpp /tmp/test64 /tmp/test32 /tmp/test64_default /tmp/test32_default /tmp/testcpp64 /tmp/testcpp32
+            echo 'All GCC 14 multilib tests passed!'
           "
 
       - name: Test kdev user configuration

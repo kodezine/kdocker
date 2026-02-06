@@ -6,8 +6,10 @@
 set -euo pipefail
 
 # Configuration
-readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_DIR
+PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+readonly PROJECT_ROOT
 readonly IMAGE_NAME="stm32-dev"
 readonly CONTAINER_NAME="stm32-dev-test"
 
@@ -126,6 +128,78 @@ test_development_tools() {
     docker exec "${CONTAINER_NAME}" /bin/bash -c "which gdb && gdb --version | head -1"
 
     log_success "Development tools test passed"
+}
+
+# Test GCC 14 installation and multilib support
+test_gcc14_multilib() {
+    log_info "Testing GCC 14 installation and multilib support..."
+
+    # Verify GCC 14 is installed
+    log_info "Checking GCC 14 version..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "gcc --version | grep -q 'gcc (Ubuntu.*) 14\\.' && echo '✓ GCC 14.x detected' || { echo '✗ GCC 14 not found'; exit 1; }"
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "g++ --version | grep -q 'g++ (Ubuntu.*) 14\\.' && echo '✓ G++ 14.x detected' || { echo '✗ G++ 14 not found'; exit 1; }"
+
+    # Verify update-alternatives configuration
+    log_info "Checking update-alternatives configuration..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "update-alternatives --query gcc | grep -q 'Value: /usr/bin/gcc-14' && echo '✓ gcc points to gcc-14' || { echo '✗ gcc not pointing to gcc-14'; exit 1; }"
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "update-alternatives --query g++ | grep -q 'Value: /usr/bin/g++-14' && echo '✓ g++ points to g++-14' || { echo '✗ g++ not pointing to g++-14'; exit 1; }"
+
+    # Verify GCC 14 binaries exist
+    log_info "Checking GCC 14 binaries..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "which gcc-14 && echo '✓ gcc-14 found in PATH' || { echo '✗ gcc-14 not in PATH'; exit 1; }"
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "which g++-14 && echo '✓ g++-14 found in PATH' || { echo '✗ g++-14 not in PATH'; exit 1; }"
+
+    # Test 64-bit compilation
+    log_info "Testing 64-bit compilation..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cat > /tmp/test64.c << 'EOF'
+#include <stdio.h>
+int main() {
+    printf(\"Test from %zu-bit program\\\\n\", sizeof(void*) * 8);
+    return 0;
+}
+EOF
+        gcc -m64 -o /tmp/test64 /tmp/test64.c
+        file /tmp/test64 | grep -q 'x86-64' && echo '✓ 64-bit binary created successfully' || { echo '✗ Failed to create 64-bit binary'; exit 1; }
+        /tmp/test64
+        rm -f /tmp/test64 /tmp/test64.c
+    "
+
+    # Test 32-bit compilation
+    log_info "Testing 32-bit compilation..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cat > /tmp/test32.c << 'EOF'
+#include <stdio.h>
+int main() {
+    printf(\"Test from %zu-bit program\\\\n\", sizeof(void*) * 8);
+    return 0;
+}
+EOF
+        gcc -m32 -o /tmp/test32 /tmp/test32.c
+        file /tmp/test32 | grep -q '80386' && echo '✓ 32-bit binary created successfully' || { echo '✗ Failed to create 32-bit binary'; exit 1; }
+        rm -f /tmp/test32 /tmp/test32.c
+    "
+
+    # Test C++ compilation with C++14 standard
+    log_info "Testing C++ compilation..."
+    docker exec "${CONTAINER_NAME}" /bin/bash -c "
+        cat > /tmp/testcpp.cpp << 'EOF'
+#include <iostream>
+int main() {
+    std::cout << \"C++14 test: \" << sizeof(void*) * 8 << \"-bit program\" << std::endl;
+    return 0;
+}
+EOF
+        g++ -std=c++14 -m64 -o /tmp/testcpp64 /tmp/testcpp.cpp
+        /tmp/testcpp64
+        echo '✓ C++ 64-bit compilation successful'
+
+        g++ -std=c++14 -m32 -o /tmp/testcpp32 /tmp/testcpp.cpp
+        file /tmp/testcpp32 | grep -q '80386' && echo '✓ C++ 32-bit compilation successful' || { echo '✗ C++ 32-bit compilation failed'; exit 1; }
+        rm -f /tmp/testcpp.cpp /tmp/testcpp64 /tmp/testcpp32
+    "
+
+    log_success "GCC 14 and multilib test passed"
 }
 
 # Test pre-commit auto-setup functionality
@@ -391,6 +465,7 @@ run_all_tests() {
     validate_docker_image
     test_container_basic
     test_development_tools
+    test_gcc14_multilib
     test_precommit_setup
     test_stm32_tools_script
     test_network_connectivity
@@ -421,6 +496,9 @@ main() {
         ;;
     "tools" | "t")
         test_development_tools
+        ;;
+    "gcc14" | "gcc")
+        test_gcc14_multilib
         ;;
     "precommit" | "pc")
         test_precommit_setup
@@ -458,6 +536,7 @@ main() {
         echo "  validate, v     - Validate Docker image"
         echo "  basic, b        - Test basic container functionality"
         echo "  tools, t        - Test development tools"
+        echo "  gcc14, gcc      - Test GCC 14 and multilib support"
         echo "  precommit, pc   - Test pre-commit auto-setup"
         echo "  stm32, s        - Test STM32 tools script"
         echo "  network, n      - Test network connectivity"

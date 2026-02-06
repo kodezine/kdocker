@@ -9,18 +9,29 @@ RUN dpkg --add-architecture i386
 # Split into smaller chunks to avoid QEMU timeout issues
 RUN apt-get update
 
+# Add Ubuntu Toolchain PPA for GCC 14
+RUN apt-get install -y --no-install-recommends software-properties-common \
+    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+    && apt-get update \
+    && apt-get clean
+
 # Core build tools
 RUN apt-get install -y --no-install-recommends \
     build-essential \
-    g++ \
-    gcc \
-    gcc-multilib \
-    g++-multilib \
+    gcc-14 \
+    g++-14 \
+    gcc-14-multilib \
+    g++-14-multilib \
     make \
     git \
     vim \
     sudo \
     && apt-get clean
+
+# Set GCC 14 as default compiler
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
+    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100 \
+    && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-14 100
 
 # Development and debugging tools
 RUN apt-get install -y --no-install-recommends \
@@ -30,7 +41,6 @@ RUN apt-get install -y --no-install-recommends \
     wget \
     curl \
     gnupg \
-    software-properties-common \
     && apt-get clean
 
 # Languages and additional tools

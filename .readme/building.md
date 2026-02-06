@@ -122,12 +122,36 @@ RUN cd /tmp \
 ```bash
 docker run --rm cpp-arm-dev bash -c "
   echo 'GCC:' && gcc --version | head -n1 && \
+  echo 'G++:' && g++ --version | head -n1 && \
   echo 'CMake:' && cmake --version | head -n1 && \
   echo 'Python:' && python --version && \
   echo 'Ruby:' && ruby --version && \
   echo 'Perl:' && perl --version | head -n2 && \
   echo 'ARM ATfE:' && /opt/atfe21.1/bin/clang --version | head -n1 && \
   echo 'ARM GNU:' && /opt/gnuarm14.3/bin/arm-none-eabi-gcc --version | head -n1
+"
+```
+
+### Verify GCC 14 and Multilib
+
+```bash
+# Verify GCC 14 installation
+docker run --rm cpp-arm-dev bash -c "
+  gcc --version | grep '14\\.' && echo '✓ GCC 14 verified' || echo '✗ GCC 14 not found'
+"
+
+# Test 64-bit compilation
+docker run --rm cpp-arm-dev bash -c "
+  echo 'int main(){return 0;}' > /tmp/test.c && \
+  gcc -m64 -o /tmp/test64 /tmp/test.c && \
+  file /tmp/test64 | grep 'x86-64' && echo '✓ 64-bit compilation works'
+"
+
+# Test 32-bit compilation
+docker run --rm cpp-arm-dev bash -c "
+  echo 'int main(){return 0;}' > /tmp/test.c && \
+  gcc -m32 -o /tmp/test32 /tmp/test.c && \
+  file /tmp/test32 | grep '80386' && echo '✓ 32-bit compilation works'
 "
 ```
 

@@ -187,7 +187,7 @@ install_stlink() {
         .
 
     # Build with all available cores
-    make -j$(nproc)
+    make -j"$(nproc)"
 
     # Create directories manually
     mkdir -p "$TOOLCHAIN_DIR/stlink/bin"

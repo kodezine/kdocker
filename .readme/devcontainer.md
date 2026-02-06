@@ -346,7 +346,7 @@ Add to the `mounts` array:
 
 1. Open the Command Palette (`F1`)
 2. Type "CMake: Configure"
-3. Select a kit (e.g., GCC 13.2.0)
+3. Select a kit (e.g., GCC 14.x)
 4. Build with "CMake: Build" or press `F7`
 
 ### Debugging

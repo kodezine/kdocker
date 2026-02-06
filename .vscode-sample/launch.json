@@ -1,71 +1,71 @@
 {
-    "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug STM32 (OpenOCD)",
-            "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/build/firmware.elf",
-            "request": "launch",
-            "type": "cortex-debug",
-            "runToEntryPoint": "main",
-            "servertype": "openocd",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
-            "searchDir": [
-                "/usr/share/openocd/scripts"
-            ],
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/build/firmware.elf",
+            "name": "Debug STM32 (OpenOCD)",
             "openOCDLaunchCommands": [
                 "monitor arm semihosting enable"
             ],
-            "svdFile": "${workspaceRoot}/docs/STM32F4xx.svd",
-            "preLaunchTask": "Build Project",
             "postRestartCommands": [
                 "monitor reset init"
-            ]
+            ],
+            "preLaunchTask": "Build Project",
+            "request": "launch",
+            "runToEntryPoint": "main",
+            "searchDir": [
+                "/usr/share/openocd/scripts"
+            ],
+            "servertype": "openocd",
+            "svdFile": "${workspaceRoot}/docs/STM32F4xx.svd",
+            "type": "cortex-debug"
         },
         {
-            "name": "Debug STM32 (ST-Link GDB)",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceRoot}/build/firmware.elf",
+            "MIMode": "gdb",
             "args": [],
-            "stopAtEntry": true,
             "cwd": "${workspaceRoot}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "gdb",
             "miDebuggerPath": "/home/kdev/gnuarm14.3/bin/arm-none-eabi-gdb",
             "miDebuggerServerAddress": "localhost:4242",
+            "name": "Debug STM32 (ST-Link GDB)",
+            "preLaunchTask": "Build Project",
+            "program": "${workspaceRoot}/build/firmware.elf",
+            "request": "launch",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
+                    "ignoreFailures": true,
+                    "text": "-enable-pretty-printing"
                 },
                 {
                     "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
+                    "ignoreFailures": true,
+                    "text": "-gdb-set disassembly-flavor intel"
                 }
             ],
-            "preLaunchTask": "Build Project"
+            "stopAtEntry": true,
+            "type": "cppdbg"
         },
         {
-            "name": "Attach to OpenOCD",
-            "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/build/firmware.elf",
-            "request": "attach",
-            "type": "cortex-debug",
-            "servertype": "openocd",
             "configFiles": [
                 "interface/stlink.cfg",
                 "target/stm32f4x.cfg"
             ],
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/build/firmware.elf",
+            "name": "Attach to OpenOCD",
+            "request": "attach",
             "searchDir": [
                 "/usr/share/openocd/scripts"
-            ]
+            ],
+            "servertype": "openocd",
+            "type": "cortex-debug"
         }
-    ]
+    ],
+    "version": "0.2.0"
 }
