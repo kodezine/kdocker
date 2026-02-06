@@ -11,6 +11,7 @@ A lightweight, optimized Docker environment for C++ and STM32 embedded developme
 - 🐳 **Small Base Image**: ~2GB (68% size reduction)
 - 🛠️ **On-Demand Tools**: ARM toolchains install when needed
 - � **Bootstrap Scripts**: Direct toolchain installation via compiler names
+- 🔧 **Modern Toolchain**: GCC 14 with multilib (32-bit & 64-bit support)
 - �🔒 **Secure**: Non-root user, SHA256 verified downloads
 - 🎯 **STM32 Ready**: GNU ARM 14.3, ATFE 21.1, OpenOCD, ST-Link- ✨ **Code Quality**: Pre-commit hooks auto-configure on startup- 🪟 **Windows Support**: Full WSL2 + Docker Desktop integration
 - 📦 **Pre-built Images**: Available on GitHub Container Registry
@@ -52,7 +53,7 @@ docker run -it --rm cpp-arm-dev
 }
 ```
 
-2. Open in VS Code → F1 → "Dev Containers: Reopen in Container"
+1. Open in VS Code → F1 → "Dev Containers: Reopen in Container"
 
 **Note**: Pre-commit hooks auto-install if you have `.pre-commit-config.yaml` in your repo.
 

@@ -78,6 +78,6 @@ function install {
 install
 
 if [ ! -z "$1" ]; then
-    echo "Executing: $@"
+    echo "Executing: $*"
     "$ARM_GCC_INSTALL_DIR/bin/arm-none-eabi-gcc" "$@"
 fi

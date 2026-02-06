@@ -37,7 +37,7 @@ function downloadAndExtract {
     fi
 
     echo "Verifying download..."
-    cd "$DOWNLOAD_DIR"
+    cd "$DOWNLOAD_DIR" || exit 1
     sha256sum -c "$SHA256_FILE"
 
     if [ $? -ne 0 ]; then
@@ -83,7 +83,7 @@ function downloadAndExtractOverlay {
     fi
 
     echo "Verifying overlay..."
-    cd "$DOWNLOAD_DIR"
+    cd "$DOWNLOAD_DIR" || exit 1
     sha256sum -c "$SHA256_FILE"
 
     if [ $? -ne 0 ]; then
@@ -176,6 +176,6 @@ function install {
 install
 
 if [ ! -z "$1" ]; then
-    echo "Executing: $@"
+    echo "Executing: $*"
     "$ATFE_INSTALL_DIR/bin/clang" "$@"
 fi

@@ -190,7 +190,7 @@ wget https://github.com/arm/arm-toolchain/releases/download/release-21.1.1-ATfE/
 sha256sum -c ATfE-21.1.1-Linux-x86_64.tar.xz.sha256
 ```
 
-3. Update Dockerfile with correct URLs/checksums
+1. Update Dockerfile with correct URLs/checksums
 
 ## Runtime Issues
 
@@ -296,11 +296,11 @@ docker run --rm cpp-arm-dev python -m pip install gcovr
 docker run --rm cpp-arm-dev ping -c 3 google.com
 ```
 
-2. Install manually:
+1. Install manually:
    - Open Extensions panel (`Ctrl+Shift+X`)
    - Search and install individually
 
-3. Check VS Code logs:
+2. Check VS Code logs:
    - `F1` → "Developer: Show Logs" → "Extension Host"
 
 ### SSH Keys Not Accessible
@@ -407,13 +407,13 @@ export CC="ccache gcc"
 export CXX="ccache g++"
 ```
 
-2. Use Ninja instead of Make:
+1. Use Ninja instead of Make:
 
 ```bash
 cmake -G Ninja ..
 ```
 
-3. Increase Docker resources:
+1. Increase Docker resources:
    - Docker Desktop → Settings → Resources
    - Increase CPU and Memory
 

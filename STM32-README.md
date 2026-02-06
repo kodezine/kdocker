@@ -5,7 +5,8 @@ This Docker container provides a complete STM32 development environment with on-
 ## Base Tools Included
 
 - **ARM Toolchains**: GNU Arm 14.3 and Arm Compiler for Embedded 21.1
-- **Development Tools**: CMake, Python 3.13, GCC, build essentials
+- **Development Tools**: CMake, Python 3.13, GCC 14, build essentials
+- **32-bit/64-bit Support**: GCC 14 with multilib for both architectures
 - **Shell**: Zsh with Oh My Zsh configuration
 
 ## STM32 Tools (On-Demand Installation)
