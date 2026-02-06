@@ -5,18 +5,23 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Enable 32-bit architecture support
 RUN dpkg --add-architecture i386
 
-# Install base development tools and languages
-# Split into smaller chunks to avoid QEMU timeout issues
-RUN apt-get update
-
-# Add Ubuntu Toolchain PPA for GCC 14
-RUN apt-get install -y --no-install-recommends software-properties-common \
-    && add-apt-repository ppa:ubuntu-toolchain-r/test -y \
+# Install certificates and add Ubuntu Toolchain PPA for GCC 14
+# Set environment to handle SSL certificates
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    software-properties-common \
+    gnupg \
+    && update-ca-certificates \
+    && (add-apt-repository ppa:ubuntu-toolchain-r/test -y || \
+        (echo "PPA addition failed, trying with no-verify..." && \
+         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F && \
+         echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu noble main" > /etc/apt/sources.list.d/ubuntu-toolchain-r-test.list)) \
     && apt-get update \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Core build tools
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc-14 \
     g++-14 \
@@ -26,7 +31,8 @@ RUN apt-get install -y --no-install-recommends \
     git \
     vim \
     sudo \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set GCC 14 as default compiler
 RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
@@ -34,17 +40,18 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100 \
     && update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-14 100
 
 # Development and debugging tools
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gdb \
     valgrind \
     openssh-client \
     wget \
     curl \
     gnupg \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Languages and additional tools
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     zsh \
     ninja-build \
     ruby \
@@ -54,10 +61,11 @@ RUN apt-get install -y --no-install-recommends \
     ccache \
     clang \
     clang-format \
-    && apt-get clean
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Libraries and utilities
-RUN apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libncurses6 \
     libncursesw6 \
     libtinfo6 \
@@ -83,7 +91,10 @@ RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/nul
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python 3.13
-RUN add-apt-repository ppa:deadsnakes/ppa -y \
+RUN (add-apt-repository ppa:deadsnakes/ppa -y || \
+        (echo "PPA addition failed, adding manually..." && \
+         apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F23C5A6CF475977595C89F51BA6932366A755776 && \
+         echo "deb http://ppa.launchpad.net/deadsnakes/ppa/ubuntu noble main" > /etc/apt/sources.list.d/deadsnakes-ppa.list)) \
     && apt-get update \
     && apt-get install -y \
     python3.13 \
