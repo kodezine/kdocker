@@ -437,3 +437,31 @@ dev-help:dev-help:
 	@echo "3. Select 'Reopen in Container'"	@echo "3. Select 'Reopen in Container'"
 
 	@echo "4. Run tools installation from integrated terminal"	@echo "4. Run tools installation from integrated terminal"
+
+# ============================================================================
+# WSL image + kdlauncher (Windows) targets
+# ============================================================================
+.PHONY: wsl-rootfs kdlauncher-build kdlauncher-check kdlauncher-test wsl-clean
+
+WSL_ROOTFS := dist/kdocker-wsl-rootfs.tar.gz
+
+# Build the flat WSL2-importable rootfs tarball from the Docker image
+wsl-rootfs:
+	@echo "Building WSL rootfs -> $(WSL_ROOTFS)"
+	scripts/build-wsl-rootfs.sh --build --image kdocker:wsl-build --output $(WSL_ROOTFS)
+
+# Build the Windows launcher (run this on Windows, or add the msvc target)
+kdlauncher-build:
+	cd kdlauncher && cargo build --release
+
+# Lint + format check the launcher
+kdlauncher-check:
+	cd kdlauncher && cargo fmt --check && cargo clippy --all-targets -- -D warnings
+
+# Run the launcher unit tests
+kdlauncher-test:
+	cd kdlauncher && cargo test
+
+# Remove generated WSL/launcher artifacts
+wsl-clean:
+	rm -rf dist kdlauncher/target

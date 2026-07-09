@@ -1,0 +1,118 @@
+name: WSL Image and Launcher Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build (without leading v), e.g. 1.2.3"
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  WSL_REPOSITORY: ${{ github.repository_owner }}/kdocker-wsl
+  ROOTFS_ARTIFACT_TYPE: application/vnd.kdocker.wsl.rootfs.v1
+  ROOTFS_MEDIA_TYPE: application/vnd.kdocker.wsl.rootfs.v1.tar+gzip
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Build the flat WSL rootfs tarball and push it to GHCR as an OCI artifact.
+  # ---------------------------------------------------------------------------
+  wsl-rootfs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Resolve version tag
+        id: ver
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            TAG="${{ github.event.release.tag_name }}"
+          else
+            TAG="v${{ github.event.inputs.version }}"
+          fi
+          # Normalise to always start with a single leading 'v'.
+          TAG="v${TAG#v}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "Resolved artifact tag: ${TAG}"
+
+      - name: Build kdocker image
+        run: docker build -t kdocker:wsl-build .
+
+      - name: Export WSL rootfs tarball
+        run: |
+          chmod +x scripts/build-wsl-rootfs.sh
+          scripts/build-wsl-rootfs.sh \
+            --image kdocker:wsl-build \
+            --output dist/kdocker-wsl-rootfs.tar.gz
+
+      - name: Install ORAS
+        uses: oras-project/setup-oras@v1
+
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | \
+            oras login "${REGISTRY}" -u "${{ github.actor }}" --password-stdin
+
+      - name: Push rootfs artifact to GHCR
+        run: |
+          cd dist
+          oras push \
+            "${REGISTRY}/${WSL_REPOSITORY}:${{ steps.ver.outputs.tag }}" \
+            --artifact-type "${ROOTFS_ARTIFACT_TYPE}" \
+            "kdocker-wsl-rootfs.tar.gz:${ROOTFS_MEDIA_TYPE}"
+
+  # ---------------------------------------------------------------------------
+  # Cross-build kdlauncher.exe on Windows and attach it to the release.
+  # ---------------------------------------------------------------------------
+  launcher:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: kdlauncher
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+          components: clippy, rustfmt
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: kdlauncher
+
+      - name: Format check
+        run: cargo fmt --check
+
+      - name: Clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Test
+        run: cargo test
+
+      - name: Build release
+        run: cargo build --release --target x86_64-pc-windows-msvc
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kdlauncher-x86_64-pc-windows-msvc
+          path: kdlauncher/target/x86_64-pc-windows-msvc/release/kdlauncher.exe
+
+      - name: Attach to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ github.event.release.tag_name }}" target/x86_64-pc-windows-msvc/release/kdlauncher.exe --clobber
