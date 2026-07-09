@@ -54,3 +54,13 @@ htmlcov/
 
 # Pre-commit
 .pre-commit-cache/
+
+# Rust (kdlauncher)
+kdlauncher/target/
+**/*.rs.bk
+
+# WSL rootfs build artifacts
+dist/
+*.tar
+*.tar.gz
+*.exe

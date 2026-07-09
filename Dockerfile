@@ -255,6 +255,9 @@ RUN echo '' >> ${KDEV_HOME}/.zshrc \
     && echo '# Show welcome message on login' >> ${KDEV_HOME}/.zshrc \
     && echo '~/.welcome' >> ${KDEV_HOME}/.zshrc
 
+# WSL2 configuration (inert for Docker usage; used when imported as a WSL distro)
+COPY wsl/wsl.conf /etc/wsl.conf
+
 RUN chown -R kdev:kdev $KDEV_HOME
 WORKDIR $KDEV_HOME/workspaces
 
