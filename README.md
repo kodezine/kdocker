@@ -1,5 +1,11 @@
 # STM32 Development Docker Environment
 
+> **⚠️ This repository has moved.** Development has migrated to
+> [`kodezine/k-docker`](https://git.kodezine.com/kodezine/k-docker) on our
+> self-hosted Forgejo instance. This GitHub repository is no longer
+> maintained and will be archived. Please update your clone URLs and
+> bookmarks accordingly.
+
 [![Build and Release](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-build.yml)
 [![Test Docker Image](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-test.yml)
 [![Docker Release](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml/badge.svg)](https://github.com/kodezine/kdocker/actions/workflows/docker-release.yml)
